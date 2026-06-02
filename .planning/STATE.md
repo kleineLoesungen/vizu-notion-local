@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-02T19:22:19.836Z"
+last_updated: "2026-06-02T19:26:37.304Z"
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 01 (backend-foundation) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Project Metrics
 
@@ -54,6 +54,16 @@ Plan: 2 of 4
 | node:20-alpine multi-stage Dockerfile with non-root nuxt user | Minimal footprint, security hardened | Implemented |
 | .env gitignored, .env.example committed | Secrets never in VCS; admin copies .env.example to .env | Implemented |
 
+### Key Decisions (01-02: Server Utilities)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Lazy Notion Client instantiation (not at module load) | useRuntimeConfig() only available in Nuxt server context, not at module scope | Implemented |
+| allowStale: false on LRU cache | Serve 503 on cold cache rather than stale data — Phase 1 simplicity | Implemented |
+| _initialized guard in validate-config middleware | One-shot config validation on first request; process.exit(1) in production on failure | Implemented |
+| All Notion API calls wrapped with withRateLimit() | Rate limit enforcement is centralized in server/utils/notion.ts — no direct SDK calls elsewhere | Implemented |
+| ajv.compile() at module load (not per-request) | Schema compiled once, validate() called on each loadConfig() — performance pattern | Implemented |
+
 ### Architecture Notes
 
 - **Backend**: Server-side Notion API integration (token never exposed to client)
@@ -77,10 +87,10 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-**Last Activity**: Completed 01-01-PLAN.md (Project Scaffold and Docker Infrastructure)
+**Last Activity**: Completed 01-02-PLAN.md (Server Utilities: config loader, rate limiter, Notion client wrapper)
 **Date**: 2026-06-02
-**Stopped At**: Completed 01-01-PLAN.md
-**Next Step**: Execute 01-02-PLAN.md (Notion API integration, rate limiting, caching)
+**Stopped At**: Completed 01-02-PLAN.md
+**Next Step**: Execute 01-03-PLAN.md (API routes: /api/sources, /api/sources/[id], /health)
 
 ---
 
@@ -92,7 +102,7 @@ Plan: 2 of 4
 - [ ] Plan Phase 2: Visualization
 - [ ] Plan Phase 3: User Experience
 - [x] Begin Phase 1 implementation (01-01 complete)
-- [ ] Execute 01-02: Notion API integration (rate limiting, caching)
+- [x] Execute 01-02: Notion API integration (rate limiting, caching) — complete
 - [ ] Execute 01-03: Config validation and server routes
 - [ ] Execute 01-04: Docker production verification
 

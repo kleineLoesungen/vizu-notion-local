@@ -7,18 +7,18 @@
 
 ### Data Layer
 
-- [ ] **DATA-01**: Server routes proxy all Notion API calls (integration token never exposed to client)
-- [ ] **DATA-02**: Rate limiting enforces maximum 3 requests/second to Notion API
-- [ ] **DATA-03**: Memory cache stores Notion API responses (1 hour TTL) to reduce redundant calls
+- [x] **DATA-01**: Server routes proxy all Notion API calls (integration token never exposed to client)
+- [x] **DATA-02**: Rate limiting enforces maximum 3 requests/second to Notion API
+- [x] **DATA-03**: Memory cache stores Notion API responses (1 hour TTL) to reduce redundant calls
 - [ ] **DATA-04**: Cross-database relation properties are resolved using breadth-first fetching to prevent N+1 query patterns
-- [ ] **DATA-05**: App validates config column mappings against actual Notion database schema at container startup, failing fast with a clear error if a mapped property does not exist
+- [x] **DATA-05**: App validates config column mappings against actual Notion database schema at container startup, failing fast with a clear error if a mapped property does not exist
 
 ### Configuration
 
-- [ ] **CONF-01**: Admin defines Notion database sources and column-to-role mappings in a YAML or JSON config file
+- [x] **CONF-01**: Admin defines Notion database sources and column-to-role mappings in a YAML or JSON config file
 - [x] **CONF-02**: Config file is mounted as a read-only Docker volume so admin can update it and restart the container without rebuilding the image
-- [ ] **CONF-03**: Config supports all three Notion structure types: nested hierarchy (parent-child relations), linked databases (relation properties), and single database (flat)
-- [ ] **CONF-04**: Visualization type available for a source is determined automatically by the mapped data types (e.g., relation columns with parent → metro map eligible; sequence/step columns → flow eligible)
+- [x] **CONF-03**: Config supports all three Notion structure types: nested hierarchy (parent-child relations), linked databases (relation properties), and single database (flat)
+- [x] **CONF-04**: Visualization type available for a source is determined automatically by the mapped data types (e.g., relation columns with parent → metro map eligible; sequence/step columns → flow eligible)
 - [x] **CONF-05**: Deployment targets a single Notion workspace (one integration token per container)
 - [x] **CONF-06**: Notion integration token is supplied via Docker environment variable / env file (not stored in config file)
 
@@ -75,15 +75,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Complete |
+| DATA-02 | Phase 1 | Complete |
+| DATA-03 | Phase 1 | Complete |
 | DATA-04 | Phase 1 | Pending |
-| DATA-05 | Phase 1 | Pending |
-| CONF-01 | Phase 1 | Pending |
+| DATA-05 | Phase 1 | Complete |
+| CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 1 | Complete |
-| CONF-03 | Phase 1 | Pending |
-| CONF-04 | Phase 1 | Pending |
+| CONF-03 | Phase 1 | Complete |
+| CONF-04 | Phase 1 | Complete |
 | CONF-05 | Phase 1 | Complete |
 | CONF-06 | Phase 1 | Complete |
 | INFRA-01 | Phase 1 | Complete |
