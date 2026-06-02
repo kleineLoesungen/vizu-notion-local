@@ -1,0 +1,23 @@
+# Environment variables — secrets never committed
+.env
+
+# Dependencies
+node_modules/
+
+# Build output
+.output/
+.nuxt/
+dist/
+
+# Config — admin creates this from sources.example.json
+config/sources.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
