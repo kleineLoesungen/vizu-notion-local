@@ -28,12 +28,16 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const actualPropertyNames = new Set(Object.keys(databaseSchema.properties))
+  // Validate columnMappings and collect property IDs for the mapped columns only
   const invalidMappings: string[] = []
+  const mappedPropertyIds: string[] = []
 
   for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
-    if (!actualPropertyNames.has(notionPropName)) {
+    const schemaProp = databaseSchema.properties[notionPropName]
+    if (!schemaProp) {
       invalidMappings.push(`role '${role}' maps to '${notionPropName}' which does not exist in Notion database '${source.name}'`)
+    } else {
+      mappedPropertyIds.push(schemaProp.id)
     }
   }
 
@@ -45,10 +49,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Fetch all pages from the primary database (cached, rate-limited)
+  // Fetch only the mapped properties — keeps response size proportional to config, not database width
   let pages
   try {
-    pages = await queryDatabase(source.databaseId)
+    pages = await queryDatabase(source.databaseId, mappedPropertyIds)
   } catch (err: any) {
     throw createError({
       statusCode: 502,

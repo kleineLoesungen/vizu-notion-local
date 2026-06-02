@@ -34,9 +34,10 @@ const cache = new LRUCache<string, unknown>({
   allowStale: false,
 })
 
-// Query all pages in a database, handling pagination (max 100 per request)
-export async function queryDatabase(databaseId: string): Promise<PageObjectResponse[]> {
-  const cacheKey = `queryDatabase:${databaseId}`
+// Query all pages in a database, handling pagination (max 100 per request).
+// filterPropertyIds: if provided, only those property IDs are included in each page response.
+export async function queryDatabase(databaseId: string, filterPropertyIds?: string[]): Promise<PageObjectResponse[]> {
+  const cacheKey = `queryDatabase:${databaseId}:${filterPropertyIds?.sort().join(',') ?? '*'}`
   const cached = cache.get(cacheKey)
   if (cached) {
     return cached as PageObjectResponse[]
@@ -52,6 +53,7 @@ export async function queryDatabase(databaseId: string): Promise<PageObjectRespo
         database_id: databaseId,
         page_size: 100,
         ...(cursor ? { start_cursor: cursor } : {}),
+        ...(filterPropertyIds ? { filter_properties: filterPropertyIds } : {}),
       })
     )
 
