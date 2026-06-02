@@ -31,7 +31,13 @@
 4. The app caches Notion API responses — repeated requests return cached results within 1 hour TTL
 5. Cross-database relations are resolved — a database with relation properties to another Notion database loads all linked data correctly
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Nuxt 3 project scaffold and Docker infrastructure (Dockerfile, docker-compose, config volume)
+- [ ] 01-02-PLAN.md — Server utilities: config loader with ajv validation, Bottleneck rate limiter, Notion client with LRU cache
+- [ ] 01-03-PLAN.md — Relation resolver (BFS depth=1) and API routes (/api/sources, /api/sources/:id)
+- [ ] 01-04-PLAN.md — Human-verified end-to-end integration check against live Notion API
 
 ---
 
@@ -74,10 +80,11 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation | 0/TBD | Not started | — |
+| 1. Backend Foundation | 0/4 | Not started | — |
 | 2. Visualization | 0/TBD | Not started | — |
 | 3. User Experience | 0/TBD | Not started | — |
 
 ---
 
 *Roadmap created: 2026-06-02*
+*Phase 1 planned: 2026-06-02*
