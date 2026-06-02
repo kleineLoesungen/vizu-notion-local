@@ -54,7 +54,13 @@ Plans:
 2. A workflow Notion database with sequential steps renders as a process flow diagram with nodes and edges
 3. User can switch between available visualization types for a given data source — only valid viz types are shown (e.g., metro map for hierarchy, flow for sequences)
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Infrastructure: TailwindCSS v4 + @vue-flow/core install, Metroviz vendored from GitHub
+- [ ] 02-02-PLAN.md — Metro map: useMetrovizData composable, MetrovizMap.vue wrapper, LoadingSpinner + ErrorAlert components
+- [ ] 02-03-PLAN.md — Process flow: useFlowData composable, FlowDiagram.vue, useSourceData with VIZ-03 eligibility detection
+- [ ] 02-04-PLAN.md — Integration pages: index.vue source list, visualizations/[sourceId].vue + human verification checkpoint
 
 ---
 
@@ -81,10 +87,11 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
-| 2. Visualization | 0/TBD | Not started | — |
+| 2. Visualization | 0/4 | Not started | — |
 | 3. User Experience | 0/TBD | Not started | — |
 
 ---
 
 *Roadmap created: 2026-06-02*
 *Phase 1 planned: 2026-06-02*
+*Phase 2 planned: 2026-06-02*
