@@ -10,7 +10,7 @@
 - [x] **DATA-01**: Server routes proxy all Notion API calls (integration token never exposed to client)
 - [x] **DATA-02**: Rate limiting enforces maximum 3 requests/second to Notion API
 - [x] **DATA-03**: Memory cache stores Notion API responses (1 hour TTL) to reduce redundant calls
-- [ ] **DATA-04**: Cross-database relation properties are resolved using breadth-first fetching to prevent N+1 query patterns
+- [x] **DATA-04**: Cross-database relation properties are resolved using breadth-first fetching to prevent N+1 query patterns
 - [x] **DATA-05**: App validates config column mappings against actual Notion database schema at container startup, failing fast with a clear error if a mapped property does not exist
 
 ### Configuration
@@ -78,7 +78,7 @@
 | DATA-01 | Phase 1 | Complete |
 | DATA-02 | Phase 1 | Complete |
 | DATA-03 | Phase 1 | Complete |
-| DATA-04 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Complete |
 | DATA-05 | Phase 1 | Complete |
 | CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 1 | Complete |

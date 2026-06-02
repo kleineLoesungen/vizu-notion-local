@@ -36,7 +36,7 @@
 Plans:
 - [x] 01-01-PLAN.md — Nuxt 3 project scaffold and Docker infrastructure (Dockerfile, docker-compose, config volume)
 - [x] 01-02-PLAN.md — Server utilities: config loader with ajv validation, Bottleneck rate limiter, Notion client with LRU cache
-- [ ] 01-03-PLAN.md — Relation resolver (BFS depth=1) and API routes (/api/sources, /api/sources/:id)
+- [x] 01-03-PLAN.md — Relation resolver (BFS depth=1) and API routes (/api/sources, /api/sources/:id)
 - [ ] 01-04-PLAN.md — Human-verified end-to-end integration check against live Notion API
 
 ---
@@ -80,7 +80,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation | 2/4 | In Progress|  |
+| 1. Backend Foundation | 3/4 | In Progress|  |
 | 2. Visualization | 0/TBD | Not started | — |
 | 3. User Experience | 0/TBD | Not started | — |
 
