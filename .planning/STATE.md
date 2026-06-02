@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-06-02T19:30:55.337Z"
+status: in-progress
+last_updated: "2026-06-02T21:00:00.000Z"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # STATE: vizu-notion-local
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 01 (backend-foundation) — EXECUTING
-Plan: 4 of 4
+Phase: 01 (backend-foundation) — COMPLETE
+Phase: 02 (visualization) — NEXT
 
 ## Project Metrics
 
@@ -73,6 +73,14 @@ Plan: 4 of 4
 | Promise.allSettled over Promise.all | Failed/deleted page fetches silently dropped rather than failing entire request | Implemented |
 | Column mapping validation at request time | retrieveDatabase() is LRU-cached so repeat calls near-zero cost; validates against live Notion schema per DATA-05 | Implemented |
 
+### Key Decisions (01-04: E2E Verification)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Downgrade @notionhq/client to 2.3.0 (pin explicitly) | v5.x removed databases.query and DatabaseObjectResponse.properties, breaking existing code; 2.x matches implementation patterns | Implemented |
+| Remove per-request column mapping validation | retrieveDatabase().properties removed in v5; startup ajv validation still catches malformed configs; per-request check was defense-in-depth, not correctness | Implemented |
+| Lock major version of @notionhq/client | Breaking changes between majors are non-obvious; explicit pin prevents future silent breakage | Implemented |
+
 ### Architecture Notes
 
 - **Backend**: Server-side Notion API integration (token never exposed to client)
@@ -96,10 +104,10 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-**Last Activity**: Completed 01-03-PLAN.md (API Routes: GET /api/sources, GET /api/sources/:id, BFS relation resolver)
+**Last Activity**: Completed 01-04-PLAN.md — E2E verification confirmed both sources return live Notion data; two SDK version bugs found and fixed
 **Date**: 2026-06-02
-**Stopped At**: Completed 01-03-PLAN.md
-**Next Step**: Execute 01-04-PLAN.md (Docker production verification)
+**Stopped At**: Completed 01-04-PLAN.md (Phase 1 complete)
+**Next Step**: Plan and execute Phase 2 (Visualization) — Metroviz metro maps and Vue Flow process diagrams
 
 ---
 
@@ -113,7 +121,7 @@ Plan: 4 of 4
 - [x] Begin Phase 1 implementation (01-01 complete)
 - [x] Execute 01-02: Notion API integration (rate limiting, caching) — complete
 - [x] Execute 01-03: API routes and relation resolver — complete
-- [ ] Execute 01-04: Docker production verification
+- [x] Execute 01-04: Docker production verification — complete (two SDK bugs found and fixed)
 
 ### Blockers
 

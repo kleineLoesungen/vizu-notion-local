@@ -8,7 +8,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Backend Foundation** - Complete end-to-end Notion data pipeline with validated configuration, deployable via Docker
+- [x] **Phase 1: Backend Foundation** - Complete end-to-end Notion data pipeline with validated configuration, deployable via Docker
 - [ ] **Phase 2: Visualization** - Render Notion data as metro maps and process flow diagrams
 - [ ] **Phase 3: User Experience** - Interactive UI for exploring, filtering, and sharing visual diagrams
 
@@ -37,7 +37,7 @@ Plans:
 - [x] 01-01-PLAN.md — Nuxt 3 project scaffold and Docker infrastructure (Dockerfile, docker-compose, config volume)
 - [x] 01-02-PLAN.md — Server utilities: config loader with ajv validation, Bottleneck rate limiter, Notion client with LRU cache
 - [x] 01-03-PLAN.md — Relation resolver (BFS depth=1) and API routes (/api/sources, /api/sources/:id)
-- [ ] 01-04-PLAN.md — Human-verified end-to-end integration check against live Notion API
+- [x] 01-04-PLAN.md — Human-verified end-to-end integration check against live Notion API
 
 ---
 
@@ -80,7 +80,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation | 3/4 | In Progress|  |
+| 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
 | 2. Visualization | 0/TBD | Not started | — |
 | 3. User Experience | 0/TBD | Not started | — |
 
