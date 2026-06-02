@@ -12,17 +12,15 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Notion API integration with local caching layer (respect rate limits, survive offline periods) — *Validated in Phase 01: backend-foundation*
+- [x] Config file defines Notion integration token, database IDs, and column-to-visualization mappings — *Validated in Phase 01: backend-foundation*
+- [x] Docker container deployment (single `docker-compose up`, no external dependencies) — *Validated in Phase 01: backend-foundation*
 
 ### Active
-
-- [ ] Notion API integration with local caching layer (respect rate limits, survive offline periods)
-- [ ] Config file defines Notion integration token, database IDs, and column-to-visualization mappings
 - [ ] Metroviz-style metro map visualization for hierarchical/relational data (goals → missions → projects → architecture)
 - [ ] Vue Flow-based process flow visualization for workflow/process data
 - [ ] Cross-database views: single visualization drawing from multiple Notion databases
 - [ ] Read-only user interface with filtering and node-click navigation
-- [ ] Docker container deployment (single `docker-compose up`, no external dependencies)
 
 ### Out of Scope
 
@@ -51,8 +49,8 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Config file over admin UI | Admin has Docker runtime access; file + restart is simpler to build and maintain | — Pending |
-| Notion API + local cache | Rate limits and offline tolerance both require caching layer | — Pending |
+| Config file over admin UI | Admin has Docker runtime access; file + restart is simpler to build and maintain | Confirmed — Phase 01 |
+| Notion API + local cache | Rate limits and offline tolerance both require caching layer | Confirmed — Phase 01 |
 | Metroviz for hierarchy | User explicitly requested this library for goals/missions/projects/architecture | — Pending |
 | Vue Flow for process flows | User requested Vue Flow or simpler alternative | — Pending |
 
@@ -74,4 +72,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 after initialization*
+*Last updated: 2026-06-02 — Phase 01 complete (backend foundation)*
