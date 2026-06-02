@@ -16,24 +16,24 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // DATA-05: Validate columnMappings against actual schema (cached after first call)
-  let dataSource
+  // DATA-05: Validate columnMappings against actual Notion schema (cached after first call)
+  let databaseSchema
   try {
-    dataSource = await retrieveDatabase(source.databaseId)
+    databaseSchema = await retrieveDatabase(source.databaseId)
   } catch (err: any) {
     throw createError({
       statusCode: 502,
       statusMessage: 'Bad Gateway',
-      message: `[vizu] Could not retrieve data source schema for '${source.name}': ${err.message}`,
+      message: `[vizu] Could not retrieve Notion database schema for '${source.name}': ${err.message}`,
     })
   }
 
-  const actualPropertyNames = new Set(Object.keys(dataSource.properties))
+  const actualPropertyNames = new Set(Object.keys(databaseSchema.properties))
   const invalidMappings: string[] = []
 
   for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
     if (!actualPropertyNames.has(notionPropName)) {
-      invalidMappings.push(`role '${role}' maps to '${notionPropName}' which does not exist in data source '${source.name}'`)
+      invalidMappings.push(`role '${role}' maps to '${notionPropName}' which does not exist in Notion database '${source.name}'`)
     }
   }
 

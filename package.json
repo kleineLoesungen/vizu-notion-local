@@ -11,7 +11,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@notionhq/client": "5.22.0",
+    "@notionhq/client": "2.3.0",
     "ajv": "8.20.0",
     "bottleneck": "2.19.5",
     "lru-cache": "11.5.1",
