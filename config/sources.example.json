@@ -1,0 +1,24 @@
+{
+  "sources": [
+    {
+      "databaseId": "your-notion-database-id-here",
+      "name": "My Goals",
+      "columnMappings": {
+        "title": "Name",
+        "status": "Status",
+        "parent": "Parent Goal",
+        "children": "Sub-Goals"
+      }
+    },
+    {
+      "databaseId": "another-database-id-here",
+      "name": "My Projects",
+      "columnMappings": {
+        "title": "Project Name",
+        "status": "Status",
+        "assignee": "Owner",
+        "relatedGoal": "Goal"
+      }
+    }
+  ]
+}
