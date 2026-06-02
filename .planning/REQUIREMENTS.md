@@ -16,11 +16,11 @@
 ### Configuration
 
 - [ ] **CONF-01**: Admin defines Notion database sources and column-to-role mappings in a YAML or JSON config file
-- [ ] **CONF-02**: Config file is mounted as a read-only Docker volume so admin can update it and restart the container without rebuilding the image
+- [x] **CONF-02**: Config file is mounted as a read-only Docker volume so admin can update it and restart the container without rebuilding the image
 - [ ] **CONF-03**: Config supports all three Notion structure types: nested hierarchy (parent-child relations), linked databases (relation properties), and single database (flat)
 - [ ] **CONF-04**: Visualization type available for a source is determined automatically by the mapped data types (e.g., relation columns with parent → metro map eligible; sequence/step columns → flow eligible)
-- [ ] **CONF-05**: Deployment targets a single Notion workspace (one integration token per container)
-- [ ] **CONF-06**: Notion integration token is supplied via Docker environment variable / env file (not stored in config file)
+- [x] **CONF-05**: Deployment targets a single Notion workspace (one integration token per container)
+- [x] **CONF-06**: Notion integration token is supplied via Docker environment variable / env file (not stored in config file)
 
 ### Visualization
 
@@ -39,9 +39,9 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: App starts with a single `docker-compose up` command
-- [ ] **INFRA-02**: Config file is mounted via Docker volume (`./config:/app/config:ro`)
-- [ ] **INFRA-03**: Notion integration token is passed via `.env` file referenced in docker-compose
+- [x] **INFRA-01**: App starts with a single `docker-compose up` command
+- [x] **INFRA-02**: Config file is mounted via Docker volume (`./config:/app/config:ro`)
+- [x] **INFRA-03**: Notion integration token is passed via `.env` file referenced in docker-compose
 
 ## v2 Requirements
 
@@ -81,14 +81,14 @@
 | DATA-04 | Phase 1 | Pending |
 | DATA-05 | Phase 1 | Pending |
 | CONF-01 | Phase 1 | Pending |
-| CONF-02 | Phase 1 | Pending |
+| CONF-02 | Phase 1 | Complete |
 | CONF-03 | Phase 1 | Pending |
 | CONF-04 | Phase 1 | Pending |
-| CONF-05 | Phase 1 | Pending |
-| CONF-06 | Phase 1 | Pending |
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
+| CONF-05 | Phase 1 | Complete |
+| CONF-06 | Phase 1 | Complete |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
 | VIZ-01 | Phase 2 | Pending |
 | VIZ-02 | Phase 2 | Pending |
 | VIZ-03 | Phase 2 | Pending |
