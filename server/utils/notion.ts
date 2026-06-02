@@ -1,8 +1,8 @@
-import { Client, isFullPage, isFullDatabase } from '@notionhq/client'
+import { Client, isFullPage, isFullDataSource } from '@notionhq/client'
 import type {
   PageObjectResponse,
-  DatabaseObjectResponse,
-  QueryDatabaseResponse,
+  DataSourceObjectResponse,
+  QueryDataSourceResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 import { LRUCache } from 'lru-cache'
 import { withRateLimit } from './rate-limiter'
@@ -47,9 +47,9 @@ export async function queryDatabase(databaseId: string): Promise<PageObjectRespo
   let cursor: string | undefined = undefined
 
   do {
-    const response: QueryDatabaseResponse = await withRateLimit(() =>
-      notion.databases.query({
-        database_id: databaseId,
+    const response: QueryDataSourceResponse = await withRateLimit(() =>
+      notion.dataSources.query({
+        data_source_id: databaseId,
         page_size: 100,
         ...(cursor ? { start_cursor: cursor } : {}),
       })
@@ -89,21 +89,21 @@ export async function retrievePage(pageId: string): Promise<PageObjectResponse> 
   return page
 }
 
-// Retrieve database schema (used for DATA-05 column mapping validation)
-export async function retrieveDatabase(databaseId: string): Promise<DatabaseObjectResponse> {
+// Retrieve data source schema (used for DATA-05 column mapping validation)
+export async function retrieveDatabase(databaseId: string): Promise<DataSourceObjectResponse> {
   const cacheKey = `retrieveDatabase:${databaseId}`
   const cached = cache.get(cacheKey)
   if (cached) {
-    return cached as DatabaseObjectResponse
+    return cached as DataSourceObjectResponse
   }
 
   const notion = getNotionClient()
   const db = await withRateLimit(() =>
-    notion.databases.retrieve({ database_id: databaseId })
+    notion.dataSources.retrieve({ data_source_id: databaseId })
   )
 
-  if (!isFullDatabase(db)) {
-    throw new Error(`[vizu] retrieveDatabase: ${databaseId} is not a full database response`)
+  if (!isFullDataSource(db)) {
+    throw new Error(`[vizu] retrieveDatabase: ${databaseId} is not a full data source response`)
   }
 
   cache.set(cacheKey, db)

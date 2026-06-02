@@ -1,5 +1,5 @@
 import { getConfig } from '../../../utils/config'
-import { queryDatabase } from '../../../utils/notion'
+import { queryDatabase, retrieveDatabase } from '../../../utils/notion'
 import { resolveRelations } from '../../../utils/relations'
 
 export default defineEventHandler(async (event) => {
@@ -16,6 +16,35 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // DATA-05: Validate columnMappings against actual schema (cached after first call)
+  let dataSource
+  try {
+    dataSource = await retrieveDatabase(source.databaseId)
+  } catch (err: any) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: 'Bad Gateway',
+      message: `[vizu] Could not retrieve data source schema for '${source.name}': ${err.message}`,
+    })
+  }
+
+  const actualPropertyNames = new Set(Object.keys(dataSource.properties))
+  const invalidMappings: string[] = []
+
+  for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
+    if (!actualPropertyNames.has(notionPropName)) {
+      invalidMappings.push(`role '${role}' maps to '${notionPropName}' which does not exist in data source '${source.name}'`)
+    }
+  }
+
+  if (invalidMappings.length > 0) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+      message: `[vizu] Column mapping validation failed for source '${source.name}':\n${invalidMappings.map(m => `  - ${m}`).join('\n')}\nCheck sources.json columnMappings against your Notion database properties.`,
+    })
+  }
+
   // Fetch all pages from the primary database (cached, rate-limited)
   let pages
   try {
@@ -26,20 +55,6 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Bad Gateway',
       message: `[vizu] Failed to query Notion database '${source.name}': ${err.message}`,
     })
-  }
-
-  // DATA-05: Validate columnMappings against actual page properties (v5 API has no schema endpoint)
-  // Warn rather than crash — missing mappings surface as undefined in viz layer
-  if (pages.length > 0) {
-    const pageProps = pages[0].properties ?? {}
-    const actualPropNames = new Set(Object.keys(pageProps))
-    const invalidMappings = Object.entries(source.columnMappings)
-      .filter(([, notionPropName]) => !actualPropNames.has(notionPropName))
-      .map(([role, notionPropName]) => `role '${role}' → '${notionPropName}' not found in database '${source.name}'`)
-
-    if (invalidMappings.length > 0) {
-      console.warn(`[vizu] columnMappings mismatch for source '${source.name}':\n${invalidMappings.map(m => `  - ${m}`).join('\n')}\nCheck sources.json columnMappings against your Notion database properties.`)
-    }
   }
 
   // D-04, D-05, D-07: Resolve relation properties 1 level deep, server-side
