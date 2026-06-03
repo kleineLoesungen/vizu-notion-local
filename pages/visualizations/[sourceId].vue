@@ -391,9 +391,13 @@ const getPageDate = (page: EnrichedPage, datePropName: string): Date | null => {
   return null
 }
 
+// Active timeframe filter range — drives the metro axis domain when set.
+const activeTimeframe = ref<{ start: string; end: string } | null>(null)
+
 // Applying a timeframe updates visibleNodeIds directly so panel checkboxes reflect it.
 // Clearing restores all nodes to visible.
 const applyTimeframeToVisibility = (range: { start: string; end: string } | null) => {
+  activeTimeframe.value = range
   if (!range) {
     setHiddenNodes([])
     extraVisibleIds.value = new Set(extraPages.value.map(p => p.id))
@@ -459,6 +463,15 @@ const metrovizMapRef = ref<any>(null)
 // Computed: expose metroviz container ID for ExportButton (from defineExpose in MetrovizMap)
 const metrovizContainerId = computed(() => metrovizMapRef.value?.containerId ?? '')
 
+// Snap an ISO date to the first day of its month.
+const snapMonthStart = (d: string) => d.slice(0, 7) + '-01'
+// Snap an ISO date to the first day of the following month.
+const snapNextMonthStart = (d: string) => {
+  const dt = new Date(d + 'T12:00:00Z')
+  dt.setUTCMonth(dt.getUTCMonth() + 1, 1)
+  return dt.toISOString().slice(0, 10)
+}
+
 // Metro map data: visibility state already reflects timeframe (applied via applyTimeframeToVisibility)
 const metrovizData = computed(() => {
   const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
@@ -466,7 +479,17 @@ const metrovizData = computed(() => {
     const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
     return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
   })
-  return extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
+  const merged = extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
+  if (activeTimeframe.value) {
+    return {
+      ...merged,
+      timeline: {
+        start: snapMonthStart(activeTimeframe.value.start),
+        end: snapNextMonthStart(activeTimeframe.value.end),
+      },
+    }
+  }
+  return merged
 })
 
 // Export
