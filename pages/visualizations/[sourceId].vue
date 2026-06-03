@@ -27,17 +27,44 @@
             {{ isLoading ? 'Loading...' : sourceName }}
           </h1>
         </div>
-        <!-- Export + Copy Link buttons (shown when viz is loaded) -->
-        <div v-if="!isLoading && !fetchError && filteredPages.length > 0" class="flex items-center gap-3 flex-shrink-0">
-          <ExportButton
-            :viz-type="activeVizType"
-            :container-id="activeVizType === 'metro' ? metrovizContainerId : FLOW_CONTAINER_ID"
-          />
+        <!-- Icon buttons: export (metro only), copy link, filter toggle -->
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <!-- Export SVG — metro only (VueFlow nodes are HTML, not SVG) -->
           <button
-            @click="handleCopyLink"
-            class="px-4 py-2 rounded text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+            v-if="!isLoading && !fetchError && filteredPages.length > 0 && activeVizType === 'metro'"
+            :disabled="isExporting"
+            title="Export SVG"
+            class="p-2 rounded text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
+            @click="downloadSVG(metrovizContainerId, 'metro')"
           >
-            {{ copyLinkSuccess === null ? 'Copy Link' : copyLinkSuccess ? 'Copied!' : 'Copy failed' }}
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          </button>
+
+          <!-- Copy shareable link -->
+          <button
+            v-if="!isLoading && !fetchError && filteredPages.length > 0"
+            :title="copyLinkSuccess === true ? 'Copied!' : copyLinkSuccess === false ? 'Copy failed' : 'Copy link'"
+            class="p-2 rounded hover:bg-gray-100"
+            :class="copyLinkSuccess === true ? 'text-green-600' : 'text-gray-500 hover:text-gray-900'"
+            @click="handleCopyLink"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+          </button>
+
+          <!-- Filter / visibility panel toggle -->
+          <button
+            :title="filterPanelOpen ? 'Close filters' : 'Open filters'"
+            class="p-2 rounded"
+            :class="filterPanelOpen ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'"
+            @click="filterPanelOpen = !filterPanelOpen"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+            </svg>
           </button>
         </div>
       </div>
@@ -150,9 +177,11 @@
           <!-- :key forces re-mount on source navigation, resetting local panel state -->
           <FilterPanel
             :key="sourceId"
+            :open="filterPanelOpen"
             :pages="allPagesForPanel"
             :column-mappings="columnMappings"
             :visible-node-ids="allVisibleIds"
+            @update:open="filterPanelOpen = $event"
             @toggle-node="handleToggleNode"
             @set-nodes-visible="handleSetNodesVisible"
             @set-timeframe="applyTimeframeToVisibility"
@@ -178,6 +207,7 @@ import type { SourceApiResponse } from '@/composables/useSourceData'
 import { useMetrovizData, mergeMetrovizData } from '@/composables/useMetrovizData'
 import { useFilterState } from '@/composables/useFilterState'
 import { useUrlState } from '@/composables/useUrlState'
+import { useExport } from '@/composables/useExport'
 import type { EnrichedPage } from '@/server/utils/relations'
 
 const route = useRoute()
@@ -417,8 +447,11 @@ const metrovizData = computed(() => {
   return extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
 })
 
-// Export container IDs
-const FLOW_CONTAINER_ID = 'flow-viz-container'
+// Export
+const { downloadSVG, isExporting } = useExport()
+
+// Filter panel open/close state (toggled from the header icon button)
+const filterPanelOpen = ref(false)
 
 // UI-06: Restore state from URL on mount (shared link restoration)
 onMounted(() => {

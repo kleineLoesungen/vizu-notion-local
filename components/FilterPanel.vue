@@ -1,21 +1,25 @@
 <template>
   <div
-    class="bg-gray-50 border-l border-gray-200 overflow-y-auto flex-shrink-0"
-    :class="isCollapsed ? 'w-10' : 'w-64 p-4'"
+    v-if="open"
+    class="w-72 p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto flex-shrink-0"
     role="region"
     aria-label="Visibility"
   >
-    <!-- Header row: toggle button + title -->
-    <div class="flex items-center p-2" :class="isCollapsed ? 'justify-center' : 'justify-between'">
-      <h2 v-if="!isCollapsed" class="font-semibold text-sm text-gray-900">Visibility</h2>
+    <!-- Panel header: title + close button -->
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold text-sm text-gray-900">Visibility</h2>
       <button
-        class="text-gray-500 hover:text-gray-900 focus:outline-none text-base leading-none"
-        :aria-label="isCollapsed ? 'Expand visibility panel' : 'Collapse visibility panel'"
-        @click="isCollapsed = !isCollapsed"
-      >{{ isCollapsed ? '›' : '‹' }}</button>
+        class="text-gray-400 hover:text-gray-700 focus:outline-none"
+        aria-label="Close visibility panel"
+        @click="emit('update:open', false)"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
 
-    <template v-if="!isCollapsed">
+    <template>
 
       <!-- ── Timeframe (only when source has a date role) ── -->
       <div v-if="hasDateRole" class="mb-4">
@@ -35,7 +39,7 @@
             :class="activeShortcut === key
               ? 'bg-blue-600 text-white'
               : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'"
-            @click="applyShortcut(key as ShortcutKey)"
+            @click="applyShortcut(key as '4w' | '3m' | '6m')"
           >{{ label }}</button>
 
           <!-- Custom range toggle -->
@@ -130,7 +134,6 @@
         <p v-if="pages.length === 0" class="text-xs text-gray-400">No pages loaded</p>
       </div>
 
-    </template>
   </div>
 </template>
 
@@ -148,18 +151,19 @@ const shortcuts: [string, string][] = [
 ]
 
 const props = defineProps<{
+  open: boolean
   pages: EnrichedPage[]
   columnMappings: ColumnMappings
   visibleNodeIds: Set<string>
 }>()
 
 const emit = defineEmits<{
+  'update:open': [value: boolean]
   'toggle-node': [pageId: string]
   'set-nodes-visible': [ids: string[], visible: boolean]
   'set-timeframe': [range: { start: string; end: string } | null]
 }>()
 
-const isCollapsed = ref(true)
 const activeShortcut = ref<ShortcutKey | null>(null)
 const customStart = ref('')
 const customEnd = ref('')
@@ -177,8 +181,8 @@ const applyShortcut = (key: '4w' | '3m' | '6m') => {
   else if (key === '6m') end.setMonth(end.getMonth() + 6)
   activeShortcut.value = key
   emit('set-timeframe', {
-    start: today.toISOString().split('T')[0],
-    end: end.toISOString().split('T')[0],
+    start: today.toISOString().slice(0, 10),
+    end: end.toISOString().slice(0, 10),
   })
 }
 
@@ -236,13 +240,13 @@ const getParentGroup = (page: EnrichedPage): { key: string; label: string } => {
   if (parentPropName) {
     // Resolved relations for primary-source parent role
     const resolved = page.resolvedRelations[parentPropName]
-    if (resolved?.length > 0) return extractTitleFromAnyPage(resolved[0])
+    if (resolved && resolved.length > 0) return extractTitleFromAnyPage(resolved[0]!)
 
     // Raw relation fallback
     const prop = page.properties[parentPropName]
     if (prop?.type === 'relation') {
       const rels = (prop as any).relation as Array<{ id: string }>
-      if (rels?.length > 0) return { key: rels[0].id, label: rels[0].id.slice(0, 8) }
+      if (rels && rels.length > 0) return { key: rels[0]!.id, label: rels[0]!.id.slice(0, 8) }
     }
     if (prop?.type === 'select') {
       const name = (prop as any).select?.name
@@ -252,7 +256,7 @@ const getParentGroup = (page: EnrichedPage): { key: string; label: string } => {
 
   // For extra-source pages: scan all resolvedRelations for any resolved parent
   for (const relList of Object.values(page.resolvedRelations)) {
-    if (relList.length > 0) return extractTitleFromAnyPage(relList[0])
+    if (relList && relList.length > 0) return extractTitleFromAnyPage(relList[0]!)
   }
 
   return { key: '__none__', label: 'Ungrouped' }
@@ -272,7 +276,7 @@ const parentGroups = computed((): PageGroup[] => {
 
 const hasParentGroups = computed(() =>
   parentGroups.value.length > 1 ||
-  (parentGroups.value.length === 1 && parentGroups.value[0].key !== '__none__')
+  (parentGroups.value.length === 1 && parentGroups.value[0]!.key !== '__none__')
 )
 
 // ── Group toggle helpers ──
