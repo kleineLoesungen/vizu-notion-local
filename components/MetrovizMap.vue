@@ -126,12 +126,12 @@ defineExpose({ containerId })
   border-radius: 4px;
   padding: 4px;
   max-height: 70vh;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
 }
 .zoom-hint {
-  position: sticky;
-  bottom: 6px;
+  position: absolute;
+  bottom: 8px;
   left: 0;
   right: 0;
   text-align: center;
