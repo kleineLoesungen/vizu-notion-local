@@ -131,27 +131,28 @@
               @node-click="handleMetroNodeClick"
             />
 
-            <!-- Process flow (VIZ-02) — receives filteredPages directly -->
+            <!-- Process flow (VIZ-02) — receives timeframe-filtered pages directly -->
             <FlowDiagram
               v-else-if="isFlowEligible"
-              :data="filteredPages"
+              :data="timeframeFilteredPages"
               :column-mappings="columnMappings"
               @node-click="handleFlowNodeClick"
             />
 
             <!-- D-10: Notion links list below visualization -->
             <NotionLinksList
-              :pages="filteredPages"
+              :pages="timeframeFilteredPages"
               :column-mappings="columnMappings"
             />
           </div>
 
-          <!-- Right panel: visibility panel (primary + extra sources combined) -->
+          <!-- Right panel: visibility + timeframe panel -->
           <FilterPanel
             :pages="allPagesForPanel"
             :column-mappings="columnMappings"
             :visible-node-ids="allVisibleIds"
             @toggle-node="handleToggleNode"
+            @set-timeframe="activeTimeframe = $event"
           />
         </div>
 
@@ -284,6 +285,7 @@ const handleToggleNode = (pageId: string) => {
 const {
   filteredPages,
   visibleNodeIds,
+  activeFilters,
   toggleNode,
   setHiddenNodes,
   setActiveFilters,
@@ -301,6 +303,40 @@ const selectedPage = ref<EnrichedPage | null>(null)
 // Reset panel state when the user switches sources
 watch(sourceId, () => {
   selectedPage.value = null
+  activeTimeframe.value = null
+})
+
+// Timeframe filter state
+const activeTimeframe = ref<{ start: string; end: string } | null>(null)
+
+// Extract the date value from a page's date property (handles date, formula types)
+const getPageDate = (page: EnrichedPage, datePropName: string): Date | null => {
+  const prop = page.properties[datePropName]
+  if (!prop) return null
+  if (prop.type === 'date') {
+    const s = (prop as any).date?.start
+    return s ? new Date(s) : null
+  }
+  if (prop.type === 'formula') {
+    const f = (prop as any).formula
+    if (f?.type === 'date') return f.date?.start ? new Date(f.date.start) : null
+    if (f?.type === 'string') return f.string ? new Date(f.string) : null
+  }
+  return null
+}
+
+// Pages within the active timeframe (applied on top of visibility filtering)
+const timeframeFilteredPages = computed(() => {
+  if (!activeTimeframe.value) return filteredPages.value
+  const datePropName = columnMappings.value['date']
+  if (!datePropName) return filteredPages.value
+  const start = new Date(activeTimeframe.value.start)
+  const end = new Date(activeTimeframe.value.end)
+  end.setHours(23, 59, 59, 999)
+  return filteredPages.value.filter(p => {
+    const d = getPageDate(p, datePropName)
+    return d !== null && d >= start && d <= end
+  })
 })
 
 // Copy link state for toast feedback
@@ -312,11 +348,25 @@ const metrovizMapRef = ref<any>(null)
 // Computed: expose metroviz container ID for ExportButton (from defineExpose in MetrovizMap)
 const metrovizContainerId = computed(() => metrovizMapRef.value?.containerId ?? '')
 
-// Metro map data: primary source (visibility applied) + extra sources (their own visibility applied)
+// Metro map data: primary source (timeframe + visibility applied) + extra sources (same)
 const metrovizData = computed(() => {
-  const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
+  const primary = useMetrovizData(timeframeFilteredPages.value, columnMappings.value, sourceName.value)
   const extras = (extraSourcesData.value ?? []).map(d => {
-    const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
+    let visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
+    if (activeTimeframe.value) {
+      const datePropName = d.source.columnMappings['date']
+      if (datePropName) {
+        const start = new Date(activeTimeframe.value.start)
+        const end = new Date(activeTimeframe.value.end)
+        end.setHours(23, 59, 59, 999)
+        visiblePages = visiblePages.filter(p => {
+          const dt = getPageDate(p, datePropName)
+          return dt !== null && dt >= start && dt <= end
+        })
+      } else {
+        visiblePages = []
+      }
+    }
     return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
   })
   return extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
