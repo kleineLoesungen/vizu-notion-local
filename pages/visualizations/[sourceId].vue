@@ -60,20 +60,27 @@
         <div class="flex gap-0">
           <!-- Main visualization column -->
           <div class="flex-1 min-w-0">
-            <!-- Viz type toggle (UI-03) -->
-            <div v-if="isMetroEligible && isFlowEligible" class="mb-4 flex gap-2">
-              <button
-                :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'metro' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
-                @click="activeVizType = 'metro'"
-              >
-                Metro Map
-              </button>
-              <button
-                :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'flow' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
-                @click="activeVizType = 'flow'"
-              >
-                Process Flow
-              </button>
+            <!-- Viz type label/toggle (UI-03 + Gap 4 fix) -->
+            <div class="mb-4 flex items-center gap-2">
+              <!-- When both types eligible: show interactive toggle buttons -->
+              <template v-if="isMetroEligible && isFlowEligible">
+                <button
+                  :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'metro' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
+                  @click="activeVizType = 'metro'"
+                >
+                  Metro Map
+                </button>
+                <button
+                  :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'flow' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
+                  @click="activeVizType = 'flow'"
+                >
+                  Process Flow
+                </button>
+              </template>
+              <!-- When only one type eligible: show read-only label so user knows what they're viewing -->
+              <span v-else class="px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white">
+                {{ activeVizType === 'metro' ? 'Metro Map' : 'Process Flow' }}
+              </span>
             </div>
 
             <!-- Metro map (VIZ-01) — receives filteredPages via metrovizData -->
