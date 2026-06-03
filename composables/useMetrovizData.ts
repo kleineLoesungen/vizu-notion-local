@@ -277,6 +277,25 @@ function buildLinesFromNextGraph(
   return lines
 }
 
+// Snap a date string to the first day of its month (ISO format).
+function snapToMonthStart(dateStr: string): string {
+  if (dateStr.includes('-Q')) {
+    // quarter string → resolve to month first
+    const [year, qs] = dateStr.split('-Q')
+    const month = (parseInt(qs) - 1) * 3 + 1
+    return `${year}-${String(month).padStart(2, '0')}-01`
+  }
+  return dateStr.slice(0, 7) + '-01'
+}
+
+// Return the first day of the month AFTER the given date string.
+function snapToNextMonthStart(dateStr: string): string {
+  const iso = snapToMonthStart(dateStr)
+  const d = new Date(iso + 'T12:00:00Z')
+  d.setUTCMonth(d.getUTCMonth() + 1, 1)
+  return d.toISOString().slice(0, 10)
+}
+
 function incrementDateByOneDay(dateStr: string): string {
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     const d = new Date(dateStr + 'T12:00:00Z')
@@ -344,7 +363,10 @@ export function mergeMetrovizData(datasets: MetrovizInputData[]): MetrovizInputD
 
   return {
     meta: { title: datasets.map(d => d.meta.title).join(' + '), organization: '' },
-    timeline: { start: allDates[0] || '2026-Q1', end: allDates[allDates.length - 1] || '2026-Q4' },
+    timeline: {
+      start: allDates[0] ? snapToMonthStart(allDates[0]) : '2026-Q1',
+      end: allDates[allDates.length - 1] ? snapToNextMonthStart(allDates[allDates.length - 1]) : '2026-Q4',
+    },
     zones: [...zonesMap.values()],
     lines: datasets.flatMap(d => d.lines),
     events: [],
@@ -450,7 +472,10 @@ export function useMetrovizData(
 
   return {
     meta: { title: sourceTitle, organization: '' },
-    timeline: { start: allDates[0] || '2026-Q1', end: allDates[allDates.length - 1] || '2026-Q4' },
+    timeline: {
+      start: allDates[0] ? snapToMonthStart(allDates[0]) : '2026-Q1',
+      end: allDates[allDates.length - 1] ? snapToNextMonthStart(allDates[allDates.length - 1]) : '2026-Q4',
+    },
     zones: Array.from(zonesMap.values()),
     lines: linesList,
     events: [],
