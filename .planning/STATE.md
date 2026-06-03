@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T15:39:12.517Z"
+last_updated: "2026-06-03T15:39:15.317Z"
 progress:
   total_phases: 4
   completed_phases: 1
@@ -143,6 +143,14 @@ Plan: 3 of 7
 | clickListenerAttached guard in MetrovizMap | Prevents duplicate click listeners when data watch triggers re-render | Implemented |
 | NodeDetailPanel renders all page.properties (not just columnMappings) | Gives users full Notion context; columnMappings are display hints, not a whitelist | Implemented |
 
+### Key Decisions (03-05: Mobile FilterPanel + Viz Type Label)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| isCollapsed defaults true, overridden to false via onMounted matchMedia | Avoids layout flash on desktop; no SSR mismatch risk since only runs on client | Implemented |
+| Outer viz type div always rendered; toggle buttons inside template v-if | Closes Gap 4 viz-type-label portion: users always see which viz type is active | Implemented |
+| Panel uses w-10 (collapsed) vs w-64 (expanded) | Slim 40px strip keeps toggle button visible on mobile without fully hiding it | Implemented |
+
 ### Roadmap Evolution
 
 - Phase 4 added: Deployment — Dockerfile + docker-compose, Docker Hub prep, README.md, single HTML product page
@@ -170,10 +178,10 @@ Plan: 3 of 7
 
 ## Session Continuity
 
-**Last Activity**: 03-07-PLAN.md complete — Fixed dashboard timestamp false-update on return navigation using sessionStorage persistence
+**Last Activity**: 03-05-PLAN.md complete — FilterPanel collapse/expand toggle + always-visible viz type label on viz page
 **Date**: 2026-06-03
-**Stopped At**: Completed 03-07-PLAN.md
-**Next Step**: Phase 03 complete — proceed to Phase 04 deployment
+**Stopped At**: Completed 03-05-PLAN.md
+**Next Step**: Execute remaining Phase 03 gap-closure plans
 
 ---
 
