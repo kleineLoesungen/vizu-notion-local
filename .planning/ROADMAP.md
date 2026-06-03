@@ -58,7 +58,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Infrastructure: TailwindCSS v4 + @vue-flow/core install, Metroviz vendored from GitHub
-- [ ] 02-02-PLAN.md — Metro map: useMetrovizData composable, MetrovizMap.vue wrapper, LoadingSpinner + ErrorAlert components
+- [x] 02-02-PLAN.md — Metro map: useMetrovizData composable, MetrovizMap.vue wrapper, LoadingSpinner + ErrorAlert components
 - [ ] 02-03-PLAN.md — Process flow: useFlowData composable, FlowDiagram.vue, useSourceData with VIZ-03 eligibility detection
 - [ ] 02-04-PLAN.md — Integration pages: index.vue source list, visualizations/[sourceId].vue + human verification checkpoint
 
@@ -87,7 +87,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
-| 2. Visualization | 1/4 | In Progress|  |
+| 2. Visualization | 2/4 | In Progress|  |
 | 3. User Experience | 0/TBD | Not started | — |
 
 ---

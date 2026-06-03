@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T03:13:00.038Z"
+last_updated: "2026-06-03T05:13:04.421Z"
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 8
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 02 (visualization) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Project Metrics
 
@@ -82,6 +82,15 @@ Plan: 2 of 4
 | Metroviz vendored to 5 rendering modules only | Alpine.js shell (app.js) and UI helpers excluded; Vue wrapper used instead | Implemented |
 | vendor/metroviz/css/metroviz.css included | Required by MetroRenderer for SVG node and line styling | Implemented |
 
+### Key Decisions (02-02: Metroviz Component)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Dynamic imports for Metroviz vendor modules | Ensures SSR-safe initialization — D3/document only accessed in browser context, no ClientOnly wrapper needed | Implemented |
+| useMetrovizData is a pure function | No Vue reactivity dependency; works in any execution context, trivially testable when tests are added | Implemented |
+| Empty pages returns default 'Timeline' zone | Prevents DataModel validation error when zones array is empty; graceful degradation per D-08 | Implemented |
+| TDD skipped for composable | Vitest explicitly out of scope for v1 per CLAUDE.md; behavior spec guided implementation | Implemented |
+
 ### Key Decisions (01-04: E2E Verification)
 
 | Decision | Rationale | Status |
@@ -113,10 +122,10 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-**Last Activity**: Completed 02-01-PLAN.md — TailwindCSS v4 configured, @vue-flow/core installed, Metroviz vendored from GitHub
+**Last Activity**: Completed 02-02-PLAN.md — useMetrovizData composable and MetrovizMap/LoadingSpinner/ErrorAlert components created
 **Date**: 2026-06-03
-**Stopped At**: Completed 02-01-PLAN.md
-**Next Step**: Execute 02-02 (Metroviz Vue component) and 02-03 (Vue Flow component)
+**Stopped At**: Completed 02-02-PLAN.md
+**Next Step**: Execute 02-03 (Vue Flow component) and 02-04 (Visualization page)
 
 ---
 
@@ -132,6 +141,7 @@ Plan: 2 of 4
 - [x] Execute 01-03: API routes and relation resolver — complete
 - [x] Execute 01-04: Docker production verification — complete (two SDK bugs found and fixed)
 - [x] Execute 02-01: Visualization infrastructure — complete (TailwindCSS v4, Vue Flow, Metroviz vendored)
+- [x] Execute 02-02: Metroviz component — complete (useMetrovizData composable, MetrovizMap.vue, LoadingSpinner.vue, ErrorAlert.vue)
 
 ### Blockers
 
