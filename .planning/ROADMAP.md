@@ -10,7 +10,7 @@
 
 - [x] **Phase 1: Backend Foundation** - Complete end-to-end Notion data pipeline with validated configuration, deployable via Docker
 - [ ] **Phase 2: Visualization** - Render Notion data as metro maps and process flow diagrams
-- [x] **Phase 3: User Experience** - Interactive UI for exploring, filtering, and sharing visual diagrams (completed 2026-06-03)
+- [ ] **Phase 3: User Experience** - Interactive UI for exploring, filtering, and sharing visual diagrams (gap closure in progress)
 
 ---
 
@@ -78,13 +78,16 @@ Plans:
 3. User clicks on a node and sees full Notion properties for that entry in a detail panel
 4. User applies filters and changes the active source, then copies the URL — sharing that URL with someone else restores the exact same view (sources, filters, viz type)
 
-**Plans**: 4 plans
+**Plans**: 7 plans (4 original + 3 gap closure)
 
 Plans:
 - [x] 03-01-PLAN.md — State composables + URL encoding utilities + server cache invalidation endpoint (useFilterState, useUrlState, useExport, utils/state-encoding.ts, POST /api/sources/:id/refresh)
 - [x] 03-02-PLAN.md — Dashboard: SourceCard component + pages/index.vue overhaul with card grid, timestamps, per-source refresh, global Fetch All
 - [x] 03-03-PLAN.md — Visualization panel components: FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton + node-click wiring in FlowDiagram and MetrovizMap
 - [x] 03-04-PLAN.md — Viz page integration: full overhaul of visualizations/[sourceId].vue assembling all Phase 3 features + human verification checkpoint
+- [ ] 03-05-PLAN.md — Gap closure: FilterPanel collapse toggle (mobile fix) + always-visible viz type label
+- [ ] 03-06-PLAN.md — Gap closure: Source selector dropdown on viz page header
+- [ ] 03-07-PLAN.md — Gap closure: Fix dashboard timestamp to reflect cache refreshes only (sessionStorage persistence)
 
 ---
 
@@ -94,7 +97,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
 | 2. Visualization | 2/4 | In Progress|  |
-| 3. User Experience | 4/4 | Complete   | 2026-06-03 |
+| 3. User Experience | 4/7 | Gap Closure|  |
 
 ### Phase 4: Deployment
 
@@ -118,3 +121,4 @@ Plans:
 *Phase 1 planned: 2026-06-02*
 *Phase 2 planned: 2026-06-02*
 *Phase 3 planned: 2026-06-03*
+*Phase 3 gap closure planned: 2026-06-03*
