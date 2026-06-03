@@ -81,7 +81,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — State composables + URL encoding utilities + server cache invalidation endpoint (useFilterState, useUrlState, useExport, utils/state-encoding.ts, POST /api/sources/:id/refresh)
+- [x] 03-01-PLAN.md — State composables + URL encoding utilities + server cache invalidation endpoint (useFilterState, useUrlState, useExport, utils/state-encoding.ts, POST /api/sources/:id/refresh)
 - [x] 03-02-PLAN.md — Dashboard: SourceCard component + pages/index.vue overhaul with card grid, timestamps, per-source refresh, global Fetch All
 - [ ] 03-03-PLAN.md — Visualization panel components: FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton + node-click wiring in FlowDiagram and MetrovizMap
 - [ ] 03-04-PLAN.md — Viz page integration: full overhaul of visualizations/[sourceId].vue assembling all Phase 3 features + human verification checkpoint

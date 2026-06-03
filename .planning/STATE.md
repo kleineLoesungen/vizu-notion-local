@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T15:00:53.128Z"
+last_updated: "2026-06-03T15:01:54.150Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 03 (user-experience) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Project Metrics
 
@@ -91,6 +91,15 @@ Plan: 2 of 4
 | Empty pages returns default 'Timeline' zone | Prevents DataModel validation error when zones array is empty; graceful degradation per D-08 | Implemented |
 | TDD skipped for composable | Vitest explicitly out of scope for v1 per CLAUDE.md; behavior spec guided implementation | Implemented |
 
+### Key Decisions (03-01: State Management Infrastructure)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Explicit share action (copy-to-clipboard) over continuous URL updates | Avoids polluting browser history with every filter toggle; simpler UX per RESEARCH.md | Implemented |
+| clearCacheForDatabase exported as named helper from notion.ts | Keeps raw LRU cache private while enabling refresh endpoint to invalidate by databaseId | Implemented |
+| filteredPages applies property filters first, then visibility toggles | Order ensures filtered-out pages don't reappear when visibility is toggled | Implemented |
+| useFilterState.setHiddenNodes initializes from full pages set then removes | Guards against URL state referencing pages not in current data | Implemented |
+
 ### Key Decisions (03-02: Dashboard with SourceCard Grid)
 
 | Decision | Rationale | Status |
@@ -144,10 +153,10 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-**Last Activity**: 03-02-PLAN.md complete — SourceCard component + dashboard index.vue with card grid, timestamps, per-source refresh, and Fetch All
+**Last Activity**: 03-01-PLAN.md complete — 5 files: state-encoding utils, useFilterState, useUrlState, useExport composables + POST /api/sources/:id/refresh endpoint
 **Date**: 2026-06-03
-**Stopped At**: Completed 03-02-PLAN.md
-**Next Step**: Execute 03-03-PLAN.md (visualization page enhancements)
+**Stopped At**: Completed 03-01-PLAN.md
+**Next Step**: Execute 03-02-PLAN.md or continue to next parallel plan
 
 ---
 
