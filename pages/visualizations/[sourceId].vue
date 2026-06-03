@@ -134,25 +134,28 @@
             <!-- Process flow (VIZ-02) — receives timeframe-filtered pages directly -->
             <FlowDiagram
               v-else-if="isFlowEligible"
-              :data="timeframeFilteredPages"
+              :data="filteredPages"
               :column-mappings="columnMappings"
               @node-click="handleFlowNodeClick"
             />
 
             <!-- D-10: Notion links list below visualization -->
             <NotionLinksList
-              :pages="timeframeFilteredPages"
+              :pages="filteredPages"
               :column-mappings="columnMappings"
             />
           </div>
 
           <!-- Right panel: visibility + timeframe panel -->
+          <!-- :key forces re-mount on source navigation, resetting local panel state -->
           <FilterPanel
+            :key="sourceId"
             :pages="allPagesForPanel"
             :column-mappings="columnMappings"
             :visible-node-ids="allVisibleIds"
             @toggle-node="handleToggleNode"
-            @set-timeframe="activeTimeframe = $event"
+            @set-nodes-visible="handleSetNodesVisible"
+            @set-timeframe="applyTimeframeToVisibility"
           />
         </div>
 
@@ -303,11 +306,7 @@ const selectedPage = ref<EnrichedPage | null>(null)
 // Reset panel state when the user switches sources
 watch(sourceId, () => {
   selectedPage.value = null
-  activeTimeframe.value = null
 })
-
-// Timeframe filter state
-const activeTimeframe = ref<{ start: string; end: string } | null>(null)
 
 // Extract the date value from a page's date property (handles date, formula types)
 const getPageDate = (page: EnrichedPage, datePropName: string): Date | null => {
@@ -325,19 +324,64 @@ const getPageDate = (page: EnrichedPage, datePropName: string): Date | null => {
   return null
 }
 
-// Pages within the active timeframe (applied on top of visibility filtering)
-const timeframeFilteredPages = computed(() => {
-  if (!activeTimeframe.value) return filteredPages.value
-  const datePropName = columnMappings.value['date']
-  if (!datePropName) return filteredPages.value
-  const start = new Date(activeTimeframe.value.start)
-  const end = new Date(activeTimeframe.value.end)
+// Applying a timeframe updates visibleNodeIds directly so panel checkboxes reflect it.
+// Clearing restores all nodes to visible.
+const applyTimeframeToVisibility = (range: { start: string; end: string } | null) => {
+  if (!range) {
+    setHiddenNodes([])
+    extraVisibleIds.value = new Set(extraPages.value.map(p => p.id))
+    return
+  }
+  const start = new Date(range.start)
+  const end = new Date(range.end)
   end.setHours(23, 59, 59, 999)
-  return filteredPages.value.filter(p => {
-    const d = getPageDate(p, datePropName)
-    return d !== null && d >= start && d <= end
-  })
-})
+
+  const datePropName = columnMappings.value['date']
+  const hiddenIds = pages.value
+    .filter(p => {
+      if (!datePropName) return true
+      const d = getPageDate(p, datePropName)
+      return d === null || d < start || d > end
+    })
+    .map(p => p.id)
+  setHiddenNodes(hiddenIds)
+
+  const nextExtra = new Set<string>()
+  for (const d of extraSourcesData.value ?? []) {
+    const extraDateProp = d.source.columnMappings['date']
+    for (const p of d.pages as EnrichedPage[]) {
+      if (!extraDateProp) continue
+      const dt = getPageDate(p as EnrichedPage, extraDateProp)
+      if (dt && dt >= start && dt <= end) nextExtra.add((p as EnrichedPage).id)
+    }
+  }
+  extraVisibleIds.value = nextExtra
+}
+
+// Bulk visibility toggle used by FilterPanel group headers
+const handleSetNodesVisible = (ids: string[], visible: boolean) => {
+  const primaryIds = ids.filter(id => !extraPageIds.value.has(id))
+  const extraIds = ids.filter(id => extraPageIds.value.has(id))
+
+  if (primaryIds.length > 0) {
+    const allIds = new Set(pages.value.map(p => p.id))
+    const newVisible = new Set(visibleNodeIds.value)
+    for (const id of primaryIds) {
+      if (visible && allIds.has(id)) newVisible.add(id)
+      else newVisible.delete(id)
+    }
+    setHiddenNodes([...allIds].filter(id => !newVisible.has(id)))
+  }
+
+  if (extraIds.length > 0) {
+    const next = new Set(extraVisibleIds.value)
+    for (const id of extraIds) {
+      if (visible) next.add(id)
+      else next.delete(id)
+    }
+    extraVisibleIds.value = next
+  }
+}
 
 // Copy link state for toast feedback
 const copyLinkSuccess = ref<boolean | null>(null) // null = not shown, true = success, false = error
@@ -348,25 +392,11 @@ const metrovizMapRef = ref<any>(null)
 // Computed: expose metroviz container ID for ExportButton (from defineExpose in MetrovizMap)
 const metrovizContainerId = computed(() => metrovizMapRef.value?.containerId ?? '')
 
-// Metro map data: primary source (timeframe + visibility applied) + extra sources (same)
+// Metro map data: visibility state already reflects timeframe (applied via applyTimeframeToVisibility)
 const metrovizData = computed(() => {
-  const primary = useMetrovizData(timeframeFilteredPages.value, columnMappings.value, sourceName.value)
+  const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
   const extras = (extraSourcesData.value ?? []).map(d => {
-    let visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
-    if (activeTimeframe.value) {
-      const datePropName = d.source.columnMappings['date']
-      if (datePropName) {
-        const start = new Date(activeTimeframe.value.start)
-        const end = new Date(activeTimeframe.value.end)
-        end.setHours(23, 59, 59, 999)
-        visiblePages = visiblePages.filter(p => {
-          const dt = getPageDate(p, datePropName)
-          return dt !== null && dt >= start && dt <= end
-        })
-      } else {
-        visiblePages = []
-      }
-    }
+    const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
     return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
   })
   return extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
