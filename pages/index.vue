@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const { data, pending, error, refresh: refetchSources } = useFetch('/api/sources')
 const sources = computed(() => data.value?.sources ?? [])
@@ -63,15 +63,28 @@ const refreshingMap = ref<Record<string, boolean>>({})
 const sourceTimestamps = ref<Record<string, string>>({})
 const isAnyRefreshing = computed(() => Object.values(refreshingMap.value).some(Boolean))
 
-// D-03: Initialize timestamps when sources load
-watch(sources, (newSources) => {
-  for (const source of newSources) {
-    if (!sourceTimestamps.value[source.id]) {
-      // Sources were loaded fresh — show current time as initial fetch time
-      sourceTimestamps.value[source.id] = new Date().toLocaleTimeString()
+// Load persisted timestamps from sessionStorage (survive navigation, not page reload)
+const TIMESTAMP_STORAGE_KEY = 'vizu-source-timestamps'
+
+onMounted(() => {
+  try {
+    const saved = sessionStorage.getItem(TIMESTAMP_STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved) as Record<string, string>
+      sourceTimestamps.value = parsed
     }
+  } catch {
+    // sessionStorage unavailable or parse error — start with empty timestamps (safe default)
   }
-}, { immediate: true })
+})
+
+const persistTimestamps = () => {
+  try {
+    sessionStorage.setItem(TIMESTAMP_STORAGE_KEY, JSON.stringify(sourceTimestamps.value))
+  } catch {
+    // sessionStorage write failed (private mode, quota exceeded) — non-fatal, timestamps just won't persist
+  }
+}
 
 // D-04: Per-source refresh — POST to cache invalidation endpoint, then re-fetch
 const refreshSource = async (sourceId: string) => {
@@ -81,6 +94,7 @@ const refreshSource = async (sourceId: string) => {
     // Force re-fetch of source data by calling the source endpoint (this updates the LRU cache)
     await $fetch(`/api/sources/${sourceId}`)
     sourceTimestamps.value = { ...sourceTimestamps.value, [sourceId]: new Date().toLocaleTimeString() }
+    persistTimestamps()
   } catch (err: any) {
     // D-05: Show specific error — let the browser console capture the error
     console.error(`[dashboard] Refresh failed for ${sourceId}:`, err.message)
