@@ -91,6 +91,23 @@ export async function retrievePage(pageId: string): Promise<PageObjectResponse> 
   return page
 }
 
+/**
+ * Clear all LRU cache entries for a specific database ID.
+ * Used by the refresh endpoint (D-04) to force re-fetch from Notion.
+ * Clears: queryDatabase:{databaseId}:* and retrieveDatabase:{databaseId}
+ */
+export function clearCacheForDatabase(databaseId: string): void {
+  const keysToDelete: string[] = []
+  for (const key of cache.keys()) {
+    if (key.includes(`:${databaseId}:`) || key.endsWith(`:${databaseId}`)) {
+      keysToDelete.push(key)
+    }
+  }
+  for (const key of keysToDelete) {
+    cache.delete(key)
+  }
+}
+
 // Retrieve database schema (used for DATA-05 column mapping validation)
 export async function retrieveDatabase(databaseId: string): Promise<DatabaseObjectResponse> {
   const cacheKey = `retrieveDatabase:${databaseId}`
