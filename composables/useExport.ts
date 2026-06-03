@@ -39,8 +39,32 @@ export function useExport() {
     try {
       const container = document.getElementById(containerId)
       if (!container) { console.warn(`[useExport] #${containerId} not found`); return }
-      const dataUrl = await toPng(container, { cacheBust: true })
-      triggerDownload(dataUrl, `visualization-flow-${timestamp()}.png`)
+
+      // VueFlow edge markers reference SVG <defs> by URL (e.g. url(#vue-flow__arrowhead)).
+      // html-to-image cannot resolve these cross-element references during serialization,
+      // so they render as solid black triangles. Strip the attributes before capture
+      // and restore them after — edges still render as clean lines without arrowheads.
+      type MarkerState = { el: Element; end: string | null; start: string | null }
+      const markerStates: MarkerState[] = []
+      container.querySelectorAll('[marker-end],[marker-start]').forEach(el => {
+        markerStates.push({
+          el,
+          end: el.getAttribute('marker-end'),
+          start: el.getAttribute('marker-start'),
+        })
+        el.removeAttribute('marker-end')
+        el.removeAttribute('marker-start')
+      })
+
+      try {
+        const dataUrl = await toPng(container, { cacheBust: true, backgroundColor: '#ffffff' })
+        triggerDownload(dataUrl, `visualization-flow-${timestamp()}.png`)
+      } finally {
+        markerStates.forEach(({ el, end, start }) => {
+          if (end) el.setAttribute('marker-end', end)
+          if (start) el.setAttribute('marker-start', start)
+        })
+      }
     } finally {
       isExporting.value = false
     }
