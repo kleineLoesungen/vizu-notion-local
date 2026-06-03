@@ -78,7 +78,13 @@ Plans:
 3. User clicks on a node and sees full Notion properties for that entry in a detail panel
 4. User applies filters and changes the active source, then copies the URL — sharing that URL with someone else restores the exact same view (sources, filters, viz type)
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — State composables + URL encoding utilities + server cache invalidation endpoint (useFilterState, useUrlState, useExport, utils/state-encoding.ts, POST /api/sources/:id/refresh)
+- [ ] 03-02-PLAN.md — Dashboard: SourceCard component + pages/index.vue overhaul with card grid, timestamps, per-source refresh, global Fetch All
+- [ ] 03-03-PLAN.md — Visualization panel components: FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton + node-click wiring in FlowDiagram and MetrovizMap
+- [ ] 03-04-PLAN.md — Viz page integration: full overhaul of visualizations/[sourceId].vue assembling all Phase 3 features + human verification checkpoint
 
 ---
 
@@ -88,10 +94,11 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
 | 2. Visualization | 2/4 | In Progress|  |
-| 3. User Experience | 0/TBD | Not started | — |
+| 3. User Experience | 0/4 | Not started | — |
 
 ---
 
 *Roadmap created: 2026-06-02*
 *Phase 1 planned: 2026-06-02*
 *Phase 2 planned: 2026-06-02*
+*Phase 3 planned: 2026-06-03*
