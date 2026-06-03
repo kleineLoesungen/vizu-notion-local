@@ -325,13 +325,10 @@ export class MetroRenderer {
     }
 
     renderGrid(quartersGroup, yearsGroup, xScale, config) {
+        const monthFmt = d3.timeFormat("%b");
         const xAxisQuarters = d3.axisTop(xScale)
-            .ticks(d3.timeMonth.every(3))
-            .tickFormat(d => {
-                if (d.getMonth() === 0) return "";
-                const quarter = Math.floor(d.getMonth() / 3) + 1;
-                return `Q${quarter}`;
-            });
+            .ticks(d3.timeMonth.every(1))
+            .tickFormat(d => d.getMonth() === 0 ? "" : monthFmt(d));
 
         quartersGroup
             .attr('transform', `translate(0, ${config.margins.top})`)
