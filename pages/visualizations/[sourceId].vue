@@ -27,19 +27,34 @@
             {{ isLoading ? 'Loading...' : sourceName }}
           </h1>
         </div>
-        <!-- Icon buttons: export (metro only), copy link, filter toggle -->
+        <!-- Icon buttons: export, copy link, filter toggle -->
         <div class="flex items-center gap-1 flex-shrink-0">
-          <!-- Export SVG — metro only (VueFlow nodes are HTML, not SVG) -->
+          <!-- Download SVG (metro) -->
           <button
             v-if="!isLoading && !fetchError && filteredPages.length > 0 && activeVizType === 'metro'"
             :disabled="isExporting"
-            title="Export SVG"
-            class="p-2 rounded text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
-            @click="downloadSVG(metrovizContainerId, 'metro')"
+            title="Download SVG"
+            class="flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
+            @click="downloadSVG(metrovizContainerId)"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
+            <span>SVG</span>
+          </button>
+
+          <!-- Download PNG (flow) -->
+          <button
+            v-if="!isLoading && !fetchError && filteredPages.length > 0 && activeVizType === 'flow'"
+            :disabled="isExporting"
+            title="Download PNG"
+            class="flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
+            @click="downloadPNG('flow-viz-container')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>PNG</span>
           </button>
 
           <!-- Copy shareable link -->
@@ -448,7 +463,7 @@ const metrovizData = computed(() => {
 })
 
 // Export
-const { downloadSVG, isExporting } = useExport()
+const { downloadSVG, downloadPNG, isExporting } = useExport()
 
 // Filter panel open/close state (toggled from the header icon button)
 const filterPanelOpen = ref(false)
