@@ -51,6 +51,13 @@ const getPageDate = (page: EnrichedPage): string => {
       if (start) return start
     }
   }
+  // Fallback for extra-source pages whose date property has a different name
+  for (const prop of Object.values(page.properties)) {
+    if (prop.type === 'date') {
+      const start = (prop as any).date?.start
+      if (start) return start
+    }
+  }
   return '—'
 }
 
