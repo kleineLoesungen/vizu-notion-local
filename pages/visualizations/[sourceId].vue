@@ -334,7 +334,6 @@ const allVisibleIds = computed(() => new Set([
 
 // Route toggle events to primary or extra visibility state
 const handleToggleNode = (pageId: string) => {
-  activeTimeframe.value = null
   if (extraPageIds.value.has(pageId)) {
     const next = new Set(extraVisibleIds.value)
     if (next.has(pageId)) next.delete(pageId)
@@ -432,7 +431,6 @@ const applyTimeframeToVisibility = (range: { start: string; end: string } | null
 
 // Bulk visibility toggle used by FilterPanel group headers
 const handleSetNodesVisible = (ids: string[], visible: boolean) => {
-  activeTimeframe.value = null
   const primaryIds = ids.filter(id => !extraPageIds.value.has(id))
   const extraIds = ids.filter(id => extraPageIds.value.has(id))
 
@@ -482,7 +480,14 @@ const metrovizData = computed(() => {
     return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
   })
   const merged = extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
-  if (activeTimeframe.value) {
+
+  // When no pages are visible but a timeframe filter is active, show the filter range
+  // on the axis so the user sees the "empty area" they're looking at.
+  // As soon as any page is visible, the data-derived timeline takes over automatically.
+  const hasVisible = filteredPages.value.length > 0
+    || (extraSourcesData.value ?? []).some(d =>
+        (d.pages as EnrichedPage[]).some(p => extraVisibleIds.value.has(p.id)))
+  if (!hasVisible && activeTimeframe.value) {
     return {
       ...merged,
       timeline: {
