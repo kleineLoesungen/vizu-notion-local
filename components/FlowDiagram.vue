@@ -1,5 +1,5 @@
 <template>
-  <div class="flow-canvas w-full" style="min-height: 400px">
+  <div id="flow-viz-container" class="flow-canvas w-full" style="min-height: 400px">
     <svg
       v-if="nodes.length > 0"
       ref="svgRef"
