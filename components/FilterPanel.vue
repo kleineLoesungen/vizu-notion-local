@@ -51,20 +51,22 @@
         <!-- Custom date inputs -->
         <div v-if="activeShortcut === 'custom'" class="mt-2 flex flex-col gap-1">
           <input
-            v-model="customStart"
+            :value="customStart"
             type="date"
-            class="w-full px-2 py-1 text-xs border border-gray-300 rounded"
+            class="w-full px-2 py-1 text-xs border border-gray-300 rounded text-gray-900"
             aria-label="Start date"
+            @input="customStart = ($event.target as HTMLInputElement).value"
           />
           <input
-            v-model="customEnd"
+            :value="customEnd"
             type="date"
-            class="w-full px-2 py-1 text-xs border border-gray-300 rounded"
+            class="w-full px-2 py-1 text-xs border border-gray-300 rounded text-gray-900"
             aria-label="End date"
+            @input="customEnd = ($event.target as HTMLInputElement).value"
           />
           <button
             class="mt-1 px-2 py-1.5 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40"
-            :disabled="!customStart || !customEnd"
+            :disabled="!canApplyCustom"
             @click="applyCustom"
           >Apply</button>
         </div>
@@ -100,7 +102,7 @@
               <input
                 type="checkbox"
                 :checked="visibleNodeIds.has(page.id)"
-                @change="emit('toggle-node', page.id)"
+                @change="onToggleNode(page.id)"
                 class="w-3.5 h-3.5"
               />
               <span class="truncate text-gray-700">{{ getPageTitle(page) }}</span>
@@ -118,7 +120,7 @@
             <input
               type="checkbox"
               :checked="visibleNodeIds.has(page.id)"
-              @change="emit('toggle-node', page.id)"
+              @change="onToggleNode(page.id)"
               class="w-4 h-4"
             />
             <span class="truncate text-gray-700">{{ getPageTitle(page) }}</span>
@@ -162,6 +164,7 @@ const activeShortcut = ref<ShortcutKey | null>(null)
 const customStart = ref('')
 const customEnd = ref('')
 const hasDateRole = computed(() => !!props.columnMappings['date'])
+const canApplyCustom = computed(() => customStart.value.length === 10 && customEnd.value.length === 10)
 
 // ── Timeframe shortcuts ──
 
@@ -180,8 +183,15 @@ const applyShortcut = (key: '4w' | '3m' | '6m') => {
 }
 
 const applyCustom = () => {
-  if (!customStart.value || !customEnd.value) return
+  if (!canApplyCustom.value) return
   emit('set-timeframe', { start: customStart.value, end: customEnd.value })
+}
+
+// Wrapper: clearing the active shortcut when the user manually toggles a node
+// signals that the timeframe is no longer the source of truth for the selection.
+const onToggleNode = (pageId: string) => {
+  activeShortcut.value = null
+  emit('toggle-node', pageId)
 }
 
 const clearTimeframe = () => {
@@ -268,6 +278,7 @@ const groupAllChecked = (g: PageGroup) => g.pages.every(p => props.visibleNodeId
 const groupIndeterminate = (g: PageGroup) => !groupAllChecked(g) && g.pages.some(p => props.visibleNodeIds.has(p.id))
 
 const toggleGroup = (g: PageGroup) => {
+  activeShortcut.value = null
   const makeVisible = !groupAllChecked(g)
   emit('set-nodes-visible', g.pages.map(p => p.id), makeVisible)
 }

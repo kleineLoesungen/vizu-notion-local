@@ -103,7 +103,7 @@
 
             <!-- Multi-source selector (metro only) -->
             <div v-if="activeVizType === 'metro' && allSources.length > 1" class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span class="text-xs text-gray-500 font-medium">Sources:</span>
+              <span class="text-xs text-gray-500 font-medium">Additional Sources:</span>
               <label
                 v-for="src in allSources"
                 :key="src.id"
@@ -308,18 +308,25 @@ watch(sourceId, () => {
   selectedPage.value = null
 })
 
-// Extract the date value from a page's date property (handles date, formula types)
+// Parse a YYYY-MM-DD string as local midnight (avoids UTC offset shifting the date).
+const parseLocalDate = (s: string): Date => {
+  const parts = s.split('-').map(Number)
+  return new Date(parts[0]!, (parts[1]! - 1), parts[2]!)
+}
+
+// Extract the date value from a page's date property (handles date, formula types).
+// Always returns local midnight so comparisons with filter dates are consistent.
 const getPageDate = (page: EnrichedPage, datePropName: string): Date | null => {
   const prop = page.properties[datePropName]
   if (!prop) return null
   if (prop.type === 'date') {
     const s = (prop as any).date?.start
-    return s ? new Date(s) : null
+    return s ? parseLocalDate(s) : null
   }
   if (prop.type === 'formula') {
     const f = (prop as any).formula
-    if (f?.type === 'date') return f.date?.start ? new Date(f.date.start) : null
-    if (f?.type === 'string') return f.string ? new Date(f.string) : null
+    if (f?.type === 'date') return f.date?.start ? parseLocalDate(f.date.start) : null
+    if (f?.type === 'string' && f.string) return parseLocalDate(f.string)
   }
   return null
 }
@@ -332,8 +339,8 @@ const applyTimeframeToVisibility = (range: { start: string; end: string } | null
     extraVisibleIds.value = new Set(extraPages.value.map(p => p.id))
     return
   }
-  const start = new Date(range.start)
-  const end = new Date(range.end)
+  const start = parseLocalDate(range.start)
+  const end = parseLocalDate(range.end)
   end.setHours(23, 59, 59, 999)
 
   const datePropName = columnMappings.value['date']
