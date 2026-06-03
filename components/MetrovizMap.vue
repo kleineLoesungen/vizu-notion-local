@@ -52,6 +52,13 @@ async function loadLibraries() {
   // Metroviz vendor files reference d3 as a global — expose it before importing them
   const d3 = await import('d3')
   ;(window as any).d3 = d3
+  // Metroviz uses i18next for tooltip labels; provide a pass-through stub if not already loaded
+  if (!(window as any).i18next) {
+    ;(window as any).i18next = {
+      t: (key: string, opts?: any) => opts?.defaultValue ?? key,
+      language: 'en',
+    }
+  }
   // Dynamic imports to ensure these only run in browser context (not SSR)
   const [rendererMod, layoutMod, dataMod] = await Promise.all([
     import('@/vendor/metroviz/js/metro-renderer.js'),

@@ -139,9 +139,9 @@
               @node-click="handleFlowNodeClick"
             />
 
-            <!-- D-10: Notion links list below visualization -->
+            <!-- D-10: Notion links list — primary + all visible extra-source pages -->
             <NotionLinksList
-              :pages="filteredPages"
+              :pages="allVisiblePages"
               :column-mappings="columnMappings"
             />
           </div>
@@ -264,6 +264,14 @@ watch(extraPages, (newPages, oldPages) => {
 const allPagesForPanel = computed<EnrichedPage[]>(() => [
   ...pages.value,
   ...extraPages.value,
+])
+
+// Visible pages from all sources — used for the Notion links list at the bottom
+const allVisiblePages = computed<EnrichedPage[]>(() => [
+  ...filteredPages.value,
+  ...(extraSourcesData.value ?? []).flatMap(d =>
+    (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
+  ),
 ])
 
 // Combined visible IDs for FilterPanel

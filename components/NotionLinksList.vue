@@ -30,6 +30,10 @@ const getPageTitle = (page: EnrichedPage): string => {
     if (prop?.type === 'title') return (prop as any).title?.[0]?.plain_text || page.id.slice(0, 8)
     if (prop?.type === 'rich_text') return (prop as any).rich_text?.[0]?.plain_text || page.id.slice(0, 8)
   }
+  // Fallback for pages from extra sources with different column mappings
+  for (const prop of Object.values(page.properties)) {
+    if (prop.type === 'title') return (prop as any).title?.[0]?.plain_text || page.id.slice(0, 8)
+  }
   return page.id.slice(0, 8)
 }
 

@@ -55,14 +55,14 @@
             type="date"
             class="w-full px-2 py-1 text-xs border border-gray-300 rounded text-gray-900"
             aria-label="Start date"
-            @input="customStart = ($event.target as HTMLInputElement).value"
+            @change="setCustomStart"
           />
           <input
             :value="customEnd"
             type="date"
             class="w-full px-2 py-1 text-xs border border-gray-300 rounded text-gray-900"
             aria-label="End date"
-            @input="customEnd = ($event.target as HTMLInputElement).value"
+            @change="setCustomEnd"
           />
           <button
             class="mt-1 px-2 py-1.5 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40"
@@ -181,6 +181,9 @@ const applyShortcut = (key: '4w' | '3m' | '6m') => {
     end: end.toISOString().split('T')[0],
   })
 }
+
+const setCustomStart = (e: Event) => { customStart.value = (e.target as HTMLInputElement).value }
+const setCustomEnd   = (e: Event) => { customEnd.value   = (e.target as HTMLInputElement).value }
 
 const applyCustom = () => {
   if (!canApplyCustom.value) return
