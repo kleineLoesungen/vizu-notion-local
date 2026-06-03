@@ -1,5 +1,5 @@
 <template>
-  <div id="flow-viz-container" class="flow-canvas w-full"
+  <div id="flow-viz-container" class="flow-canvas w-full">
     <svg
       v-if="nodes.length > 0"
       ref="svgRef"
