@@ -85,9 +85,9 @@ Plans:
 - [x] 03-02-PLAN.md — Dashboard: SourceCard component + pages/index.vue overhaul with card grid, timestamps, per-source refresh, global Fetch All
 - [x] 03-03-PLAN.md — Visualization panel components: FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton + node-click wiring in FlowDiagram and MetrovizMap
 - [x] 03-04-PLAN.md — Viz page integration: full overhaul of visualizations/[sourceId].vue assembling all Phase 3 features + human verification checkpoint
-- [ ] 03-05-PLAN.md — Gap closure: FilterPanel collapse toggle (mobile fix) + always-visible viz type label
+- [x] 03-05-PLAN.md — Gap closure: FilterPanel collapse toggle (mobile fix) + always-visible viz type label
 - [ ] 03-06-PLAN.md — Gap closure: Source selector dropdown on viz page header
-- [ ] 03-07-PLAN.md — Gap closure: Fix dashboard timestamp to reflect cache refreshes only (sessionStorage persistence)
+- [x] 03-07-PLAN.md — Gap closure: Fix dashboard timestamp to reflect cache refreshes only (sessionStorage persistence)
 
 ---
 

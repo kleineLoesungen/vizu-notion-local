@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T15:06:49.730Z"
+last_updated: "2026-06-03T15:39:12.517Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 12
-  completed_plans: 10
+  total_plans: 15
+  completed_plans: 13
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 03 (user-experience) — EXECUTING
-Plan: 4 of 4
+Plan: 3 of 7
 
 ## Project Metrics
 
@@ -109,6 +109,14 @@ Plan: 4 of 4
 | Timestamps initialized via watch({ immediate: true }) | Fires immediately on load; sets current time as initial fetch time; updated on each per-source refresh | Implemented |
 | Refresh errors are non-blocking (console.error only) | Dashboard remains usable on single-source failure; consistent with Phase 1 Promise.allSettled silent-drop pattern | Implemented |
 
+### Key Decisions (03-07: Dashboard Timestamp Fix)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Replace watch({ immediate: true }) with onMounted+sessionStorage | watch fires on every component mount including return navigation — root cause of false timestamp updates | Implemented |
+| Timestamps only written after successful refresh in persistTimestamps() | Guarantees timestamps only advance after real Notion fetch; sessionStorage survives navigation but not page reload | Implemented |
+| Sources never refreshed show "Never fetched" via existing SourceCard undefined fallback | No new UI code needed; undefined lastFetched prop already handled in SourceCard | Implemented |
+
 ### Key Decisions (02-03: Process Flow Component)
 
 | Decision | Rationale | Status |
@@ -162,10 +170,10 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-**Last Activity**: 03-03-PLAN.md complete — 4 new components (FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton) + node-click wiring on FlowDiagram and MetrovizMap
+**Last Activity**: 03-07-PLAN.md complete — Fixed dashboard timestamp false-update on return navigation using sessionStorage persistence
 **Date**: 2026-06-03
-**Stopped At**: Completed 03-03-PLAN.md
-**Next Step**: Execute 03-04-PLAN.md (viz page assembly)
+**Stopped At**: Completed 03-07-PLAN.md
+**Next Step**: Phase 03 complete — proceed to Phase 04 deployment
 
 ---
 
@@ -184,6 +192,7 @@ Plan: 4 of 4
 - [x] Execute 02-02: Metroviz component — complete (useMetrovizData composable, MetrovizMap.vue, LoadingSpinner.vue, ErrorAlert.vue)
 - [x] Execute 02-03: Process flow component — complete (useFlowData, useSourceData composables, FlowDiagram.vue)
 - [x] Execute 03-03: UI components — complete (FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton, + node-click on viz components)
+- [x] Execute 03-07: Dashboard timestamp fix — complete (sessionStorage persistence, removed watch({ immediate: true }))
 
 ### Blockers
 
