@@ -146,15 +146,12 @@
             />
           </div>
 
-          <!-- Right panel: FilterPanel (always shown when viz loaded) -->
+          <!-- Right panel: visibility panel (primary + extra sources combined) -->
           <FilterPanel
-            :pages="pages"
+            :pages="allPagesForPanel"
             :column-mappings="columnMappings"
-            :visible-node-ids="visibleNodeIds"
-            :active-filters="activeFilters"
-            @toggle-node="toggleNode"
-            @apply-filter="applyFilter"
-            @remove-filter="removeFilter"
+            :visible-node-ids="allVisibleIds"
+            @toggle-node="handleToggleNode"
           />
         </div>
 
@@ -235,14 +232,59 @@ const { data: extraSourcesData, refresh: refreshExtraSources } = useAsyncData(
 
 watch(extraSourceIds, () => { refreshExtraSources() })
 
+// Flat array of all pages from extra sources
+const extraPages = computed<EnrichedPage[]>(() =>
+  (extraSourcesData.value ?? []).flatMap(d => d.pages as EnrichedPage[])
+)
+
+// Quick lookup for extra-source page IDs
+const extraPageIds = computed(() => new Set(extraPages.value.map(p => p.id)))
+
+// Visibility state for extra-source pages (initialized to all visible when pages arrive)
+const extraVisibleIds = ref<Set<string>>(new Set())
+
+watch(extraPages, (newPages, oldPages) => {
+  const newIds = new Set(newPages.map(p => p.id))
+  const oldIds = new Set((oldPages ?? []).map(p => p.id))
+  const next = new Set(extraVisibleIds.value)
+  for (const p of newPages) {
+    if (!oldIds.has(p.id)) next.add(p.id)
+  }
+  for (const id of [...next]) {
+    if (!newIds.has(id)) next.delete(id)
+  }
+  extraVisibleIds.value = next
+})
+
+// All pages for the FilterPanel (primary + extra sources combined)
+const allPagesForPanel = computed<EnrichedPage[]>(() => [
+  ...pages.value,
+  ...extraPages.value,
+])
+
+// Combined visible IDs for FilterPanel
+const allVisibleIds = computed(() => new Set([
+  ...visibleNodeIds.value,
+  ...extraVisibleIds.value,
+]))
+
+// Route toggle events to primary or extra visibility state
+const handleToggleNode = (pageId: string) => {
+  if (extraPageIds.value.has(pageId)) {
+    const next = new Set(extraVisibleIds.value)
+    if (next.has(pageId)) next.delete(pageId)
+    else next.add(pageId)
+    extraVisibleIds.value = next
+  } else {
+    toggleNode(pageId)
+  }
+}
+
 // Phase 3 — UI-04, UI-02: Filter state and node visibility
 const {
   filteredPages,
   visibleNodeIds,
-  activeFilters,
   toggleNode,
-  applyFilter,
-  removeFilter,
   setHiddenNodes,
   setActiveFilters,
 } = useFilterState(pages, columnMappings)
@@ -270,12 +312,13 @@ const metrovizMapRef = ref<any>(null)
 // Computed: expose metroviz container ID for ExportButton (from defineExpose in MetrovizMap)
 const metrovizContainerId = computed(() => metrovizMapRef.value?.containerId ?? '')
 
-// Metro map data: primary source (filters applied) + any additional selected sources
+// Metro map data: primary source (visibility applied) + extra sources (their own visibility applied)
 const metrovizData = computed(() => {
   const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
-  const extras = (extraSourcesData.value ?? []).map(d =>
-    useMetrovizData(d.pages as EnrichedPage[], d.source.columnMappings, d.source.name)
-  )
+  const extras = (extraSourcesData.value ?? []).map(d => {
+    const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
+    return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
+  })
   return extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
 })
 
