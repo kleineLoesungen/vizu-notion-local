@@ -26,7 +26,7 @@
 
 - [x] **VIZ-01**: Metro map visualization (Metroviz) renders hierarchical Notion data as a metro-line style diagram
 - [x] **VIZ-02**: Process flow visualization (Vue Flow) renders sequential/workflow Notion data as a node-edge flow diagram
-- [ ] **VIZ-03**: Available visualization types for a given source are derived from config data type mappings — user selects from valid options only
+- [x] **VIZ-03**: Available visualization types for a given source are derived from config data type mappings — user selects from valid options only
 
 ### User Interface
 
@@ -91,7 +91,7 @@
 | INFRA-03 | Phase 1 | Complete |
 | VIZ-01 | Phase 2 | Complete |
 | VIZ-02 | Phase 2 | Complete |
-| VIZ-03 | Phase 2 | Pending |
+| VIZ-03 | Phase 2 | Complete |
 | UI-01 | Phase 3 | Pending |
 | UI-02 | Phase 3 | Pending |
 | UI-03 | Phase 3 | Pending |

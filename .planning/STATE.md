@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T05:13:04.421Z"
+last_updated: "2026-06-03T05:15:12.122Z"
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 02 (visualization) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Project Metrics
 
@@ -91,6 +91,15 @@ Plan: 3 of 4
 | Empty pages returns default 'Timeline' zone | Prevents DataModel validation error when zones array is empty; graceful degradation per D-08 | Implemented |
 | TDD skipped for composable | Vitest explicitly out of scope for v1 per CLAUDE.md; behavior spec guided implementation | Implemented |
 
+### Key Decisions (02-03: Process Flow Component)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| useFlowData is a pure function (no reactivity) | Callers wrap in computed() for reactivity; keeps composable testable and context-free | Implemented |
+| Left-to-right flat layout: x = idx * 250, y = 100 | Simple horizontal row per RESEARCH.md — sufficient for v1, extensible later | Implemented |
+| Orphaned edge targets silently skipped via pageIds.has() | Consistent with Phase 1 Promise.allSettled silent-drop pattern for deleted/external pages | Implemented |
+| isMetroEligible/isFlowEligible exported as named pure functions AND computed refs in useSourceData | Enables both reactive template use and standalone testing; VIZ-03 D-04/D-05 rules | Implemented |
+
 ### Key Decisions (01-04: E2E Verification)
 
 | Decision | Rationale | Status |
@@ -122,10 +131,10 @@ Plan: 3 of 4
 
 ## Session Continuity
 
-**Last Activity**: Completed 02-02-PLAN.md — useMetrovizData composable and MetrovizMap/LoadingSpinner/ErrorAlert components created
+**Last Activity**: Completed 02-03-PLAN.md — useFlowData, useSourceData composables, and FlowDiagram.vue created
 **Date**: 2026-06-03
-**Stopped At**: Completed 02-02-PLAN.md
-**Next Step**: Execute 02-03 (Vue Flow component) and 02-04 (Visualization page)
+**Stopped At**: Completed 02-03-PLAN.md
+**Next Step**: Execute 02-04 (Integration pages: index.vue source list + visualizations/[sourceId].vue)
 
 ---
 
@@ -142,6 +151,7 @@ Plan: 3 of 4
 - [x] Execute 01-04: Docker production verification — complete (two SDK bugs found and fixed)
 - [x] Execute 02-01: Visualization infrastructure — complete (TailwindCSS v4, Vue Flow, Metroviz vendored)
 - [x] Execute 02-02: Metroviz component — complete (useMetrovizData composable, MetrovizMap.vue, LoadingSpinner.vue, ErrorAlert.vue)
+- [x] Execute 02-03: Process flow component — complete (useFlowData, useSourceData composables, FlowDiagram.vue)
 
 ### Blockers
 
