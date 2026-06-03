@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Metroviz SVG canvas sizing */
+.metroviz-canvas svg {
+  width: 100%;
+  height: auto;
+}
