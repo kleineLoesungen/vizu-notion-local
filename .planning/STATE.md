@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T15:01:54.150Z"
+last_updated: "2026-06-03T15:06:49.730Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 03 (user-experience) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Project Metrics
 
@@ -126,6 +126,15 @@ Plan: 3 of 4
 | Remove per-request column mapping validation | retrieveDatabase().properties removed in v5; startup ajv validation still catches malformed configs; per-request check was defense-in-depth, not correctness | Implemented |
 | Lock major version of @notionhq/client | Breaking changes between majors are non-obvious; explicit pin prevents future silent breakage | Implemented |
 
+### Key Decisions (03-03: UI Components)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Components built as standalone building blocks (not embedded in viz page) | Plan 04 assembles all components; keeps each component independently testable | Implemented |
+| MetrovizMap uses event delegation on container for node-click | Metroviz renders vanilla SVG; data-id attributes may not be present; null emitted on background clicks | Implemented |
+| clickListenerAttached guard in MetrovizMap | Prevents duplicate click listeners when data watch triggers re-render | Implemented |
+| NodeDetailPanel renders all page.properties (not just columnMappings) | Gives users full Notion context; columnMappings are display hints, not a whitelist | Implemented |
+
 ### Roadmap Evolution
 
 - Phase 4 added: Deployment — Dockerfile + docker-compose, Docker Hub prep, README.md, single HTML product page
@@ -153,10 +162,10 @@ Plan: 3 of 4
 
 ## Session Continuity
 
-**Last Activity**: 03-01-PLAN.md complete — 5 files: state-encoding utils, useFilterState, useUrlState, useExport composables + POST /api/sources/:id/refresh endpoint
+**Last Activity**: 03-03-PLAN.md complete — 4 new components (FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton) + node-click wiring on FlowDiagram and MetrovizMap
 **Date**: 2026-06-03
-**Stopped At**: Completed 03-01-PLAN.md
-**Next Step**: Execute 03-02-PLAN.md or continue to next parallel plan
+**Stopped At**: Completed 03-03-PLAN.md
+**Next Step**: Execute 03-04-PLAN.md (viz page assembly)
 
 ---
 
@@ -174,6 +183,7 @@ Plan: 3 of 4
 - [x] Execute 02-01: Visualization infrastructure — complete (TailwindCSS v4, Vue Flow, Metroviz vendored)
 - [x] Execute 02-02: Metroviz component — complete (useMetrovizData composable, MetrovizMap.vue, LoadingSpinner.vue, ErrorAlert.vue)
 - [x] Execute 02-03: Process flow component — complete (useFlowData, useSourceData composables, FlowDiagram.vue)
+- [x] Execute 03-03: UI components — complete (FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton, + node-click on viz components)
 
 ### Blockers
 
