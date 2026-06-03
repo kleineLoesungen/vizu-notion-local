@@ -334,6 +334,7 @@ const allVisibleIds = computed(() => new Set([
 
 // Route toggle events to primary or extra visibility state
 const handleToggleNode = (pageId: string) => {
+  activeTimeframe.value = null
   if (extraPageIds.value.has(pageId)) {
     const next = new Set(extraVisibleIds.value)
     if (next.has(pageId)) next.delete(pageId)
@@ -431,6 +432,7 @@ const applyTimeframeToVisibility = (range: { start: string; end: string } | null
 
 // Bulk visibility toggle used by FilterPanel group headers
 const handleSetNodesVisible = (ids: string[], visible: boolean) => {
+  activeTimeframe.value = null
   const primaryIds = ids.filter(id => !extraPageIds.value.has(id))
   const extraIds = ids.filter(id => extraPageIds.value.has(id))
 
