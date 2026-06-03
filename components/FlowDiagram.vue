@@ -1,10 +1,11 @@
 <template>
-  <div id="flow-viz-container" class="flow-canvas w-full overflow-auto">
+  <div class="flow-canvas w-full" style="min-height: 400px">
     <svg
       v-if="nodes.length > 0"
-      :width="svgW"
-      :height="svgH"
-      :viewBox="`0 0 ${svgW} ${svgH}`"
+      ref="svgRef"
+      width="100%"
+      height="100%"
+      style="min-height: 400px; display: block"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
@@ -21,43 +22,45 @@
         </marker>
       </defs>
 
-      <!-- Edges (drawn below nodes) -->
-      <path
-        v-for="edge in edges"
-        :key="edge.id"
-        :d="edgePath(edge)"
-        stroke="#94a3b8"
-        stroke-width="1.5"
-        fill="none"
-        marker-end="url(#flow-arrow)"
-      />
-
-      <!-- Nodes -->
-      <g
-        v-for="node in nodes"
-        :key="node.id"
-        :transform="`translate(${ox + node.position.x}, ${oy + node.position.y})`"
-        style="cursor: pointer"
-        @click="emit('node-click', node.data.page)"
-      >
-        <rect
-          :width="NW"
-          :height="NH"
-          rx="6"
-          fill="white"
-          stroke="#1e293b"
-          stroke-width="2"
+      <g :transform="zoomTransform">
+        <!-- Edges (drawn below nodes) -->
+        <path
+          v-for="edge in edges"
+          :key="edge.id"
+          :d="edgePath(edge)"
+          stroke="#94a3b8"
+          stroke-width="1.5"
+          fill="none"
+          marker-end="url(#flow-arrow)"
         />
-        <text
-          :x="NW / 2"
-          :y="NH / 2 + 5"
-          text-anchor="middle"
-          dominant-baseline="middle"
-          font-size="12"
-          font-weight="600"
-          fill="#0f172a"
-          font-family="system-ui,-apple-system,sans-serif"
-        >{{ truncate(node.data.label) }}</text>
+
+        <!-- Nodes -->
+        <g
+          v-for="node in nodes"
+          :key="node.id"
+          :transform="`translate(${ox + node.position.x}, ${oy + node.position.y})`"
+          style="cursor: pointer"
+          @click="emit('node-click', node.data.page)"
+        >
+          <rect
+            :width="NW"
+            :height="NH"
+            rx="6"
+            fill="white"
+            stroke="#1e293b"
+            stroke-width="2"
+          />
+          <text
+            :x="NW / 2"
+            :y="NH / 2 + 5"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-size="12"
+            font-weight="600"
+            fill="#0f172a"
+            font-family="system-ui,-apple-system,sans-serif"
+          >{{ truncate(node.data.label) }}</text>
+        </g>
       </g>
     </svg>
 
@@ -68,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useFlowData, type FlowEdge } from '@/composables/useFlowData'
 import type { EnrichedPage } from '@/server/utils/relations'
 import type { ColumnMappings } from '@/server/utils/config'
@@ -103,15 +106,6 @@ const oy = computed(() => {
   return PAD - Math.min(...nodes.value.map(n => n.position.y))
 })
 
-const svgW = computed(() => {
-  if (!nodes.value.length) return 400
-  return Math.max(...nodes.value.map(n => ox.value + n.position.x + NW)) + PAD
-})
-const svgH = computed(() => {
-  if (!nodes.value.length) return 200
-  return Math.max(...nodes.value.map(n => oy.value + n.position.y + NH)) + PAD
-})
-
 // Cubic bezier: source bottom-center → target top-center
 const edgePath = (edge: FlowEdge): string => {
   const src = nodeMap.value.get(edge.source)
@@ -126,6 +120,44 @@ const edgePath = (edge: FlowEdge): string => {
 }
 
 const truncate = (s: string, max = 18) => s.length > max ? s.slice(0, max - 1) + '…' : s
+
+// ── Zoom / pan (D3) ──────────────────────────────────────────────────────────
+
+const svgRef = ref<SVGSVGElement | null>(null)
+const zoomTransform = ref('translate(0,0) scale(1)')
+let zoomBehavior: any = null
+let d3Module: any = null
+
+async function initZoom() {
+  await nextTick()
+  if (!svgRef.value) return
+
+  if (!d3Module) {
+    d3Module = (window as any).d3 ?? await import('d3')
+    if (!(window as any).d3) (window as any).d3 = d3Module
+  }
+
+  // Reset transform on data change
+  zoomTransform.value = 'translate(0,0) scale(1)'
+
+  zoomBehavior = d3Module.zoom()
+    .scaleExtent([0.15, 5])
+    .on('zoom', (event: any) => {
+      zoomTransform.value = event.transform.toString()
+    })
+
+  d3Module.select(svgRef.value)
+    .call(zoomBehavior)
+    .on('dblclick.zoom', null)  // disable double-click zoom reset
+}
+
+watch(() => nodes.value.length, () => initZoom(), { immediate: true })
+
+onBeforeUnmount(() => {
+  if (svgRef.value && d3Module) {
+    d3Module.select(svgRef.value).on('.zoom', null)
+  }
+})
 </script>
 
 <style scoped>
@@ -134,5 +166,12 @@ const truncate = (s: string, max = 18) => s.length > max ? s.slice(0, max - 1) +
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   min-height: 200px;
+  overflow: hidden;
+}
+.flow-canvas svg {
+  cursor: grab;
+}
+.flow-canvas svg:active {
+  cursor: grabbing;
 }
 </style>
