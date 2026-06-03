@@ -94,6 +94,8 @@ function extractSubLabel(prop: any): string {
       return prop.title?.[0]?.plain_text ?? ''
     case 'select':
       return prop.select?.name ?? ''
+    case 'status':
+      return prop.status?.name ?? ''
     case 'multi_select':
       return prop.multi_select?.map((s: any) => s.name).join(', ') ?? ''
     case 'people':
