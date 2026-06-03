@@ -82,11 +82,21 @@ const renderPropValue = (prop: any): string => {
   if (prop.type === 'title') return prop.title?.[0]?.plain_text || 'empty'
   if (prop.type === 'rich_text') return prop.rich_text?.map((t: any) => t.plain_text).join('') || 'empty'
   if (prop.type === 'select') return prop.select?.name || 'Not set'
+  if (prop.type === 'status') return prop.status?.name || 'Not set'
   if (prop.type === 'multi_select') return prop.multi_select?.map((s: any) => s.name).join(', ') || 'None'
   if (prop.type === 'date') return prop.date?.start || 'No date'
   if (prop.type === 'checkbox') return prop.checkbox ? 'Yes' : 'No'
   if (prop.type === 'number') return prop.number != null ? String(prop.number) : 'empty'
+  if (prop.type === 'people') return prop.people?.map((p: any) => p.name ?? p.id).join(', ') || 'None'
   if (prop.type === 'relation') return `${prop.relation?.length || 0} linked`
+  if (prop.type === 'formula') {
+    const f = prop.formula
+    if (!f) return 'empty'
+    if (f.type === 'string') return f.string ?? 'empty'
+    if (f.type === 'number') return String(f.number ?? '')
+    if (f.type === 'boolean') return f.boolean ? 'Yes' : 'No'
+    if (f.type === 'date') return f.date?.start ?? 'No date'
+  }
   return JSON.stringify(prop)
 }
 </script>
