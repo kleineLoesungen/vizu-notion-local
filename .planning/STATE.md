@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T05:15:12.122Z"
+last_updated: "2026-06-03T15:00:53.128Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 1
-  total_plans: 8
-  completed_plans: 7
+  total_plans: 12
+  completed_plans: 8
 ---
 
 # STATE: vizu-notion-local
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 02 (visualization) — EXECUTING
-Plan: 4 of 4
+Phase: 03 (user-experience) — EXECUTING
+Plan: 2 of 4
 
 ## Project Metrics
 
@@ -91,6 +91,15 @@ Plan: 4 of 4
 | Empty pages returns default 'Timeline' zone | Prevents DataModel validation error when zones array is empty; graceful degradation per D-08 | Implemented |
 | TDD skipped for composable | Vitest explicitly out of scope for v1 per CLAUDE.md; behavior spec guided implementation | Implemented |
 
+### Key Decisions (03-02: Dashboard with SourceCard Grid)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| SourceCard derives eligibility inline from columnMappings keys | /api/sources does not return availableRoles; same logic as isMetroEligible/isFlowEligible but applied to columnMappings | Implemented |
+| Global Fetch All is sequential not parallel | Avoids Notion rate limit spikes (3 req/s); sequential ensures all sources updated before button re-enables | Implemented |
+| Timestamps initialized via watch({ immediate: true }) | Fires immediately on load; sets current time as initial fetch time; updated on each per-source refresh | Implemented |
+| Refresh errors are non-blocking (console.error only) | Dashboard remains usable on single-source failure; consistent with Phase 1 Promise.allSettled silent-drop pattern | Implemented |
+
 ### Key Decisions (02-03: Process Flow Component)
 
 | Decision | Rationale | Status |
@@ -107,6 +116,10 @@ Plan: 4 of 4
 | Downgrade @notionhq/client to 2.3.0 (pin explicitly) | v5.x removed databases.query and DatabaseObjectResponse.properties, breaking existing code; 2.x matches implementation patterns | Implemented |
 | Remove per-request column mapping validation | retrieveDatabase().properties removed in v5; startup ajv validation still catches malformed configs; per-request check was defense-in-depth, not correctness | Implemented |
 | Lock major version of @notionhq/client | Breaking changes between majors are non-obvious; explicit pin prevents future silent breakage | Implemented |
+
+### Roadmap Evolution
+
+- Phase 4 added: Deployment — Dockerfile + docker-compose, Docker Hub prep, README.md, single HTML product page
 
 ### Architecture Notes
 
@@ -131,10 +144,10 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-**Last Activity**: Tasks 1 and 2 of 02-04-PLAN.md complete — pages/index.vue and pages/visualizations/[sourceId].vue created
+**Last Activity**: 03-02-PLAN.md complete — SourceCard component + dashboard index.vue with card grid, timestamps, per-source refresh, and Fetch All
 **Date**: 2026-06-03
-**Stopped At**: Checkpoint: Task 3 of 02-04-PLAN.md — awaiting human verification
-**Next Step**: Human verifies visualizations render from live Notion data, then approve to trigger SUMMARY creation
+**Stopped At**: Completed 03-02-PLAN.md
+**Next Step**: Execute 03-03-PLAN.md (visualization page enhancements)
 
 ---
 

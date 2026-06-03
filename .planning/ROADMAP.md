@@ -82,7 +82,7 @@ Plans:
 
 Plans:
 - [ ] 03-01-PLAN.md — State composables + URL encoding utilities + server cache invalidation endpoint (useFilterState, useUrlState, useExport, utils/state-encoding.ts, POST /api/sources/:id/refresh)
-- [ ] 03-02-PLAN.md — Dashboard: SourceCard component + pages/index.vue overhaul with card grid, timestamps, per-source refresh, global Fetch All
+- [x] 03-02-PLAN.md — Dashboard: SourceCard component + pages/index.vue overhaul with card grid, timestamps, per-source refresh, global Fetch All
 - [ ] 03-03-PLAN.md — Visualization panel components: FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton + node-click wiring in FlowDiagram and MetrovizMap
 - [ ] 03-04-PLAN.md — Viz page integration: full overhaul of visualizations/[sourceId].vue assembling all Phase 3 features + human verification checkpoint
 
@@ -94,7 +94,23 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
 | 2. Visualization | 2/4 | In Progress|  |
-| 3. User Experience | 0/4 | Not started | — |
+| 3. User Experience | 1/4 | In Progress|  |
+
+### Phase 4: Deployment
+
+**Goal:** Production-ready Docker packaging, Docker Hub publishing prep, user-facing README, and a single-page HTML product site
+
+**Deliverables:**
+- Dockerfile (multi-stage) + docker-compose.yml for one-command local startup
+- Docker Hub publishing preparation (image tagging, push workflow)
+- README.md with key features, architecture overview, and getting started guide
+- Single HTML product page — modern, Notion-like aesthetic
+
+**Requirements**: TBD
+**Depends on:** Phase 3
+**Plans:** 1/4 plans executed
+
+---
 
 ---
 
