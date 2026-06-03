@@ -1,5 +1,5 @@
 <template>
-  <div class="flow-canvas w-full" style="height: 600px; border: 1px solid #e5e7eb;">
+  <div id="flow-viz-container" class="flow-canvas w-full" style="height: 600px; border: 1px solid #e5e7eb;">
     <VueFlow
       v-if="nodes.length > 0"
       :nodes="nodes"
@@ -9,7 +9,8 @@
     >
       <template #node-default="{ data }">
         <div
-          style="background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 400; min-width: 120px; text-align: center;"
+          @click="emit('node-click', data.page)"
+          style="background: #ffffff; border: 2px solid #1e293b; border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600; color: #0f172a; min-width: 120px; text-align: center; white-space: nowrap; cursor: pointer;"
         >
           {{ data.label }}
         </div>
@@ -32,6 +33,10 @@ import type { ColumnMappings } from '@/server/utils/config'
 const props = defineProps<{
   data: EnrichedPage[]
   columnMappings: ColumnMappings
+}>()
+
+const emit = defineEmits<{
+  'node-click': [page: EnrichedPage]
 }>()
 
 const flowData = computed(() => useFlowData(props.data, props.columnMappings))

@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, watch, getCurrentInstance } from 'vue'
+import { onMounted, onBeforeUnmount, watch, getCurrentInstance, nextTick } from 'vue'
 import type { MetrovizInputData } from '@/composables/useMetrovizData'
 
 // Vendor imports — these are ES6 modules, imported at component scope
@@ -19,15 +19,39 @@ const props = defineProps<{
   sourceTitle?: string
 }>()
 
+const emit = defineEmits<{
+  'node-click': [pageId: string | null]
+}>()
+
 // Unique ID per instance to avoid CSS selector collisions
 const instanceId = getCurrentInstance()?.uid ?? Math.random().toString(36).slice(2)
 const containerId = `metroviz-container-${instanceId}`
 
 let rendererInstance: any = null
 let isInitialized = false
+let clickListenerAttached = false
+
+function attachClickListener() {
+  const container = document.getElementById(containerId)
+  if (!container || clickListenerAttached) return
+  container.addEventListener('click', (e: Event) => {
+    const target = e.target as Element
+    const stationEl = target.closest('[data-id]') as Element | null
+    if (stationEl) {
+      const pageId = stationEl.getAttribute('data-id')
+      emit('node-click', pageId)
+    } else {
+      emit('node-click', null)
+    }
+  })
+  clickListenerAttached = true
+}
 
 async function loadLibraries() {
   if (isInitialized) return
+  // Metroviz vendor files reference d3 as a global — expose it before importing them
+  const d3 = await import('d3')
+  ;(window as any).d3 = d3
   // Dynamic imports to ensure these only run in browser context (not SSR)
   const [rendererMod, layoutMod, dataMod] = await Promise.all([
     import('@/vendor/metroviz/js/metro-renderer.js'),
@@ -60,6 +84,8 @@ async function renderMap(data: MetrovizInputData) {
     // MetroRenderer takes a CSS selector string
     rendererInstance = new MetroRenderer(`#${containerId}`)
     rendererInstance.render(layout)
+    await nextTick()
+    attachClickListener()
   } catch (err) {
     console.error('[MetrovizMap] Render error:', err)
     container.innerHTML = `<div class="p-4 text-red-600">Metro map could not be rendered: ${err instanceof Error ? err.message : 'Unknown error'}</div>`
@@ -82,6 +108,8 @@ onBeforeUnmount(() => {
   if (container) container.innerHTML = ''
   rendererInstance = null
 })
+
+defineExpose({ containerId })
 </script>
 
 <style scoped>
