@@ -50,9 +50,10 @@
             stroke="#1e293b"
             stroke-width="2"
           />
+          <!-- Title line -->
           <text
             :x="NW / 2"
-            :y="NH / 2 + 5"
+            :y="node.data.subLabel ? NH * 0.38 : NH / 2 + 5"
             text-anchor="middle"
             dominant-baseline="middle"
             font-size="12"
@@ -60,6 +61,18 @@
             fill="#0f172a"
             font-family="system-ui,-apple-system,sans-serif"
           >{{ truncate(node.data.label) }}</text>
+          <!-- Sub-label line (only when present) -->
+          <text
+            v-if="node.data.subLabel"
+            :x="NW / 2"
+            :y="NH * 0.68"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-size="10"
+            font-weight="400"
+            fill="#64748b"
+            font-family="system-ui,-apple-system,sans-serif"
+          >{{ truncate(node.data.subLabel, 20) }}</text>
         </g>
       </g>
     </svg>
@@ -79,6 +92,7 @@ import type { ColumnMappings } from '@/server/utils/config'
 const props = defineProps<{
   data: EnrichedPage[]
   columnMappings: ColumnMappings
+  nodeAttribute?: string
 }>()
 
 const emit = defineEmits<{
@@ -87,14 +101,18 @@ const emit = defineEmits<{
 
 // Node dimensions — must match useFlowData's NODE_WIDTH (160) for correct edge endpoints
 const NW = 160
-const NH = 44
+const NH_SINGLE = 44
+const NH_DOUBLE = 66
 const PAD = 40
 
-const flowData = computed(() => useFlowData(props.data, props.columnMappings))
+const flowData = computed(() => useFlowData(props.data, props.columnMappings, props.nodeAttribute))
 const nodes = computed(() => flowData.value.nodes)
 const edges = computed(() => flowData.value.edges)
 
 const nodeMap = computed(() => new Map(nodes.value.map(n => [n.id, n])))
+
+const hasSubLabel = computed(() => nodes.value.some(n => n.data.subLabel))
+const NH = computed(() => hasSubLabel.value ? NH_DOUBLE : NH_SINGLE)
 
 // Offset to shift all node positions so the leftmost/topmost node starts at PAD
 const ox = computed(() => {
@@ -112,7 +130,7 @@ const edgePath = (edge: FlowEdge): string => {
   const tgt = nodeMap.value.get(edge.target)
   if (!src || !tgt) return ''
   const x1 = ox.value + src.position.x + NW / 2
-  const y1 = oy.value + src.position.y + NH
+  const y1 = oy.value + src.position.y + NH.value
   const x2 = ox.value + tgt.position.x + NW / 2
   const y2 = oy.value + tgt.position.y
   const cy = (y1 + y2) / 2
