@@ -104,12 +104,10 @@ onMounted(() => {
   renderMap(props.data)
 })
 
-// D-03: Re-initialize on data changes (no reactive updates — full re-init)
-watch(
-  () => props.data,
-  (newData) => renderMap(newData),
-  { deep: true }
-)
+// Re-render on any data reference change. metrovizData (the parent computed) always
+// returns a new object, so reference equality is sufficient — and more reliable than
+// deep comparison, which can suppress renders when content appears structurally equal.
+watch(() => props.data, (newData) => renderMap(newData))
 
 onBeforeUnmount(() => {
   const container = document.getElementById(containerId)
