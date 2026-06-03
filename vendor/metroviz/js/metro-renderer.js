@@ -923,12 +923,29 @@ export class MetroRenderer {
     setupZoom(svg, zoomGroup) {
         const zoom = d3.zoom()
             .scaleExtent([0.2, 5])
-            .filter(event => event.type !== 'wheel' || event.ctrlKey || event.metaKey)
             .on('zoom', (event) => {
                 zoomGroup.attr('transform', event.transform);
             });
 
         svg.call(zoom);
+        svg.on('wheel.zoom', null);
+
+        const svgNode = svg.node();
+        svgNode.addEventListener('wheel', (event) => {
+            if (!event.ctrlKey && !event.metaKey) return;
+            event.preventDefault();
+            const delta = -event.deltaY * (event.deltaMode === 1 ? 20 : event.deltaMode === 2 ? 500 : 1);
+            const scaleFactor = Math.pow(2, delta * 0.002);
+            const currentTransform = d3.zoomTransform(svgNode);
+            const rect = svgNode.getBoundingClientRect();
+            const px = event.clientX - rect.left;
+            const py = event.clientY - rect.top;
+            const nextTransform = currentTransform
+                .translate(px, py)
+                .scale(scaleFactor)
+                .translate(-px, -py);
+            zoom.transform(svg, nextTransform);
+        }, { passive: false });
     }
 
     highlightLine(lineId) {
