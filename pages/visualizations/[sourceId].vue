@@ -204,6 +204,11 @@ const activeVizType = ref<'metro' | 'flow'>('metro')
 // Phase 3 — UI-05: Selected page for detail panel
 const selectedPage = ref<EnrichedPage | null>(null)
 
+// Reset panel state when the user switches sources
+watch(sourceId, () => {
+  selectedPage.value = null
+})
+
 // Copy link state for toast feedback
 const copyLinkSuccess = ref<boolean | null>(null) // null = not shown, true = success, false = error
 

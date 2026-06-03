@@ -12,12 +12,21 @@ export function useFilterState(
   const visibleNodeIds = ref<Set<string>>(new Set())
   const activeFilters = ref<FilterCriteria[]>([])
 
-  // Initialize all nodes as visible when pages first load
+  // Initialize all nodes as visible when pages first load, and reset on source switch
   watch(
     pages,
     (newPages) => {
-      // Only initialize if set is empty (first load); don't reset on re-fetch after refresh
-      if (visibleNodeIds.value.size === 0 && newPages.length > 0) {
+      if (newPages.length === 0) return
+      // First load
+      if (visibleNodeIds.value.size === 0) {
+        visibleNodeIds.value = new Set(newPages.map(p => p.id))
+        return
+      }
+      // Source switch: none of the new pages exist in current visibility set.
+      // Notion page IDs are globally unique, so zero overlap means a different source.
+      const hasOverlap = newPages.some(p => visibleNodeIds.value.has(p.id))
+      if (!hasOverlap) {
+        activeFilters.value = []
         visibleNodeIds.value = new Set(newPages.map(p => p.id))
       }
     },
