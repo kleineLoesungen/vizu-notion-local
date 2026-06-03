@@ -121,7 +121,7 @@
           <!-- Main visualization column -->
           <div class="flex-1 min-w-0">
             <!-- Viz type label/toggle (UI-03 + Gap 4 fix) -->
-            <div class="mb-4 flex items-center gap-2">
+            <div class="mb-4 flex items-center gap-3">
               <!-- When both types eligible: show interactive toggle buttons -->
               <template v-if="isMetroEligible && isFlowEligible">
                 <button
@@ -141,6 +141,12 @@
               <span v-else class="px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white">
                 {{ activeVizType === 'metro' ? 'Metro Map' : 'Process Flow' }}
               </span>
+
+              <!-- Timeline axis toggle (metro only) -->
+              <label v-if="activeVizType === 'metro'" class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer ml-1">
+                <input type="checkbox" v-model="showTimeline" class="w-3.5 h-3.5 cursor-pointer" />
+                Timeline axis
+              </label>
             </div>
 
             <!-- Multi-source selector (metro only) -->
@@ -170,6 +176,7 @@
               ref="metrovizMapRef"
               :data="metrovizData"
               :source-title="sourceName"
+              :show-timeline="showTimeline"
               @node-click="handleMetroNodeClick"
             />
 
@@ -467,6 +474,9 @@ const { downloadSVG, isExporting } = useExport()
 
 // Filter panel open/close state (toggled from the header icon button)
 const filterPanelOpen = ref(false)
+
+// Metro timeline axis visibility
+const showTimeline = ref(true)
 
 // UI-06: Restore state from URL on mount (shared link restoration)
 onMounted(() => {
