@@ -218,3 +218,11 @@ Plan: 4 of 7
 ---
 
 *State initialized: 2026-06-02*
+
+---
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260604-0nu | extend flow diagram attribute display | 2026-06-04 | 489d8b9 | [260604-0nu-extend-flow-diagram-attribute-display](./quick/260604-0nu-extend-flow-diagram-attribute-display/) |
