@@ -78,7 +78,7 @@ files_modified: 1
 | Task | Name | Commit | Files |
 |------|------|--------|-------|
 | 1 | Overhaul visualizations/[sourceId].vue with all Phase 3 features | 917a772 | pages/visualizations/[sourceId].vue |
-| 2 | checkpoint:human-verify | pending | — |
+| 2 | checkpoint:human-verify | completed — gaps found | — |
 
 ## Deviations from Plan
 
@@ -94,10 +94,48 @@ None. All components receive real data sources:
 - NodeDetailPanel receives selectedPage (set on node click)
 - ExportButton receives dynamic containerId based on activeVizType
 
-## Self-Check: PASSED
+## Human Verification: COMPLETED WITH GAPS
+
+Human verification was performed on 2026-06-03. The following checks passed and the following gaps were identified.
+
+### Checks Passed
+
+- Dashboard with source cards renders correctly
+- FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton are present and wired
+- Shareable URL encoding (Copy Link) is implemented
+- Node visibility toggles and property-based filters are implemented
+- SVG export button is present
+
+### Gaps Found
+
+**Gap 1: FilterPanel not collapsible — covers entire diagram on mobile**
+- On mobile viewports the FilterPanel occupies the full screen width, obscuring the entire visualization.
+- The panel has no collapse/expand control.
+- Impact: Users on narrow screens cannot see the diagram at all while the filter panel is open.
+- Required fix: Add a collapsible toggle (open/closed state) to FilterPanel; default to collapsed on narrow screens.
+
+**Gap 2: No source selector on the visualization page**
+- The viz page (`/visualizations/[sourceId]`) has no UI control to switch to a different source without going back to the dashboard.
+- Users must navigate back to the dashboard and re-select a source.
+- Required fix: Add a source selector dropdown (or equivalent control) on the viz page header that lists all configured sources and navigates to the chosen one.
+
+**Gap 3: Dashboard timestamp reflects page view time, not cache refresh time**
+- The timestamp shown on each source card always updates when the user clicks through to a diagram and returns, even when no cache refresh occurred.
+- Expected behavior: the timestamp should reflect the last time data was fetched from Notion (cache refresh time), not the time the page was visited.
+- Required fix: Timestamp should only update after a successful cache refresh (Refresh button click or initial load), not on each navigation event.
+
+**Gap 4: No viz type selector and no source selector on visualization page**
+- The viz type toggle (Metro Map / Process Flow) is only rendered when `isMetroEligible && isFlowEligible` — meaning it is hidden when only one type is eligible. Users have no way to understand what type is active.
+- More critically: there is no source selector at all on the viz page — users cannot switch between sources without returning to the dashboard.
+- This overlaps with Gap 2 but also calls out the viz type control specifically.
+- Required fix: Always show the active viz type label; show the toggle only when both types are eligible. Add a source selector control.
+
+## Self-Check: PASSED (with verification notes)
 
 Files exist:
 - pages/visualizations/[sourceId].vue — FOUND (202 lines added)
 
 Commits exist:
 - 917a772 — feat(03-04): integrate all Phase 3 components into viz page — FOUND
+
+Human verification completed — gaps found — routing to gap closure phase.
