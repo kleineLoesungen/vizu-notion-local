@@ -44,35 +44,38 @@
         >
           <rect
             :width="NW"
-            :height="NH"
+            :height="nr(node.id).nh"
             rx="6"
             fill="white"
             stroke="#1e293b"
             stroke-width="2"
           />
-          <!-- Title line -->
+          <!-- Title lines (word-wrapped, max 2) -->
           <text
+            v-for="(line, i) in nr(node.id).titleLines"
+            :key="'t' + i"
             :x="NW / 2"
-            :y="node.data.subLabel ? NH * 0.38 : NH / 2 + 5"
+            :y="nr(node.id).titleY0 + i * TITLE_LH"
             text-anchor="middle"
             dominant-baseline="middle"
             font-size="12"
             font-weight="600"
             fill="#0f172a"
             font-family="system-ui,-apple-system,sans-serif"
-          >{{ truncate(node.data.label) }}</text>
-          <!-- Sub-label line (only when present) -->
+          >{{ line }}</text>
+          <!-- Sub-label lines (word-wrapped, max 2) -->
           <text
-            v-if="node.data.subLabel"
+            v-for="(line, i) in nr(node.id).subLines"
+            :key="'s' + i"
             :x="NW / 2"
-            :y="NH * 0.68"
+            :y="nr(node.id).subY0 + i * SUB_LH"
             text-anchor="middle"
             dominant-baseline="middle"
             font-size="10"
             font-weight="400"
             fill="#64748b"
             font-family="system-ui,-apple-system,sans-serif"
-          >{{ truncate(node.data.subLabel, 20) }}</text>
+          >{{ line }}</text>
         </g>
       </g>
     </svg>
@@ -99,22 +102,67 @@ const emit = defineEmits<{
   'node-click': [page: EnrichedPage]
 }>()
 
-// Node dimensions — must match useFlowData's NODE_WIDTH (160) for correct edge endpoints
-const NW = 160
-const NH_SINGLE = 44
-const NH_DOUBLE = 66
-const PAD = 40
+// ── Layout constants ────────────────────────────────────────────────────────
+const NW = 160          // node width (must match useFlowData NODE_WIDTH)
+const PAD = 40          // canvas padding
+const TITLE_LH = 15     // title line-height (font-size 12)
+const SUB_LH = 13       // sub-label line-height (font-size 10)
+const TITLE_CHARS = 18  // ~6.8px/char × 18 ≈ 122px < 140px usable
+const SUB_CHARS = 22    // ~6px/char × 22 ≈ 132px < 140px usable
+const SEP = 5           // gap between title block and sub-label block
 
+// ── Word wrap ───────────────────────────────────────────────────────────────
+function wrapText(text: string, maxChars: number, maxLines: number): string[] {
+  if (!text) return []
+  const words = text.split(/\s+/)
+  const lines: string[] = []
+  let cur = ''
+  for (const word of words) {
+    if (lines.length >= maxLines) break
+    const safe = word.length > maxChars ? word.slice(0, maxChars - 1) + '–' : word
+    if (!cur) {
+      cur = safe
+    } else if ((cur + ' ' + word).length <= maxChars) {
+      cur += ' ' + word
+    } else {
+      lines.push(cur)
+      if (lines.length >= maxLines) { cur = ''; break }
+      cur = safe
+    }
+  }
+  if (cur && lines.length < maxLines) lines.push(cur)
+  return lines
+}
+
+// ── Per-node render info ────────────────────────────────────────────────────
+interface NodeRender { nh: number; titleLines: string[]; titleY0: number; subLines: string[]; subY0: number }
+
+const nodeRenderMap = computed((): Map<string, NodeRender> => {
+  const map = new Map<string, NodeRender>()
+  for (const node of nodes.value) {
+    const titleLines = wrapText(node.data.label, TITLE_CHARS, 2)
+    const subLines = node.data.subLabel ? wrapText(node.data.subLabel, SUB_CHARS, 2) : []
+    const titleBlockH = titleLines.length * TITLE_LH
+    const subBlockH = subLines.length > 0 ? SEP + subLines.length * SUB_LH : 0
+    const contentH = titleBlockH + subBlockH
+    const nh = Math.max(44, Math.ceil((contentH + 20) / 2) * 2)  // min 44, even number
+    const blockTopY = (nh - contentH) / 2
+    const titleY0 = blockTopY + TITLE_LH / 2
+    const subY0 = blockTopY + titleBlockH + SEP + SUB_LH / 2
+    map.set(node.id, { nh, titleLines, titleY0, subLines, subY0 })
+  }
+  return map
+})
+
+// Shorthand for template
+const nr = (id: string) => nodeRenderMap.value.get(id)!
+
+// ── Data ────────────────────────────────────────────────────────────────────
 const flowData = computed(() => useFlowData(props.data, props.columnMappings, props.nodeAttribute))
 const nodes = computed(() => flowData.value.nodes)
 const edges = computed(() => flowData.value.edges)
-
 const nodeMap = computed(() => new Map(nodes.value.map(n => [n.id, n])))
 
-const hasSubLabel = computed(() => nodes.value.some(n => n.data.subLabel))
-const NH = computed(() => hasSubLabel.value ? NH_DOUBLE : NH_SINGLE)
-
-// Offset to shift all node positions so the leftmost/topmost node starts at PAD
 const ox = computed(() => {
   if (!nodes.value.length) return PAD
   return PAD - Math.min(...nodes.value.map(n => n.position.x))
@@ -124,23 +172,20 @@ const oy = computed(() => {
   return PAD - Math.min(...nodes.value.map(n => n.position.y))
 })
 
-// Cubic bezier: source bottom-center → target top-center
+// ── Edges (use per-node height for source bottom) ───────────────────────────
 const edgePath = (edge: FlowEdge): string => {
   const src = nodeMap.value.get(edge.source)
   const tgt = nodeMap.value.get(edge.target)
   if (!src || !tgt) return ''
   const x1 = ox.value + src.position.x + NW / 2
-  const y1 = oy.value + src.position.y + NH.value
+  const y1 = oy.value + src.position.y + (nodeRenderMap.value.get(edge.source)?.nh ?? 44)
   const x2 = ox.value + tgt.position.x + NW / 2
   const y2 = oy.value + tgt.position.y
   const cy = (y1 + y2) / 2
   return `M ${x1} ${y1} C ${x1} ${cy}, ${x2} ${cy}, ${x2} ${y2}`
 }
 
-const truncate = (s: string, max = 18) => s.length > max ? s.slice(0, max - 1) + '…' : s
-
 // ── Zoom / pan (D3) ──────────────────────────────────────────────────────────
-
 const svgRef = ref<SVGSVGElement | null>(null)
 const zoomTransform = ref('translate(0,0) scale(1)')
 let zoomBehavior: any = null
@@ -149,32 +194,21 @@ let d3Module: any = null
 async function initZoom() {
   await nextTick()
   if (!svgRef.value) return
-
   if (!d3Module) {
     d3Module = (window as any).d3 ?? await import('d3')
     if (!(window as any).d3) (window as any).d3 = d3Module
   }
-
-  // Reset transform on data change
   zoomTransform.value = 'translate(0,0) scale(1)'
-
   zoomBehavior = d3Module.zoom()
     .scaleExtent([0.15, 5])
-    .on('zoom', (event: any) => {
-      zoomTransform.value = event.transform.toString()
-    })
-
-  d3Module.select(svgRef.value)
-    .call(zoomBehavior)
-    .on('dblclick.zoom', null)  // disable double-click zoom reset
+    .on('zoom', (event: any) => { zoomTransform.value = event.transform.toString() })
+  d3Module.select(svgRef.value).call(zoomBehavior).on('dblclick.zoom', null)
 }
 
 watch(() => nodes.value.length, () => initZoom(), { immediate: true })
 
 onBeforeUnmount(() => {
-  if (svgRef.value && d3Module) {
-    d3Module.select(svgRef.value).on('.zoom', null)
-  }
+  if (svgRef.value && d3Module) d3Module.select(svgRef.value).on('.zoom', null)
 })
 </script>
 
@@ -186,10 +220,6 @@ onBeforeUnmount(() => {
   min-height: 200px;
   overflow: hidden;
 }
-.flow-canvas svg {
-  cursor: grab;
-}
-.flow-canvas svg:active {
-  cursor: grabbing;
-}
+.flow-canvas svg { cursor: grab; }
+.flow-canvas svg:active { cursor: grabbing; }
 </style>
