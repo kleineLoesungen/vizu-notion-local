@@ -475,32 +475,38 @@ const snapNextMonthStart = (d: string) => {
 
 // Metro map data: visibility state already reflects timeframe (applied via applyTimeframeToVisibility)
 const metrovizData = computed(() => {
-  const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
-  const extras = (extraSourcesData.value ?? [])
+  // Only include datasets that actually have visible pages — empty datasets return a
+  // '2026-Q1'/'2026-Q4' fallback timeline that would expand the axis to the maximum.
+  const primaryData = filteredPages.value.length > 0
+    ? useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
+    : null
+  const extrasData = (extraSourcesData.value ?? [])
     .map(d => {
       const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
       if (visiblePages.length === 0) return null
       return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
     })
     .filter((d): d is MetrovizInputData => d !== null)
-  const merged = extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
 
-  // When no pages are visible but a timeframe filter is active, show the filter range
-  // on the axis so the user sees the "empty area" they're looking at.
-  // As soon as any page is visible, the data-derived timeline takes over automatically.
-  const hasVisible = filteredPages.value.length > 0
-    || (extraSourcesData.value ?? []).some(d =>
-        (d.pages as EnrichedPage[]).some(p => extraVisibleIds.value.has(p.id)))
-  if (!hasVisible && activeTimeframe.value) {
-    return {
-      ...merged,
-      timeline: {
-        start: snapMonthStart(activeTimeframe.value.start),
-        end: snapNextMonthStart(activeTimeframe.value.end),
-      },
+  const visibleDatasets = primaryData ? [primaryData, ...extrasData] : extrasData
+
+  // When no pages are visible, fall back to the timeframe bounds (if active) so the
+  // axis shows the area the user is looking at rather than the empty default.
+  if (visibleDatasets.length === 0) {
+    const empty = useMetrovizData([], columnMappings.value, sourceName.value)
+    if (activeTimeframe.value) {
+      return {
+        ...empty,
+        timeline: {
+          start: snapMonthStart(activeTimeframe.value.start),
+          end: snapNextMonthStart(activeTimeframe.value.end),
+        },
+      }
     }
+    return empty
   }
-  return merged
+
+  return visibleDatasets.length === 1 ? visibleDatasets[0]! : mergeMetrovizData(visibleDatasets)
 })
 
 // Export
