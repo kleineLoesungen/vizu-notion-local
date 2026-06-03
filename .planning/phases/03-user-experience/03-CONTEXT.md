@@ -40,6 +40,10 @@ Backend data layer (Phase 1) and visualization rendering (Phase 2) are complete.
 
 - **D-10:** Notion URL links provided for all visible pages — presented either inline within diagram nodes or as a list of linked pages below the diagram (Claude's discretion on exact placement)
 
+### Viz page — shareable link
+
+- **D-12:** Shareable link encodes the current user view/selection — active sources, selected viz type, and any node visibility toggles (D-08). Copying/sharing the link restores the exact same view. (UI-06)
+
 ### App design
 
 - **D-11:** Modern, fresh, and simple design aesthetic — clean, uncluttered layout using TailwindCSS v4
@@ -50,7 +54,7 @@ Backend data layer (Phase 1) and visualization rendering (Phase 2) are complete.
 
 ### Claude's Discretion
 
-- URL state encoding (UI-06 from REQUIREMENTS.md) — not discussed; implement per requirements spec: encode active sources, viz type, and applied filters in the URL so a shared link restores the exact view
+- Exact URL encoding mechanism — Nuxt `useRoute`/`useRouter` query params vs hash; whether URL updates on every interaction (replace) or only on explicit share action
 - Exact placement of Notion links (inline in nodes vs list below diagram)
 - Cache invalidation mechanism for per-source and global refresh
 - Multi-source API design — whether to add a new `/api/sources/multi` endpoint or extend the existing one
