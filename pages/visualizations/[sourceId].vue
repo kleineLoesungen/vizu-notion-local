@@ -5,12 +5,30 @@
       <NuxtLink to="/" class="text-sm text-blue-600 hover:underline mb-2 block">
         ← Back to sources
       </NuxtLink>
-      <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-gray-900">
-          {{ isLoading ? 'Loading...' : `Visualization: ${sourceName}` }}
-        </h1>
+      <div class="flex items-center justify-between gap-4">
+        <!-- Source selector (Gap 2/4 fix) -->
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="text-sm text-gray-500 flex-shrink-0">Source:</span>
+          <select
+            v-if="allSources.length > 0"
+            :value="sourceId"
+            class="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none cursor-pointer hover:text-blue-600 min-w-0 max-w-xs truncate"
+            :aria-label="'Switch source — currently viewing ' + sourceName"
+            @change="handleSourceChange"
+          >
+            <option
+              v-for="src in allSources"
+              :key="src.id"
+              :value="src.id"
+            >{{ src.name }}</option>
+          </select>
+          <!-- Fallback while sources are loading -->
+          <h1 v-else class="text-xl font-semibold text-gray-900">
+            {{ isLoading ? 'Loading...' : sourceName }}
+          </h1>
+        </div>
         <!-- Export + Copy Link buttons (shown when viz is loaded) -->
-        <div v-if="!isLoading && !fetchError && filteredPages.length > 0" class="flex items-center gap-3">
+        <div v-if="!isLoading && !fetchError && filteredPages.length > 0" class="flex items-center gap-3 flex-shrink-0">
           <ExportButton
             :viz-type="activeVizType"
             :container-id="activeVizType === 'metro' ? metrovizContainerId : FLOW_CONTAINER_ID"
@@ -152,6 +170,18 @@ const {
   isMetroEligible,
   isFlowEligible,
 } = useSourceData(sourceId)
+
+// Gap 2/4 fix: source selector — fetch all sources for the dropdown
+const { data: sourcesData } = useFetch('/api/sources')
+const allSources = computed(() => sourcesData.value?.sources ?? [])
+
+// Navigate to a different source when user selects from dropdown
+const handleSourceChange = (event: Event) => {
+  const selectedId = (event.target as HTMLSelectElement).value
+  if (selectedId && selectedId !== sourceId.value) {
+    navigateTo(`/visualizations/${selectedId}?vizType=${activeVizType.value}`)
+  }
+}
 
 // Phase 3 — UI-04, UI-02: Filter state and node visibility
 const {
