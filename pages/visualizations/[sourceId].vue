@@ -9,19 +9,45 @@
         <!-- Source selector (Gap 2/4 fix) -->
         <div class="flex items-center gap-3 min-w-0">
           <span class="text-sm text-gray-500 flex-shrink-0">Source:</span>
-          <select
+          <div
             v-if="allSources.length > 0"
-            :value="sourceId"
-            class="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none cursor-pointer hover:text-blue-600 min-w-0 max-w-xs truncate"
-            :aria-label="'Switch source — currently viewing ' + sourceName"
-            @change="handleSourceChange"
+            :ref="sourceDropdown.containerRef"
+            class="relative min-w-0"
+            @keydown.escape="sourceDropdown.close()"
           >
-            <option
-              v-for="src in allSources"
-              :key="src.id"
-              :value="src.id"
-            >{{ src.name }}</option>
-          </select>
+            <button
+              type="button"
+              class="flex items-center gap-1.5 text-xl font-semibold text-gray-900 hover:text-blue-600 cursor-pointer truncate max-w-xs"
+              :aria-label="'Switch source — currently viewing ' + sourceName"
+              @click.stop="sourceDropdown.toggle()"
+            >
+              <span class="truncate">{{ sourceName }}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4 flex-shrink-0 transition-transform"
+                :class="sourceDropdown.isOpen.value ? 'rotate-180' : ''"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              v-show="sourceDropdown.isOpen.value"
+              class="absolute left-0 top-full mt-1 z-50 min-w-48 max-w-xs bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-150"
+              style="transform-origin: top left"
+            >
+              <button
+                v-for="src in allSources"
+                :key="src.id"
+                type="button"
+                class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 truncate"
+                :class="src.id === sourceId ? 'font-semibold text-blue-600 bg-blue-50' : 'text-gray-700'"
+                @click="sourceDropdown.close(); goToSource(src.id)"
+              >
+                {{ src.name }}
+              </button>
+            </div>
+          </div>
           <!-- Fallback while sources are loading -->
           <h1 v-else class="text-xl font-semibold text-gray-900">
             {{ isLoading ? 'Loading...' : sourceName }}
@@ -185,17 +211,46 @@
               <!-- Flow node attribute picker -->
               <div v-if="flowAttributeOptions.length > 0" class="mb-3 flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">Show in nodes:</span>
-                <select
-                  v-model="flowNodeAttribute"
-                  class="text-xs border border-gray-200 rounded px-2 py-1 text-gray-700 bg-white cursor-pointer"
+                <div
+                  :ref="attrDropdown.containerRef"
+                  class="relative"
+                  @keydown.escape="attrDropdown.close()"
                 >
-                  <option value="">None</option>
-                  <option
-                    v-for="role in flowAttributeOptions"
-                    :key="role"
-                    :value="role"
-                  >{{ role }}</option>
-                </select>
+                  <button
+                    type="button"
+                    class="flex items-center gap-1 text-xs border border-gray-200 rounded px-2 py-1 text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+                    @click.stop="attrDropdown.toggle()"
+                  >
+                    <span>{{ flowNodeAttribute || 'None' }}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-3 h-3 flex-shrink-0 transition-transform"
+                      :class="attrDropdown.isOpen.value ? 'rotate-180' : ''"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div
+                    v-show="attrDropdown.isOpen.value"
+                    class="absolute left-0 top-full mt-1 z-50 min-w-32 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-150"
+                  >
+                    <button
+                      type="button"
+                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+                      :class="!flowNodeAttribute ? 'font-semibold text-blue-600 bg-blue-50' : 'text-gray-700'"
+                      @click="flowNodeAttribute = ''; attrDropdown.close()"
+                    >None</button>
+                    <button
+                      v-for="role in flowAttributeOptions"
+                      :key="role"
+                      type="button"
+                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 truncate"
+                      :class="flowNodeAttribute === role ? 'font-semibold text-blue-600 bg-blue-50' : 'text-gray-700'"
+                      @click="flowNodeAttribute = role; attrDropdown.close()"
+                    >{{ role }}</button>
+                  </div>
+                </div>
               </div>
               <FlowDiagram
                 :data="filteredPages"
@@ -239,7 +294,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
 import type { SourceApiResponse } from '@/composables/useSourceData'
@@ -252,6 +307,29 @@ import type { EnrichedPage } from '@/server/utils/relations'
 
 const route = useRoute()
 const sourceId = computed(() => route.params.sourceId as string)
+
+// Shared factory for click-outside + Escape-aware dropdown instances
+function useDropdown() {
+  const isOpen = ref(false)
+  const containerRef = ref<HTMLElement | null>(null)
+  const toggle = () => { isOpen.value = !isOpen.value }
+  const close = () => { isOpen.value = false }
+  const onDocClick = (e: MouseEvent) => {
+    if (containerRef.value && !containerRef.value.contains(e.target as Node)) {
+      close()
+    }
+  }
+  onMounted(() => document.addEventListener('click', onDocClick, true))
+  onBeforeUnmount(() => document.removeEventListener('click', onDocClick, true))
+  return { isOpen, containerRef, toggle, close }
+}
+
+const sourceDropdown = useDropdown()
+const attrDropdown = useDropdown()
+
+const goToSource = (id: string) => {
+  if (id !== sourceId.value) navigateTo(`/visualizations/${id}?vizType=${activeVizType.value}`)
+}
 
 // Phase 2: Existing source data fetch
 const {
@@ -267,14 +345,6 @@ const {
 // Fetch all configured sources (for header nav + metro multi-source)
 const { data: sourcesData } = useFetch('/api/sources')
 const allSources = computed(() => sourcesData.value?.sources ?? [])
-
-// Navigate to a different source when user selects from header dropdown
-const handleSourceChange = (event: Event) => {
-  const selectedId = (event.target as HTMLSelectElement).value
-  if (selectedId && selectedId !== sourceId.value) {
-    navigateTo(`/visualizations/${selectedId}?vizType=${activeVizType.value}`)
-  }
-}
 
 // Multi-source selection for metro maps (primary source always included)
 const selectedSourceIds = ref<Set<string>>(new Set([sourceId.value]))
