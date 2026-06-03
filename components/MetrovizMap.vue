@@ -1,6 +1,6 @@
 <template>
-  <div class="metroviz-canvas w-full overflow-x-auto" :class="{ 'hide-timeline-axis': showTimeline === false }">
-    <div :id="containerId" style="min-height: 600px;"></div>
+  <div class="metroviz-canvas w-full" :class="{ 'hide-timeline-axis': showTimeline === false }">
+    <div :id="containerId" style="height: 100%;"></div>
     <div class="zoom-hint">⌃ Ctrl + scroll to zoom · drag to pan</div>
   </div>
 </template>
