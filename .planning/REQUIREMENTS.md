@@ -30,12 +30,12 @@
 
 ### User Interface
 
-- [ ] **UI-01**: Source switcher allows user to navigate between configured Notion database sources
-- [ ] **UI-02**: User can enable or disable individual sources from view
-- [ ] **UI-03**: Visualization type selector lets user switch between available viz types for the active source
-- [ ] **UI-04**: Filter panel lets user filter visible nodes by property values (status, tag, date range, etc.)
-- [ ] **UI-05**: Clicking a node opens a detail view showing the full Notion properties for that entry
-- [ ] **UI-06**: Current application state (active sources, selected viz type, applied filters) is encoded in the URL so users can share a link that restores the exact view
+- [x] **UI-01**: Source switcher allows user to navigate between configured Notion database sources
+- [x] **UI-02**: User can enable or disable individual sources from view
+- [x] **UI-03**: Visualization type selector lets user switch between available viz types for the active source
+- [x] **UI-04**: Filter panel lets user filter visible nodes by property values (status, tag, date range, etc.)
+- [x] **UI-05**: Clicking a node opens a detail view showing the full Notion properties for that entry
+- [x] **UI-06**: Current application state (active sources, selected viz type, applied filters) is encoded in the URL so users can share a link that restores the exact view
 
 ### Infrastructure
 
@@ -92,12 +92,12 @@
 | VIZ-01 | Phase 2 | Complete |
 | VIZ-02 | Phase 2 | Complete |
 | VIZ-03 | Phase 2 | Complete |
-| UI-01 | Phase 3 | Pending |
-| UI-02 | Phase 3 | Pending |
-| UI-03 | Phase 3 | Pending |
-| UI-04 | Phase 3 | Pending |
-| UI-05 | Phase 3 | Pending |
-| UI-06 | Phase 3 | Pending |
+| UI-01 | Phase 3 | Complete |
+| UI-02 | Phase 3 | Complete |
+| UI-03 | Phase 3 | Complete |
+| UI-04 | Phase 3 | Complete |
+| UI-05 | Phase 3 | Complete |
+| UI-06 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 23 total
