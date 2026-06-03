@@ -3,26 +3,26 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-02T20:10:26.609Z"
+last_updated: "2026-06-03T03:13:00.038Z"
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 8
+  completed_plans: 5
 ---
 
 # STATE: vizu-notion-local
 
 **Project Reference**: vizu-notion-local
 **Core Value**: Any Notion database structure can be visualized as a meaningful diagram without touching application code — purely through configuration
-**Current Focus**: Building Phase 1 foundation
+**Current Focus**: Building Phase 2 visualization
 
 ---
 
 ## Current Position
 
-Phase: 2
-Phase: 02 (visualization) — NEXT
+Phase: 02 (visualization) — EXECUTING
+Plan: 2 of 4
 
 ## Project Metrics
 
@@ -73,6 +73,15 @@ Phase: 02 (visualization) — NEXT
 | Promise.allSettled over Promise.all | Failed/deleted page fetches silently dropped rather than failing entire request | Implemented |
 | Column mapping validation at request time | retrieveDatabase() is LRU-cached so repeat calls near-zero cost; validates against live Notion schema per DATA-05 | Implemented |
 
+### Key Decisions (02-01: Visualization Infrastructure)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| TailwindCSS v4 via @tailwindcss/vite Vite plugin (not @nuxtjs/tailwindcss) | v4 requires Vite plugin; @nuxtjs/tailwindcss is v3-only and conflicts | Implemented |
+| No tailwind.config.ts — v4 uses @import "tailwindcss" in CSS only | TailwindCSS v4 design — simpler, no config file needed | Implemented |
+| Metroviz vendored to 5 rendering modules only | Alpine.js shell (app.js) and UI helpers excluded; Vue wrapper used instead | Implemented |
+| vendor/metroviz/css/metroviz.css included | Required by MetroRenderer for SVG node and line styling | Implemented |
+
 ### Key Decisions (01-04: E2E Verification)
 
 | Decision | Rationale | Status |
@@ -104,10 +113,10 @@ Phase: 02 (visualization) — NEXT
 
 ## Session Continuity
 
-**Last Activity**: Completed 01-04-PLAN.md — E2E verification confirmed both sources return live Notion data; two SDK version bugs found and fixed
-**Date**: 2026-06-02
-**Stopped At**: Completed 01-04-PLAN.md (Phase 1 complete)
-**Next Step**: Plan and execute Phase 2 (Visualization) — Metroviz metro maps and Vue Flow process diagrams
+**Last Activity**: Completed 02-01-PLAN.md — TailwindCSS v4 configured, @vue-flow/core installed, Metroviz vendored from GitHub
+**Date**: 2026-06-03
+**Stopped At**: Completed 02-01-PLAN.md
+**Next Step**: Execute 02-02 (Metroviz Vue component) and 02-03 (Vue Flow component)
 
 ---
 
@@ -122,6 +131,7 @@ Phase: 02 (visualization) — NEXT
 - [x] Execute 01-02: Notion API integration (rate limiting, caching) — complete
 - [x] Execute 01-03: API routes and relation resolver — complete
 - [x] Execute 01-04: Docker production verification — complete (two SDK bugs found and fixed)
+- [x] Execute 02-01: Visualization infrastructure — complete (TailwindCSS v4, Vue Flow, Metroviz vendored)
 
 ### Blockers
 
