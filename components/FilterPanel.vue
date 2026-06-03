@@ -19,9 +19,7 @@
       </button>
     </div>
 
-    <template>
-
-      <!-- ── Timeframe (only when source has a date role) ── -->
+    <!-- ── Timeframe (only when source has a date role) ── -->
       <div v-if="hasDateRole" class="mb-4">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-xs font-medium text-gray-700">Timeframe</h3>
