@@ -181,12 +181,29 @@
             />
 
             <!-- Process flow (VIZ-02) — receives timeframe-filtered pages directly -->
-            <FlowDiagram
-              v-else-if="isFlowEligible"
-              :data="filteredPages"
-              :column-mappings="columnMappings"
-              @node-click="handleFlowNodeClick"
-            />
+            <template v-else-if="isFlowEligible">
+              <!-- Flow node attribute picker -->
+              <div v-if="flowAttributeOptions.length > 0" class="mb-3 flex items-center gap-2">
+                <span class="text-xs text-gray-500 font-medium">Show in nodes:</span>
+                <select
+                  v-model="flowNodeAttribute"
+                  class="text-xs border border-gray-200 rounded px-2 py-1 text-gray-700 bg-white cursor-pointer"
+                >
+                  <option value="">None</option>
+                  <option
+                    v-for="role in flowAttributeOptions"
+                    :key="role"
+                    :value="role"
+                  >{{ role }}</option>
+                </select>
+              </div>
+              <FlowDiagram
+                :data="filteredPages"
+                :column-mappings="columnMappings"
+                :node-attribute="flowNodeAttribute || undefined"
+                @node-click="handleFlowNodeClick"
+              />
+            </template>
 
             <!-- D-10: Notion links list — primary + all visible extra-source pages -->
             <NotionLinksList
@@ -367,6 +384,7 @@ const selectedPage = ref<EnrichedPage | null>(null)
 // Reset panel state when the user switches sources
 watch(sourceId, () => {
   selectedPage.value = null
+  flowNodeAttribute.value = ''
 })
 
 // Parse a YYYY-MM-DD string as local midnight (avoids UTC offset shifting the date).
@@ -517,6 +535,15 @@ const filterPanelOpen = ref(false)
 
 // Metro timeline axis visibility
 const showTimeline = ref(true)
+
+// Flow diagram: which secondary attribute to show inside nodes
+const flowNodeAttribute = ref<string>('')
+
+// Roles available for display in flow nodes (exclude structural roles)
+const flowAttributeOptions = computed(() => {
+  const exclude = new Set(['title', 'next', 'parent'])
+  return Object.keys(columnMappings.value).filter(role => !exclude.has(role))
+})
 
 // UI-06: Restore state from URL on mount (shared link restoration)
 onMounted(() => {
