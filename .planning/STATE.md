@@ -226,3 +226,4 @@ Plan: 4 of 7
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260604-0nu | extend flow diagram attribute display | 2026-06-04 | 489d8b9 | [260604-0nu-extend-flow-diagram-attribute-display](./quick/260604-0nu-extend-flow-diagram-attribute-display/) |
+| 260604-1j9 | fix metro diagram scroll — remove D3 default wheel handler | 2026-06-04 | 5b086d0 | [260604-1j9-fix-metro-diagram-scroll-remove-d3-defau](./quick/260604-1j9-fix-metro-diagram-scroll-remove-d3-defau/) |
