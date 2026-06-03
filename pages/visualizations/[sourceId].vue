@@ -227,6 +227,7 @@ import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
 import type { SourceApiResponse } from '@/composables/useSourceData'
 import { useMetrovizData, mergeMetrovizData } from '@/composables/useMetrovizData'
+import type { MetrovizInputData } from '@/composables/useMetrovizData'
 import { useFilterState } from '@/composables/useFilterState'
 import { useUrlState } from '@/composables/useUrlState'
 import { useExport } from '@/composables/useExport'
@@ -475,10 +476,13 @@ const snapNextMonthStart = (d: string) => {
 // Metro map data: visibility state already reflects timeframe (applied via applyTimeframeToVisibility)
 const metrovizData = computed(() => {
   const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
-  const extras = (extraSourcesData.value ?? []).map(d => {
-    const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
-    return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
-  })
+  const extras = (extraSourcesData.value ?? [])
+    .map(d => {
+      const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
+      if (visiblePages.length === 0) return null
+      return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
+    })
+    .filter((d): d is MetrovizInputData => d !== null)
   const merged = extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
 
   // When no pages are visible but a timeframe filter is active, show the filter range
