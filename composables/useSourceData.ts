@@ -1,7 +1,7 @@
 import type { ColumnMappings } from '@/server/utils/config'
 import type { EnrichedPage } from '@/server/utils/relations'
 
-interface SourceApiResponse {
+export interface SourceApiResponse {
   source: {
     id: string
     name: string

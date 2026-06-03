@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import type { EnrichedPage } from '@/server/utils/relations'
 import type { ColumnMappings } from '@/server/utils/config'
 import type { FilterCriteria } from '@/utils/state-encoding'
@@ -105,14 +105,7 @@ const emit = defineEmits<{
   'remove-filter': [index: number]
 }>()
 
-const isCollapsed = ref(true) // true = panel body hidden; overridden to false on wide screens
-
-onMounted(() => {
-  // Expand by default on screens wider than 768px (md breakpoint)
-  if (window.matchMedia('(min-width: 768px)').matches) {
-    isCollapsed.value = false
-  }
-})
+const isCollapsed = ref(false)
 
 const selectedProperty = ref('')
 const filterValue = ref('')

@@ -101,6 +101,27 @@
               </span>
             </div>
 
+            <!-- Multi-source selector (metro only) -->
+            <div v-if="activeVizType === 'metro' && allSources.length > 1" class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span class="text-xs text-gray-500 font-medium">Sources:</span>
+              <label
+                v-for="src in allSources"
+                :key="src.id"
+                class="flex items-center gap-1.5 select-none"
+                :class="src.id === sourceId ? 'cursor-default' : 'cursor-pointer'"
+              >
+                <input
+                  type="checkbox"
+                  :checked="selectedSourceIds.has(src.id)"
+                  :disabled="src.id === sourceId"
+                  @change="toggleSourceSelection(src.id)"
+                  class="w-3.5 h-3.5"
+                  :class="src.id === sourceId ? 'cursor-default' : 'cursor-pointer'"
+                />
+                <span class="text-xs text-gray-700">{{ src.name }}</span>
+              </label>
+            </div>
+
             <!-- Metro map (VIZ-01) — receives filteredPages via metrovizData -->
             <MetrovizMap
               v-if="(activeVizType === 'metro' || !isFlowEligible) && isMetroEligible"
@@ -152,7 +173,8 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
-import { useMetrovizData } from '@/composables/useMetrovizData'
+import type { SourceApiResponse } from '@/composables/useSourceData'
+import { useMetrovizData, mergeMetrovizData } from '@/composables/useMetrovizData'
 import { useFilterState } from '@/composables/useFilterState'
 import { useUrlState } from '@/composables/useUrlState'
 import type { EnrichedPage } from '@/server/utils/relations'
@@ -171,17 +193,47 @@ const {
   isFlowEligible,
 } = useSourceData(sourceId)
 
-// Gap 2/4 fix: source selector — fetch all sources for the dropdown
+// Fetch all configured sources (for header nav + metro multi-source)
 const { data: sourcesData } = useFetch('/api/sources')
 const allSources = computed(() => sourcesData.value?.sources ?? [])
 
-// Navigate to a different source when user selects from dropdown
+// Navigate to a different source when user selects from header dropdown
 const handleSourceChange = (event: Event) => {
   const selectedId = (event.target as HTMLSelectElement).value
   if (selectedId && selectedId !== sourceId.value) {
     navigateTo(`/visualizations/${selectedId}?vizType=${activeVizType.value}`)
   }
 }
+
+// Multi-source selection for metro maps (primary source always included)
+const selectedSourceIds = ref<Set<string>>(new Set([sourceId.value]))
+
+watch(sourceId, (newId) => {
+  selectedSourceIds.value = new Set([newId])
+})
+
+const extraSourceIds = computed(() =>
+  [...selectedSourceIds.value].filter(id => id !== sourceId.value)
+)
+
+const toggleSourceSelection = (id: string) => {
+  if (id === sourceId.value) return
+  const next = new Set(selectedSourceIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  selectedSourceIds.value = next
+}
+
+// Lazily fetch extra source data when multi-source selection changes
+const { data: extraSourcesData, refresh: refreshExtraSources } = useAsyncData(
+  'extra-sources',
+  async () => {
+    if (extraSourceIds.value.length === 0) return [] as SourceApiResponse[]
+    return Promise.all(extraSourceIds.value.map(id => $fetch<SourceApiResponse>(`/api/sources/${id}`)))
+  }
+)
+
+watch(extraSourceIds, () => { refreshExtraSources() })
 
 // Phase 3 — UI-04, UI-02: Filter state and node visibility
 const {
@@ -218,10 +270,14 @@ const metrovizMapRef = ref<any>(null)
 // Computed: expose metroviz container ID for ExportButton (from defineExpose in MetrovizMap)
 const metrovizContainerId = computed(() => metrovizMapRef.value?.containerId ?? '')
 
-// Computed: Metro map data from filteredPages (UI-04: export respects visibility)
-const metrovizData = computed(() =>
-  useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
-)
+// Metro map data: primary source (filters applied) + any additional selected sources
+const metrovizData = computed(() => {
+  const primary = useMetrovizData(filteredPages.value, columnMappings.value, sourceName.value)
+  const extras = (extraSourcesData.value ?? []).map(d =>
+    useMetrovizData(d.pages as EnrichedPage[], d.source.columnMappings, d.source.name)
+  )
+  return extras.length > 0 ? mergeMetrovizData([primary, ...extras]) : primary
+})
 
 // Export container IDs
 const FLOW_CONTAINER_ID = 'flow-viz-container'
