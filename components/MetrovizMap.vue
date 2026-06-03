@@ -1,6 +1,7 @@
 <template>
   <div class="metroviz-canvas w-full overflow-x-auto" :class="{ 'hide-timeline-axis': showTimeline === false }">
     <div :id="containerId" style="min-height: 600px;"></div>
+    <div class="zoom-hint">⌃ Ctrl + scroll to zoom · drag to pan</div>
   </div>
 </template>
 
@@ -124,6 +125,20 @@ defineExpose({ containerId })
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   padding: 4px;
+  max-height: 70vh;
+  overflow-y: auto;
+  position: relative;
+}
+.zoom-hint {
+  position: sticky;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  pointer-events: none;
+  user-select: none;
 }
 </style>
 

@@ -923,6 +923,7 @@ export class MetroRenderer {
     setupZoom(svg, zoomGroup) {
         const zoom = d3.zoom()
             .scaleExtent([0.2, 5])
+            .filter(event => event.type !== 'wheel' || event.ctrlKey || event.metaKey)
             .on('zoom', (event) => {
                 zoomGroup.attr('transform', event.transform);
             });

@@ -1,5 +1,5 @@
 <template>
-  <div id="flow-viz-container" class="flow-canvas w-full" style="min-height: 400px">
+  <div id="flow-viz-container" class="flow-canvas w-full"
     <svg
       v-if="nodes.length > 0"
       ref="svgRef"
@@ -83,6 +83,7 @@
     <div v-else class="flex items-center justify-center h-32 text-gray-500 text-sm">
       No items to display in this source.
     </div>
+    <div class="zoom-hint">⌃ Ctrl + scroll to zoom · drag to pan</div>
   </div>
 </template>
 
@@ -201,6 +202,7 @@ async function initZoom() {
   zoomTransform.value = 'translate(0,0) scale(1)'
   zoomBehavior = d3Module.zoom()
     .scaleExtent([0.15, 5])
+    .filter((event: any) => event.type !== 'wheel' || event.ctrlKey || event.metaKey)
     .on('zoom', (event: any) => { zoomTransform.value = event.transform.toString() })
   d3Module.select(svgRef.value).call(zoomBehavior).on('dblclick.zoom', null)
 }
@@ -218,8 +220,21 @@ onBeforeUnmount(() => {
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   min-height: 200px;
+  max-height: 70vh;
   overflow: hidden;
+  position: relative;
 }
 .flow-canvas svg { cursor: grab; }
 .flow-canvas svg:active { cursor: grabbing; }
+.zoom-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  pointer-events: none;
+  user-select: none;
+}
 </style>
