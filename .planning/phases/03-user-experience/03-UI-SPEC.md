@@ -56,8 +56,9 @@ Declared values (multiples of 4 as per TailwindCSS standard):
 | Display | 28px (1.75rem) | 600 (semibold) | 1.2 | Page titles (e.g., "Visualizations") |
 | Heading | 20px (1.25rem) | 600 (semibold) | 1.2 | Section headings (e.g., "Filters & Visibility") |
 | Body | 16px (1rem) | 400 (regular) | 1.5 | Content, description text, card body |
-| Label | 14px (0.875rem) | 500 (medium) | 1.4 | Form labels, filter property names, button text |
-| Small | 12px (0.75rem) | 400 (regular) | 1.4 | Secondary hints, timestamps, error details |
+| Label | 14px (0.875rem) | 400 (regular) | 1.4 | Form labels, filter property names, button text |
+
+**Secondary/Hint Text (14px with color modifier):** Use Label (14px, 400) combined with `text-gray-500` opacity modifier for secondary text, timestamps, and hint copy instead of a separate Small role.
 
 **System Font Stack:** `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` (TailwindCSS default).
 
@@ -65,8 +66,8 @@ Declared values (multiples of 4 as per TailwindCSS standard):
 - `text-4xl font-semibold leading-tight` for Display (28px)
 - `text-xl font-semibold leading-tight` for Heading (20px)
 - `text-base font-normal leading-relaxed` for Body (16px)
-- `text-sm font-medium leading-snug` for Label (14px)
-- `text-xs font-normal leading-snug` for Small (12px)
+- `text-sm font-normal leading-snug` for Label (14px)
+- Secondary text: `text-sm text-gray-500 font-normal leading-snug` (Label + opacity)
 
 ---
 
