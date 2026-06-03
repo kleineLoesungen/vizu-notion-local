@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-03T15:39:15.317Z"
+last_updated: "2026-06-03T15:42:22.524Z"
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 03 (user-experience) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 
 ## Project Metrics
 
@@ -151,6 +151,14 @@ Plan: 3 of 7
 | Outer viz type div always rendered; toggle buttons inside template v-if | Closes Gap 4 viz-type-label portion: users always see which viz type is active | Implemented |
 | Panel uses w-10 (collapsed) vs w-64 (expanded) | Slim 40px strip keeps toggle button visible on mobile without fully hiding it | Implemented |
 
+### Key Decisions (03-06: Source Selector Dropdown)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Source selector styled bg-transparent border-none to read as heading while remaining a real select element | No custom dropdown component needed; native select works on all browsers | Implemented |
+| handleSourceChange preserves activeVizType via ?vizType= query param | User stays on their current viz type (metro/flow) after switching source | Implemented |
+| Fallback h1 shown while allSources is loading | Cleaner UX than empty/partially-loaded dropdown — avoids layout issues on slow fetch | Implemented |
+
 ### Roadmap Evolution
 
 - Phase 4 added: Deployment — Dockerfile + docker-compose, Docker Hub prep, README.md, single HTML product page
@@ -178,9 +186,9 @@ Plan: 3 of 7
 
 ## Session Continuity
 
-**Last Activity**: 03-05-PLAN.md complete — FilterPanel collapse/expand toggle + always-visible viz type label on viz page
+**Last Activity**: 03-06-PLAN.md complete — source selector dropdown in viz page header for single-action source switching
 **Date**: 2026-06-03
-**Stopped At**: Completed 03-05-PLAN.md
+**Stopped At**: Completed 03-06-PLAN.md
 **Next Step**: Execute remaining Phase 03 gap-closure plans
 
 ---
@@ -201,6 +209,7 @@ Plan: 3 of 7
 - [x] Execute 02-03: Process flow component — complete (useFlowData, useSourceData composables, FlowDiagram.vue)
 - [x] Execute 03-03: UI components — complete (FilterPanel, NodeDetailPanel, NotionLinksList, ExportButton, + node-click on viz components)
 - [x] Execute 03-07: Dashboard timestamp fix — complete (sessionStorage persistence, removed watch({ immediate: true }))
+- [x] Execute 03-06: Source selector dropdown — complete (useFetch /api/sources, select dropdown in viz page header, single-action source switching)
 
 ### Blockers
 
