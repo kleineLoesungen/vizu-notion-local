@@ -94,6 +94,13 @@ async function renderMap(data: MetrovizInputData) {
     rendererInstance = new MetroRenderer(`#${containerId}`)
     rendererInstance.render(layout)
     await nextTick()
+    // Auto-fit to show all content after each render
+    if (rendererInstance?.fitToContent) {
+        rendererInstance.fitToContent(
+            container.clientWidth || container.getBoundingClientRect().width,
+            container.clientHeight || container.getBoundingClientRect().height
+        )
+    }
     attachClickListener()
   } catch (err) {
     console.error('[MetrovizMap] Render error:', err)
