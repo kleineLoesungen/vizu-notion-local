@@ -315,7 +315,7 @@ import { ref, computed, watch, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
 import type { SourceApiResponse } from '@/composables/useSourceData'
-import { useMetrovizData, mergeMetrovizData } from '@/composables/useMetrovizData'
+import { useMetrovizData, mergeMetrovizData, useMetrovizMilestoneEvents } from '@/composables/useMetrovizData'
 import type { MetrovizInputData } from '@/composables/useMetrovizData'
 import { useFilterState } from '@/composables/useFilterState'
 import { useUrlState } from '@/composables/useUrlState'
@@ -612,10 +612,11 @@ const metrovizData = computed(() => {
       const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
       if (visiblePages.length === 0) return null
       const mode = sourceDisplayModes[d.source.id] ?? ('next' in (d.source.columnMappings ?? {}) ? 'line' : 'milestones')
-      const effectiveMappings = mode === 'milestones'
-        ? Object.fromEntries(Object.entries(d.source.columnMappings).filter(([k]) => k !== 'next'))
-        : d.source.columnMappings
-      return useMetrovizData(visiblePages, effectiveMappings, d.source.name)
+      if (mode === 'milestones') {
+        return useMetrovizMilestoneEvents(visiblePages, d.source.columnMappings, d.source.name)
+      } else {
+        return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
+      }
     })
     .filter((d): d is MetrovizInputData => d !== null)
 

@@ -34,7 +34,7 @@ export interface MetrovizInputData {
   timeline: { start: string; end: string }
   zones: MetrovizZone[]
   lines: MetrovizLine[]
-  events: []
+  events: Array<{ date: string; label: string }>
 }
 
 // 12-color deterministic palette for lines
@@ -369,7 +369,7 @@ export function mergeMetrovizData(datasets: MetrovizInputData[]): MetrovizInputD
     },
     zones: [...zonesMap.values()],
     lines: datasets.flatMap(d => d.lines),
-    events: [],
+    events: datasets.flatMap(d => d.events ?? []),
   }
 }
 
@@ -479,5 +479,51 @@ export function useMetrovizData(
     zones: Array.from(zonesMap.values()),
     lines: linesList,
     events: [],
+  }
+}
+
+/**
+ * Convert EnrichedPage[] to Metroviz events (NOT lines).
+ * Used when an extra source is toggled to 'milestones' display mode —
+ * events render as vertical markers on the timeline axis.
+ */
+export function useMetrovizMilestoneEvents(
+  pages: EnrichedPage[],
+  columnMappings: ColumnMappings,
+  sourceTitle: string = 'Milestones'
+): MetrovizInputData {
+  if (pages.length === 0) {
+    return {
+      meta: { title: sourceTitle, organization: '' },
+      timeline: { start: '2026-Q1', end: '2026-Q4' },
+      zones: [],
+      lines: [],
+      events: [],
+    }
+  }
+
+  const titlePropName = columnMappings['title']
+  const datePropName = columnMappings['date']
+
+  const events = pages
+    .map(page => {
+      const date = datePropName ? extractDate(page, datePropName) : null
+      if (!date) return null
+      const label = titlePropName ? extractTitle(page, titlePropName) : page.id.slice(0, 8)
+      return { date, label }
+    })
+    .filter((e): e is { date: string; label: string } => e !== null)
+    .sort((a, b) => a.date.localeCompare(b.date))
+
+  const allDates = events.map(e => e.date)
+  return {
+    meta: { title: sourceTitle, organization: '' },
+    timeline: {
+      start: allDates[0] ? snapToMonthStart(allDates[0]) : '2026-Q1',
+      end: allDates[allDates.length - 1] ? snapToNextMonthStart(allDates[allDates.length - 1]) : '2026-Q4',
+    },
+    zones: [],
+    lines: [],
+    events,
   }
 }
