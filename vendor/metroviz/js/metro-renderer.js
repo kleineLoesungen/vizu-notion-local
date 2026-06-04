@@ -943,6 +943,8 @@ export class MetroRenderer {
                 zoomGroup.attr('transform', event.transform);
             });
 
+        this._zoom = zoom;
+        this._svg = svg;
         svg.call(zoom);
         svg.on('wheel.zoom', null);
 
@@ -962,6 +964,29 @@ export class MetroRenderer {
                 .translate(-px, -py);
             zoom.transform(svg, nextTransform);
         }, { passive: false });
+    }
+
+    fitToContent(width, height) {
+        if (!this._zoom || !this._svg) return;
+        try {
+            const svgNode = this._svg.node();
+            const g = svgNode.querySelector('g');
+            if (!g) return;
+            const bbox = g.getBBox();
+            if (!bbox.width || !bbox.height) return;
+            const pad = 40;
+            const scale = Math.min(
+                (width - pad * 2) / bbox.width,
+                (height - pad * 2) / bbox.height,
+                1.5
+            );
+            const tx = (width - bbox.width * scale) / 2 - bbox.x * scale;
+            const ty = (height - bbox.height * scale) / 2 - bbox.y * scale;
+            const t = d3.zoomIdentity.translate(tx, ty).scale(scale);
+            this._svg.call(this._zoom.transform, t);
+        } catch (e) {
+            // getBBox may fail on hidden/zero-size elements
+        }
     }
 
     highlightLine(lineId) {
