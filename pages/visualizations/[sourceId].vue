@@ -291,7 +291,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
 import type { SourceApiResponse } from '@/composables/useSourceData'
@@ -359,6 +359,18 @@ const selectedSourceIds = ref<Set<string>>(new Set([sourceId.value]))
 watch(sourceId, (newId) => {
   selectedSourceIds.value = new Set([newId])
 })
+
+// Per-source display mode: 'line' (full next-graph) or 'milestones' (date-only overlay)
+const sourceDisplayModes = reactive<Record<string, 'milestones' | 'line'>>({})
+
+// Initialize display mode for newly eligible sources; never overwrite an existing choice.
+watch(eligibleAdditionalSources, (sources) => {
+  for (const src of sources) {
+    if (!(src.id in sourceDisplayModes)) {
+      sourceDisplayModes[src.id] = 'next' in (src.columnMappings ?? {}) ? 'line' : 'milestones'
+    }
+  }
+}, { immediate: true })
 
 const extraSourceIds = computed(() =>
   [...selectedSourceIds.value].filter(id => id !== sourceId.value)
@@ -579,7 +591,11 @@ const metrovizData = computed(() => {
     .map(d => {
       const visiblePages = (d.pages as EnrichedPage[]).filter(p => extraVisibleIds.value.has(p.id))
       if (visiblePages.length === 0) return null
-      return useMetrovizData(visiblePages, d.source.columnMappings, d.source.name)
+      const mode = sourceDisplayModes[d.source.id] ?? ('next' in (d.source.columnMappings ?? {}) ? 'line' : 'milestones')
+      const effectiveMappings = mode === 'milestones'
+        ? Object.fromEntries(Object.entries(d.source.columnMappings).filter(([k]) => k !== 'next'))
+        : d.source.columnMappings
+      return useMetrovizData(visiblePages, effectiveMappings, d.source.name)
     })
     .filter((d): d is MetrovizInputData => d !== null)
 
