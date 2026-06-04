@@ -229,3 +229,4 @@ Plan: 4 of 7
 | 260604-1j9 | fix metro diagram scroll — remove D3 default wheel handler | 2026-06-04 | 5b086d0 | [260604-1j9-fix-metro-diagram-scroll-remove-d3-defau](./quick/260604-1j9-fix-metro-diagram-scroll-remove-d3-defau/) |
 | 260604-1p5 | replace native select elements with modern TailwindCSS dropdown menus | 2026-06-03 | a3a1ed9 | [260604-1p5-replace-native-select-elements-with-mode](./quick/260604-1p5-replace-native-select-elements-with-mode/) |
 | 260604-v25 | filter Additional Sources to date-eligible sources only | 2026-06-04 | 3779a71 | [260604-v25-filter-additional-sources-in-metro-multi](./quick/260604-v25-filter-additional-sources-in-metro-multi/) |
+| 260604-v9k | per-source display mode toggle on metro (Milestones/Line) | 2026-06-04 | d817c13 | [260604-v9k-per-source-display-mode-toggle-on-metro-](./quick/260604-v9k-per-source-display-mode-toggle-on-metro-/) |
