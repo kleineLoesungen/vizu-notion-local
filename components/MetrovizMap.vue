@@ -116,7 +116,16 @@ onBeforeUnmount(() => {
   rendererInstance = null
 })
 
-defineExpose({ containerId })
+const fitZoom = () => {
+  if (!rendererInstance?.fitToContent) return
+  const svgEl = document.querySelector(`#${containerId} svg`)
+  if (!svgEl) return
+  const w = (svgEl as SVGSVGElement).clientWidth || (svgEl as SVGSVGElement).getBoundingClientRect().width
+  const h = (svgEl as SVGSVGElement).clientHeight || (svgEl as SVGSVGElement).getBoundingClientRect().height
+  if (w && h) rendererInstance.fitToContent(w, h)
+}
+
+defineExpose({ containerId, fitZoom })
 </script>
 
 <style scoped>

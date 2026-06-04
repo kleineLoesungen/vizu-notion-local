@@ -311,7 +311,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
 import type { SourceApiResponse } from '@/composables/useSourceData'
@@ -392,16 +392,26 @@ watch(eligibleAdditionalSources, (sources) => {
   }
 }, { immediate: true })
 
+// Fit to content when mode switches (milestones ↔ line changes diagram structure)
+watch(() => ({ ...sourceDisplayModes }), async () => {
+  await nextTick()
+  await nextTick()
+  metrovizMapRef.value?.fitZoom?.()
+})
+
 const extraSourceIds = computed(() =>
   [...selectedSourceIds.value].filter(id => id !== sourceId.value)
 )
 
-const toggleSourceSelection = (id: string) => {
+const toggleSourceSelection = async (id: string) => {
   if (id === sourceId.value) return
   const next = new Set(selectedSourceIds.value)
   if (next.has(id)) next.delete(id)
   else next.add(id)
   selectedSourceIds.value = next
+  await nextTick()
+  await nextTick()
+  metrovizMapRef.value?.fitZoom?.()
 }
 
 // Lazily fetch extra source data when multi-source selection changes
