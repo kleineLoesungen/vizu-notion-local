@@ -176,21 +176,18 @@
             </div>
 
             <!-- Multi-source selector (metro only) -->
-            <div v-if="activeVizType === 'metro' && allSources.length > 1" class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <div v-if="activeVizType === 'metro' && eligibleAdditionalSources.length > 0" class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
               <span class="text-xs text-gray-500 font-medium">Additional Sources:</span>
               <label
-                v-for="src in allSources"
+                v-for="src in eligibleAdditionalSources"
                 :key="src.id"
-                class="flex items-center gap-1.5 select-none"
-                :class="src.id === sourceId ? 'cursor-default' : 'cursor-pointer'"
+                class="flex items-center gap-1.5 cursor-pointer select-none"
               >
                 <input
                   type="checkbox"
                   :checked="selectedSourceIds.has(src.id)"
-                  :disabled="src.id === sourceId"
+                  class="w-3.5 h-3.5 cursor-pointer"
                   @change="toggleSourceSelection(src.id)"
-                  class="w-3.5 h-3.5"
-                  :class="src.id === sourceId ? 'cursor-default' : 'cursor-pointer'"
                 />
                 <span class="text-xs text-gray-700">{{ src.name }}</span>
               </label>
@@ -345,6 +342,16 @@ const {
 // Fetch all configured sources (for header nav + metro multi-source)
 const { data: sourcesData } = useFetch('/api/sources')
 const allSources = computed(() => sourcesData.value?.sources ?? [])
+
+// Filter additional-source candidates to those eligible as metro overlays:
+// - must have 'date' role (milestone overlay, positioned on the timeline axis)
+// - must not be the current primary source
+// Sources without 'date' cannot be meaningfully displayed on the metro map.
+const eligibleAdditionalSources = computed(() =>
+  allSources.value.filter(src =>
+    src.id !== sourceId.value && 'date' in (src.columnMappings ?? {})
+  )
+)
 
 // Multi-source selection for metro maps (primary source always included)
 const selectedSourceIds = ref<Set<string>>(new Set([sourceId.value]))
