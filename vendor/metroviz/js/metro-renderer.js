@@ -849,15 +849,31 @@ export class MetroRenderer {
         const bottomY = config.height - config.margins.bottom;
 
         (layout.events || []).forEach(event => {
-            group.append('text')
+            const words = (event.label || '').split(' ');
+            const lines = [];
+            let cur = '';
+            for (const w of words) {
+                const test = cur ? cur + ' ' + w : w;
+                if (test.length > 12 && cur) { lines.push(cur); cur = w; }
+                else { cur = test; }
+            }
+            if (cur) lines.push(cur);
+
+            const textEl = group.append('text')
                 .attr('x', event.x)
                 .attr('y', bottomY + 20)
                 .attr('text-anchor', 'middle')
                 .attr('font-family', 'Helvetica, "Helvetica Neue", Arial, "Liberation Sans", sans-serif')
                 .attr('font-size', '12px')
                 .attr('font-weight', 'bold')
-                .attr('fill', '#d32f2f')
-                .text(event.label);
+                .attr('fill', '#d32f2f');
+
+            lines.forEach((line, i) => {
+                textEl.append('tspan')
+                    .attr('x', event.x)
+                    .attr('dy', i === 0 ? 0 : '1.2em')
+                    .text(line);
+            });
 
             group.append('text')
                 .attr('x', event.x)
