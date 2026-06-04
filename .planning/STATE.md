@@ -231,3 +231,4 @@ Plan: 4 of 7
 | 260604-v25 | filter Additional Sources to date-eligible sources only | 2026-06-04 | 3779a71 | [260604-v25-filter-additional-sources-in-metro-multi](./quick/260604-v25-filter-additional-sources-in-metro-multi/) |
 | 260604-v9k | per-source display mode toggle on metro (Milestones/Line) | 2026-06-04 | d817c13 | [260604-v9k-per-source-display-mode-toggle-on-metro-](./quick/260604-v9k-per-source-display-mode-toggle-on-metro-/) |
 | 260604-vki | fix milestones mode for additional metro sources | 2026-06-04 | c5dabb0 | [260604-vki-fix-milestones-mode-for-additional-metro](./quick/260604-vki-fix-milestones-mode-for-additional-metro/) |
+| 260604-vql | metro word-wrap event labels with tspan + fitToContent auto-zoom | 2026-06-04 | d36ce3e | [260604-vql-metro-word-wrap-event-labels-with-tspan-](./quick/260604-vql-metro-word-wrap-event-labels-with-tspan-/) |
