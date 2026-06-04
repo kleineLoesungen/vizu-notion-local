@@ -178,19 +178,39 @@
             <!-- Multi-source selector (metro only) -->
             <div v-if="activeVizType === 'metro' && eligibleAdditionalSources.length > 0" class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
               <span class="text-xs text-gray-500 font-medium">Additional Sources:</span>
-              <label
+              <div
                 v-for="src in eligibleAdditionalSources"
                 :key="src.id"
-                class="flex items-center gap-1.5 cursor-pointer select-none"
+                class="flex items-center gap-2"
               >
-                <input
-                  type="checkbox"
-                  :checked="selectedSourceIds.has(src.id)"
-                  class="w-3.5 h-3.5 cursor-pointer"
-                  @change="toggleSourceSelection(src.id)"
-                />
-                <span class="text-xs text-gray-700">{{ src.name }}</span>
-              </label>
+                <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    :checked="selectedSourceIds.has(src.id)"
+                    class="w-3.5 h-3.5 cursor-pointer"
+                    @change="toggleSourceSelection(src.id)"
+                  />
+                  <span class="text-xs text-gray-700">{{ src.name }}</span>
+                </label>
+
+                <!-- Mode toggle: only shown when checked AND source has a 'next' role -->
+                <template v-if="selectedSourceIds.has(src.id) && 'next' in (src.columnMappings ?? {})">
+                  <div class="flex rounded overflow-hidden border border-gray-200 text-[10px]">
+                    <button
+                      type="button"
+                      class="px-1.5 py-0.5"
+                      :class="sourceDisplayModes[src.id] === 'milestones' ? 'bg-blue-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'"
+                      @click="sourceDisplayModes[src.id] = 'milestones'"
+                    >Milestones</button>
+                    <button
+                      type="button"
+                      class="px-1.5 py-0.5 border-l border-gray-200"
+                      :class="sourceDisplayModes[src.id] === 'line' ? 'bg-blue-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'"
+                      @click="sourceDisplayModes[src.id] = 'line'"
+                    >Line</button>
+                  </div>
+                </template>
+              </div>
             </div>
 
             <!-- Metro map (VIZ-01) — receives filteredPages via metrovizData -->
