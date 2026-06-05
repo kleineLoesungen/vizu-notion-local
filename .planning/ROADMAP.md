@@ -109,9 +109,14 @@ Plans:
 - README.md with key features, architecture overview, and getting started guide
 - Single HTML product page — modern, Notion-like aesthetic
 
-**Requirements**: TBD
+**Requirements**: D-01 through D-14 (decisions captured in 04-CONTEXT.md)
 **Depends on:** Phase 3
-**Plans:** 7/7 plans complete
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — README.md (setup-first, config reference table, troubleshooting) + .dockerignore
+- [ ] 04-02-PLAN.md — Makefile with build, run, publish targets (Docker Hub workflow)
+- [ ] 04-03-PLAN.md — docs/index.html product page (Notion-like aesthetic, hero + features + how-it-works)
 
 ---
 
@@ -122,3 +127,4 @@ Plans:
 *Phase 2 planned: 2026-06-02*
 *Phase 3 planned: 2026-06-03*
 *Phase 3 gap closure planned: 2026-06-03*
+*Phase 4 planned: 2026-06-05*
