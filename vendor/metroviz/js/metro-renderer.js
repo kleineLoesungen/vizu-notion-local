@@ -630,14 +630,14 @@ export class MetroRenderer {
                 }
 
                 if (isTransfer) {
-                    normalStationsGroup.append('circle')
+                    transferBgGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 9)
                         .attr('fill', '#000')
                         .attr('class', `line-${line.id}`);
 
-                    interactiveElement = normalStationsGroup.append('circle')
+                    interactiveElement = transferFgGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 6)
