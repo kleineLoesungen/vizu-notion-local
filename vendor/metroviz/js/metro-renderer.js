@@ -649,8 +649,8 @@ export class MetroRenderer {
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 8)
-                        .attr('fill', 'transparent')
                         .attr('class', `station-circle line-${line.id}`)
+                        .style('fill', 'transparent')
                         .style('cursor', 'pointer');
                 } else if (station.isStop) {
                     interactiveElement = normalStationsGroup.append('line')
