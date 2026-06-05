@@ -16,11 +16,14 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 - [x] Config file defines Notion integration token, database IDs, and column-to-visualization mappings — *Validated in Phase 01: backend-foundation*
 - [x] Docker container deployment (single `docker-compose up`, no external dependencies) — *Validated in Phase 01: backend-foundation*
 
-### Active
-- [ ] Metroviz-style metro map visualization for hierarchical/relational data (goals → missions → projects → architecture)
-- [ ] Vue Flow-based process flow visualization for workflow/process data
-- [ ] Cross-database views: single visualization drawing from multiple Notion databases
-- [ ] Read-only user interface with filtering and node-click navigation
+### Validated
+
+- [x] Metroviz-style metro map visualization for hierarchical/relational data — *Validated in Phase 02: metro-visualization*
+- [x] Vue Flow-based process flow visualization for workflow/process data — *Validated in Phase 03: flow-visualization*
+- [x] Cross-database views: single visualization drawing from multiple Notion databases — *Validated in Phase 02*
+- [x] Read-only user interface with filtering and node-click navigation — *Validated in Phase 03*
+- [x] Docker deployment packaging — README, Makefile, .dockerignore — *Validated in Phase 04: deployment*
+- [x] Product page (docs/index.html) for Docker Hub listing — *Validated in Phase 04: deployment*
 
 ### Out of Scope
 
@@ -51,8 +54,12 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 |----------|-----------|---------|
 | Config file over admin UI | Admin has Docker runtime access; file + restart is simpler to build and maintain | Confirmed — Phase 01 |
 | Notion API + local cache | Rate limits and offline tolerance both require caching layer | Confirmed — Phase 01 |
-| Metroviz for hierarchy | User explicitly requested this library for goals/missions/projects/architecture | — Pending |
-| Vue Flow for process flows | User requested Vue Flow or simpler alternative | — Pending |
+| Metroviz for hierarchy | User explicitly requested this library for goals/missions/projects/architecture | Confirmed — Phase 02 |
+| Vue Flow for process flows | User requested Vue Flow or simpler alternative | Confirmed — Phase 03 |
+
+## Current State
+
+**v1.0 complete as of Phase 04 (2026-06-06).** All 4 phases shipped: backend foundation → metro visualization → flow visualization → deployment. App is Docker-ready, documented, and has a product page at `docs/index.html`.
 
 ## Evolution
 
