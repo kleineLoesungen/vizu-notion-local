@@ -73,21 +73,35 @@ Mount path: `/app/config/sources.json`
 | `name` | string | Yes | Display name shown in the UI source switcher |
 | `columnMappings` | object | Yes | Maps role names to Notion property/column names |
 
-### columnMappings roles
+### columnMappings roles — Metro Map
 
-| Role | Type | Viz Type | Description |
-|------|------|----------|-------------|
-| `title` | string | Both | Maps to the primary Notion title property (e.g. "Name") |
-| `status` | string | Both | Maps to a Notion Select or Status property for filtering |
-| `parent` | string | Metro | Maps to a Notion Relation property pointing to parent entries — enables metro map hierarchy |
-| `children` | string | Metro | Maps to a Notion Relation property pointing to child entries |
-| `relatedGoal` | string | Metro | Maps to any cross-database Relation property to link entries |
-| `assignee` | string | Flow | Maps to a People property |
-| `sequence` | string | Flow | Maps to a Number property for ordering flow nodes |
+A source is eligible for metro map when it has **both** `date` and `next` in `columnMappings`.
+
+| Role | Required | Notion Type | Description |
+|------|----------|-------------|-------------|
+| `date` | **Yes** | Date | Positions each entry on the timeline x-axis |
+| `next` | **Yes** | Relation | Points to the next entry in sequence — defines how metro lines are drawn |
+| `title` | Recommended | Title | Station label on the map (falls back to entry ID if omitted) |
+| `parent` | Optional | Relation | Groups entries under a parent row label when `tag` is not defined |
+| `tag` | Optional | Select / Text | Groups entries into labeled zone bands (visible as section headers) |
+| `status` | Optional | Select / Status | Enables status-based filtering in the sidebar |
+
+### columnMappings roles — Flow Diagram
+
+A source is eligible for flow diagram when it has **`next`** in `columnMappings`.
+
+| Role | Required | Notion Type | Description |
+|------|----------|-------------|-------------|
+| `next` | **Yes** | Relation | Points to the next node — creates directed edges between nodes |
+| `title` | Recommended | Title | Node label (falls back to entry ID if omitted) |
+| `status` | Optional | Select / Status | Shown as a sub-label on each node (selectable in the UI) |
+| `date` | Optional | Date | Shown as a sub-label on each node |
+| `assignee` | Optional | People | Shown as a sub-label on each node |
 
 **Visualization type auto-detection:**
-- A source with `parent` or `children` in columnMappings is eligible for metro map
-- A source with `sequence` in columnMappings is eligible for process flow
+- A source with `next` in `columnMappings` is eligible for **flow diagram**
+- A source with both `date` and `next` is eligible for **metro map** (can also toggle to flow)
+- When both types are available, metro map is shown by default
 
 ### Example sources.json
 
@@ -96,22 +110,23 @@ Mount path: `/app/config/sources.json`
   "sources": [
     {
       "databaseId": "your-notion-database-id-here",
-      "name": "My Goals",
+      "name": "Project Milestones",
       "columnMappings": {
         "title": "Name",
-        "status": "Status",
-        "parent": "Parent Goal",
-        "children": "Sub-Goals"
+        "date": "Due Date",
+        "next": "Next Milestone",
+        "parent": "Project",
+        "tag": "Team",
+        "status": "Status"
       }
     },
     {
       "databaseId": "another-database-id-here",
-      "name": "My Projects",
+      "name": "Task Flow",
       "columnMappings": {
-        "title": "Project Name",
-        "status": "Status",
-        "assignee": "Owner",
-        "relatedGoal": "Goal"
+        "title": "Task Name",
+        "next": "Blocked By",
+        "status": "Status"
       }
     }
   ]

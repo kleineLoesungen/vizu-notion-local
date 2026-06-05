@@ -2,22 +2,23 @@
   "sources": [
     {
       "databaseId": "your-notion-database-id-here",
-      "name": "My Goals",
+      "name": "Project Milestones",
       "columnMappings": {
         "title": "Name",
-        "status": "Status",
-        "parent": "Parent Goal",
-        "children": "Sub-Goals"
+        "date": "Due Date",
+        "next": "Next Milestone",
+        "parent": "Project",
+        "tag": "Team",
+        "status": "Status"
       }
     },
     {
       "databaseId": "another-database-id-here",
-      "name": "My Projects",
+      "name": "Task Flow",
       "columnMappings": {
-        "title": "Project Name",
-        "status": "Status",
-        "assignee": "Owner",
-        "relatedGoal": "Goal"
+        "title": "Task Name",
+        "next": "Blocked By",
+        "status": "Status"
       }
     }
   ]
