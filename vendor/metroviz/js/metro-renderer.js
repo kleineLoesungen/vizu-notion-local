@@ -623,15 +623,25 @@ export class MetroRenderer {
                 }
 
                 if (isTransfer) {
-                    // Rectangle drawn above lines — marks the connected line's junction
-                    // on the transfer bar. Sized to match the 8px bar width, no border.
-                    normalStationsGroup.append('rect')
-                        .attr('x', station.x - 8)
-                        .attr('y', station.y - 4)
-                        .attr('width', 16)
-                        .attr('height', 8)
-                        .attr('fill', TRANSFER_COLOR)
-                        .attr('class', `line-${line.id}`);
+                    // Endpoints (only transferTo OR only transferFrom) get circles that
+                    // align with the bar's rounded caps. Middle stations get rectangles.
+                    const isEndpoint = !station.transferTo || !station.transferFrom;
+                    if (isEndpoint) {
+                        normalStationsGroup.append('circle')
+                            .attr('cx', station.x)
+                            .attr('cy', station.y)
+                            .attr('r', 8)
+                            .attr('fill', TRANSFER_COLOR)
+                            .attr('class', `line-${line.id}`);
+                    } else {
+                        normalStationsGroup.append('rect')
+                            .attr('x', station.x - 8)
+                            .attr('y', station.y - 4)
+                            .attr('width', 16)
+                            .attr('height', 8)
+                            .attr('fill', TRANSFER_COLOR)
+                            .attr('class', `line-${line.id}`);
+                    }
 
                     interactiveElement = normalStationsGroup.append('circle')
                         .attr('cx', station.x)
