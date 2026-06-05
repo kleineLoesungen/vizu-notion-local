@@ -195,10 +195,10 @@ export class MetroRenderer {
             events: zoomGroup.append('g').attr('class', 'events-lines'),
             lineIndicators: zoomGroup.append('g').attr('class', 'line-indicators'),
             relations: zoomGroup.append('g').attr('class', 'metro-relations'),
-            lines: zoomGroup.append('g').attr('class', 'lines'),
-            terminus: zoomGroup.append('g').attr('class', 'terminus-indicators'),
             transferBg: zoomGroup.append('g').attr('class', 'transfer-bg'),
             transferFg: zoomGroup.append('g').attr('class', 'transfer-fg'),
+            lines: zoomGroup.append('g').attr('class', 'lines'),
+            terminus: zoomGroup.append('g').attr('class', 'terminus-indicators'),
             normalStations: zoomGroup.append('g').attr('class', 'normal-stations'),
             labels: zoomGroup.append('g').attr('class', 'labels'),
             globalLabels: zoomGroup.append('g').attr('class', 'global-labels')
@@ -630,14 +630,14 @@ export class MetroRenderer {
                 }
 
                 if (isTransfer) {
-                    transferBgGroup.append('circle')
+                    normalStationsGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 9)
                         .attr('fill', '#000')
                         .attr('class', `line-${line.id}`);
 
-                    interactiveElement = transferFgGroup.append('circle')
+                    interactiveElement = normalStationsGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 6)
