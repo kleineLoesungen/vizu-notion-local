@@ -637,11 +637,26 @@ export class MetroRenderer {
                         .attr('fill', '#000')
                         .attr('class', `line-${line.id}`);
 
-                    interactiveElement = transferFgGroup.append('circle')
+                    transferFgGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 6)
                         .attr('fill', '#fff')
+                        .attr('class', `station-circle line-${line.id}`);
+
+                    // White overlay drawn above lines so connected stations
+                    // remain visually distinct from unrelated passing lines.
+                    normalStationsGroup.append('circle')
+                        .attr('cx', station.x)
+                        .attr('cy', station.y)
+                        .attr('r', 6)
+                        .attr('fill', '#fff');
+
+                    interactiveElement = normalStationsGroup.append('circle')
+                        .attr('cx', station.x)
+                        .attr('cy', station.y)
+                        .attr('r', 9)
+                        .attr('fill', 'transparent')
                         .attr('class', `station-circle line-${line.id}`)
                         .style('cursor', 'pointer');
                 } else if (station.isStop) {
