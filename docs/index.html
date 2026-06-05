@@ -524,52 +524,57 @@
 
         <!-- Process Flow Mockup -->
         <div class="preview-card">
-          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 660 430" role="img" aria-label="Flow diagram visualization">
-            <defs>
-              <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                <path d="M0,0 L0,6 L8,3 z" fill="#8898b0"/>
-              </marker>
-            </defs>
-            <rect width="660" height="430" fill="#ffffff" rx="4"/>
-            <!-- Arrows (behind nodes) -->
-            <!-- N1 → N2 -->
-            <line x1="330" y1="50" x2="330" y2="100" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N2 → N3 curve left -->
-            <path d="M 322,140 C 322,170 130,170 130,190" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N2 → N4 straight -->
-            <line x1="330" y1="140" x2="330" y2="190" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N2 → N6 curve right -->
-            <path d="M 338,140 C 338,170 530,170 530,190" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N3 → N5 -->
-            <path d="M 130,230 C 130,258 230,258 230,280" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N4 → N5 -->
-            <path d="M 320,230 C 320,258 240,258 238,280" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N6 → N7 -->
-            <path d="M 530,230 C 530,258 430,258 430,280" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N5 → N8 -->
-            <path d="M 240,320 C 240,348 320,348 320,370" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- N7 → N8 -->
-            <path d="M 420,320 C 420,348 340,348 340,370" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <!-- Nodes -->
-            <rect x="270" y="12" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="330" y="36" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Kickoff</text>
-            <rect x="270" y="102" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="330" y="126" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Planning</text>
-            <rect x="70" y="192" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="130" y="216" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Design</text>
-            <rect x="270" y="192" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="330" y="216" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Engineering</text>
-            <rect x="470" y="192" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="530" y="216" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">API Design</text>
-            <rect x="170" y="282" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="230" y="306" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Integration</text>
-            <rect x="370" y="282" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="430" y="306" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Testing</text>
-            <rect x="270" y="372" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
-            <text x="330" y="396" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Release</text>
-            <!-- Hint -->
-            <text x="656" y="426" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#aaa" text-anchor="end">^ Scroll to zoom · drag to pan</text>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="20 20 900 560" role="img" aria-label="Flow diagram visualization" style="display:block;">
+  <defs>
+    <marker id="flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <g transform="translate(0,0) scale(1)">
+    <!-- Edges -->
+    <path d="M 480 84 C 480 122, 480 122, 480 160" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 480 204 C 480 242, 120 242, 120 280" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 480 204 C 480 242, 480 242, 480 280" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 480 204 C 480 242, 840 242, 840 280" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 120 324 C 120 362, 300 362, 300 400" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 480 324 C 480 362, 300 362, 300 400" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 840 324 C 840 362, 660 362, 660 400" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <path d="M 300 444 C 300 482, 480 482, 480 520" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#flow-arrow)"/>
+    <!-- Nodes -->
+    <g transform="translate(400, 40)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Kickoff</text>
+    </g>
+    <g transform="translate(400, 160)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Planning</text>
+    </g>
+    <g transform="translate(40, 280)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Design</text>
+    </g>
+    <g transform="translate(400, 280)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Engineering</text>
+    </g>
+    <g transform="translate(760, 280)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">API Design</text>
+    </g>
+    <g transform="translate(220, 400)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Integration</text>
+    </g>
+    <g transform="translate(580, 400)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Review</text>
+    </g>
+    <g transform="translate(400, 520)">
+      <rect width="160" height="44" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+      <text x="80" y="22" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="600" fill="#0f172a" font-family="system-ui,-apple-system,sans-serif">Ship</text>
+    </g>
+  </g>
+</svg>
           <p class="preview-caption">Flow Diagram — Notion databases rendered as navigable node-edge graphs</p>
         </div>
 
