@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vizu-notion-local — Visualize Your Notion Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #666666;
+      background-color: #ffffff;
+    }
+
+    /* ── Typography ── */
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #1a1a1a;
+    }
+
+    h2 {
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: #1a1a1a;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #1a1a1a;
+    }
+
+    p {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #666666;
+    }
+
+    /* ── Layout ── */
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Buttons ── */
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-primary {
+      background-color: #2563eb;
+      color: #ffffff;
+      border: 2px solid #2563eb;
+    }
+
+    .btn-primary:hover {
+      background-color: #1e40af;
+      border-color: #1e40af;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: #2563eb;
+      border: 2px solid #2563eb;
+    }
+
+    .btn-secondary:hover {
+      background-color: #eff6ff;
+    }
+
+    /* ── Hero Section ── */
+
+    .hero {
+      background-color: #ffffff;
+      padding: 64px 0;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 32px;
+    }
+
+    .hero-text {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 720px;
+    }
+
+    .hero-text p {
+      font-size: 18px;
+      color: #666666;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ── Features Section ── */
+
+    .features {
+      background-color: #f7f6f3;
+      padding: 64px 0;
+      border-top: 1px solid #e8e8e8;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    /* ── How It Works Section ── */
+
+    .how-it-works {
+      background-color: #ffffff;
+      padding: 64px 0;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .step-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #2563eb;
+      line-height: 1;
+    }
+
+    .step-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.4;
+    }
+
+    /* ── Footer ── */
+
+    .footer {
+      background-color: #ffffff;
+      padding: 32px 0;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .footer-inner {
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      font-weight: 400;
+      color: #999999;
+      line-height: 1.5;
+    }
+
+    /* ── Responsive ── */
+
+    @media (max-width: 767px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-ctas .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .step {
+        padding: 16px 0;
+        border-bottom: 1px solid #e8e8e8;
+      }
+
+      .step:last-child {
+        border-bottom: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <h1>Visualize Your Notion Workspace</h1>
+          <p>Render hierarchical or sequential Notion databases as interactive metro maps and process flows — no code changes required.</p>
+        </div>
+        <div class="hero-ctas">
+          <a href="https://github.com/sebastianwiller/vizu-notion-local" class="btn btn-primary">View on GitHub</a>
+          <a href="https://hub.docker.com/r/USERNAME/notionviz" class="btn btn-secondary">Docker Hub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Features</h2>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon">⚙</div>
+          <h3>Config-Driven</h3>
+          <p>Define Notion sources and column mappings in a JSON config file. Update the config, restart the container, and the app validates and reloads — no code changes.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">◉</div>
+          <h3>Two Visualization Types</h3>
+          <p>Hierarchical databases render as metro-style maps. Sequential/workflow databases render as process flows. The app auto-detects which type is available for each source.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">▶</div>
+          <h3>Fully Local &amp; Self-Hosted</h3>
+          <p>Single <code>docker-compose up</code> command. Your Notion token stays server-side. No cloud relay, no external dependencies — run on your own machine.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step">
+          <span class="step-number">01</span>
+          <div class="step-title">Configure</div>
+          <p>Edit a simple JSON config file with your Notion database IDs and column mappings.</p>
+        </div>
+        <div class="step">
+          <span class="step-number">02</span>
+          <div class="step-title">Run</div>
+          <p>Start the container with <code>docker-compose up</code>. The app validates your config and connects to Notion.</p>
+        </div>
+        <div class="step">
+          <span class="step-number">03</span>
+          <div class="step-title">Visualize</div>
+          <p>Open the browser and view your data as interactive metro maps or process flows. Filter, export, and share.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <p class="footer-text">Built with Nuxt + Vue 3 + TailwindCSS. Config-driven visualization for Notion.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
