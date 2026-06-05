@@ -98,7 +98,7 @@ Plans:
 | 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
 | 2. Visualization | 2/4 | In Progress|  |
 | 3. User Experience | 7/7 | Complete   | 2026-06-03 |
-| 4. Deployment | 2/3 | In Progress|  |
+| 4. Deployment | 3/3 | Complete   | 2026-06-06 |
 
 ### Phase 4: Deployment
 
@@ -117,7 +117,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — README.md (setup-first, config reference table, troubleshooting) + .dockerignore
 - [x] 04-02-PLAN.md — Makefile with build, run, publish targets (Docker Hub workflow)
-- [ ] 04-03-PLAN.md — docs/index.html product page (Notion-like aesthetic, hero + features + how-it-works)
+- [x] 04-03-PLAN.md — docs/index.html product page (Notion-like aesthetic, hero + features + how-it-works)
 
 ---
 
