@@ -431,15 +431,23 @@
 <line x1="20" y1="230" x2="40" y2="230" stroke="#B5838D" stroke-width="6" stroke-linecap="round"/>
 <line x1="20" y1="280" x2="40" y2="280" stroke="#6D6875" stroke-width="6" stroke-linecap="round"/>
 <line x1="20" y1="330" x2="40" y2="330" stroke="#264653" stroke-width="6" stroke-linecap="round"/>
+<!-- Track A (Quarterly Goals section) -->
 <path d="M455,440L495,440" stroke="#354F52" stroke-width="8" fill="none" stroke-linecap="round"/>
+<!-- Phase 1 green trunk -->
 <path d="M250,180L510,180" stroke="#52796F" stroke-width="8" fill="none" stroke-linecap="round"/>
-<path d="M510,230L558,210L625,210L652,252" stroke="#B5838D" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M652,252L700,252" stroke="#B5838D" stroke-width="8" fill="none" stroke-linecap="round"/>
-<path d="M510,280L548,280L592,262L652,252" stroke="#6D6875" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Design (pink): from split, arc up, two stations, come back to y=230 at transfer x=650 -->
+<path d="M510,230L558,210L625,210L650,230" stroke="#B5838D" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Design continues past transfer to Launch terminus -->
+<path d="M650,230L705,230" stroke="#B5838D" stroke-width="8" fill="none" stroke-linecap="round"/>
+<!-- Review (purple): from split, arc up to y=262, terminates at transfer x=650 -->
+<path d="M510,280L548,280L592,262L650,262" stroke="#6D6875" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Deploy (teal): independent track -->
 <path d="M510,330L558,312L700,312" stroke="#264653" stroke-width="8" fill="none" stroke-linecap="round"/>
+<!-- Terminus indicators -->
 <line x1="495" y1="428" x2="495" y2="452" stroke="#354F52" stroke-width="4" stroke-linecap="round"/>
-<line x1="700" y1="240" x2="700" y2="264" stroke="#B5838D" stroke-width="4" stroke-linecap="round"/>
+<line x1="705" y1="218" x2="705" y2="242" stroke="#B5838D" stroke-width="4" stroke-linecap="round"/>
 <line x1="700" y1="300" x2="700" y2="324" stroke="#264653" stroke-width="4" stroke-linecap="round"/>
+<!-- Split transfer station at x=510 (bg then fg) -->
 <line x1="510" y1="180" x2="510" y2="230" stroke="#000" stroke-width="18" stroke-linecap="round"/>
 <line x1="510" y1="230" x2="510" y2="280" stroke="#000" stroke-width="18" stroke-linecap="round"/>
 <line x1="510" y1="280" x2="510" y2="330" stroke="#000" stroke-width="18" stroke-linecap="round"/>
@@ -454,15 +462,23 @@
 <circle cx="510" cy="230" r="6" fill="#fff"/>
 <circle cx="510" cy="280" r="6" fill="#fff"/>
 <circle cx="510" cy="330" r="6" fill="#fff"/>
-<circle cx="652" cy="252" r="9" fill="#000"/>
-<circle cx="652" cy="252" r="6" fill="#fff"/>
+<!-- Re-join transfer station at x=650: Design (y=230) + Review (y=262) -->
+<line x1="650" y1="230" x2="650" y2="262" stroke="#000" stroke-width="18" stroke-linecap="round"/>
+<circle cx="650" cy="230" r="9" fill="#000"/>
+<circle cx="650" cy="262" r="9" fill="#000"/>
+<line x1="650" y1="230" x2="650" y2="262" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+<circle cx="650" cy="230" r="6" fill="#fff"/>
+<circle cx="650" cy="262" r="6" fill="#fff"/>
+<!-- Normal station circles -->
 <circle cx="455" cy="440" r="6" fill="#fff" stroke-width="2" stroke="#354F52"/>
 <circle cx="495" cy="440" r="6" fill="#fff" stroke-width="2" stroke="#354F52"/>
 <circle cx="250" cy="180" r="6" fill="#fff" stroke-width="2" stroke="#52796F"/>
 <circle cx="558" cy="210" r="6" fill="#fff" stroke-width="2" stroke="#B5838D"/>
 <circle cx="625" cy="210" r="6" fill="#fff" stroke-width="2" stroke="#B5838D"/>
 <circle cx="592" cy="262" r="6" fill="#fff" stroke-width="2" stroke="#6D6875"/>
+<circle cx="705" cy="230" r="6" fill="#fff" stroke-width="2" stroke="#B5838D"/>
 <circle cx="558" cy="312" r="6" fill="#fff" stroke-width="2" stroke="#264653"/>
+<!-- Labels (bg stroke then fg fill) -->
 <text x="455" y="462" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Track A</text>
 <text x="455" y="462" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Track A</text>
 <text x="495" y="462" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Track B</text>
@@ -477,16 +493,21 @@
 <text x="625" y="196" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Build</text>
 <text x="592" y="248" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Review</text>
 <text x="592" y="248" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Review</text>
-<text x="700" y="238" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Launch</text>
-<text x="700" y="238" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Launch</text>
+<!-- Re-join transfer station label (shared name above the upper circle) -->
+<text x="650" y="216" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Sprint 3</text>
+<text x="650" y="216" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Sprint 3</text>
+<text x="705" y="216" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Launch</text>
+<text x="705" y="216" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Launch</text>
 <text x="558" y="298" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Deploy</text>
 <text x="558" y="298" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Deploy</text>
 <text x="700" y="298" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Go-live</text>
 <text x="700" y="298" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Go-live</text>
+<!-- Zone labels -->
 <path d="M 17 134 L 27 134 L 22 140 Z" fill="#888"/>
 <text x="38" y="140" font-family="Helvetica, Arial, sans-serif" font-size="14px" font-weight="bold" fill="#555">Product Launch</text>
 <path d="M 17 394 L 27 394 L 22 400 Z" fill="#888"/>
 <text x="38" y="400" font-family="Helvetica, Arial, sans-serif" font-size="14px" font-weight="bold" fill="#555">Quarterly Goals</text>
+<!-- Left legend labels -->
 <text x="50" y="444" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Track A</text>
 <text x="50" y="444" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="#333">Track A</text>
 <text x="50" y="184" font-family="Helvetica, Arial, sans-serif" font-size="12px" fill="none" stroke="#fefefe" stroke-width="3" stroke-linejoin="round">Phase 1</text>
