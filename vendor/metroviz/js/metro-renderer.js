@@ -484,18 +484,8 @@ export class MetroRenderer {
     }
 
     renderTransfers(bgGroup, fgGroup, transferLinks) {
-        const TRANSFER_BORDER = '#475569';
         transferLinks.forEach(link => {
             bgGroup.append('line')
-                .attr('x1', link.source.x)
-                .attr('y1', link.source.y)
-                .attr('x2', link.target.x)
-                .attr('y2', link.target.y)
-                .attr('stroke', TRANSFER_BORDER)
-                .attr('stroke-width', 10)
-                .attr('stroke-linecap', 'round');
-
-            fgGroup.append('line')
                 .attr('x1', link.source.x)
                 .attr('y1', link.source.y)
                 .attr('x2', link.target.x)
@@ -633,16 +623,14 @@ export class MetroRenderer {
                 }
 
                 if (isTransfer) {
-                    // Drawn in normalStations (above lines) so connected stations
-                    // are visible on top of any line passing through.
-                    // r=4 matches the 8px-wide connector bar; border slightly darker.
-                    normalStationsGroup.append('circle')
-                        .attr('cx', station.x)
-                        .attr('cy', station.y)
-                        .attr('r', 4)
+                    // Rectangle drawn above lines — marks the connected line's junction
+                    // on the transfer bar. Sized to match the 8px bar width, no border.
+                    normalStationsGroup.append('rect')
+                        .attr('x', station.x - 4)
+                        .attr('y', station.y - 4)
+                        .attr('width', 8)
+                        .attr('height', 8)
                         .attr('fill', TRANSFER_COLOR)
-                        .attr('stroke', '#475569')
-                        .attr('stroke-width', 1.5)
                         .attr('class', `line-${line.id}`);
 
                     interactiveElement = normalStationsGroup.append('circle')
