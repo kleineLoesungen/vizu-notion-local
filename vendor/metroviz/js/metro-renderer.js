@@ -7,6 +7,8 @@
  * @param {number} ty - Target Y coordinate
  * @returns {string} SVG path string
  */
+const TRANSFER_COLOR = '#64748b';
+
 function buildOrthogonalRelationPath(sx, sy, tx, ty) {
     const off = 14;
     const dx = tx - sx;
@@ -488,17 +490,8 @@ export class MetroRenderer {
                 .attr('y1', link.source.y)
                 .attr('x2', link.target.x)
                 .attr('y2', link.target.y)
-                .attr('stroke', '#000')
-                .attr('stroke-width', 18)
-                .attr('stroke-linecap', 'round');
-            
-            fgGroup.append('line')
-                .attr('x1', link.source.x)
-                .attr('y1', link.source.y)
-                .attr('x2', link.target.x)
-                .attr('y2', link.target.y)
-                .attr('stroke', '#fff')
-                .attr('stroke-width', 12)
+                .attr('stroke', TRANSFER_COLOR)
+                .attr('stroke-width', 8)
                 .attr('stroke-linecap', 'round');
         });
     }
@@ -630,27 +623,16 @@ export class MetroRenderer {
                 }
 
                 if (isTransfer) {
-                    transferBgGroup.append('circle')
-                        .attr('cx', station.x)
-                        .attr('cy', station.y)
-                        .attr('r', 9)
-                        .attr('fill', '#000')
-                        .attr('class', `line-${line.id}`);
-
-                    transferFgGroup.append('circle')
-                        .attr('cx', station.x)
-                        .attr('cy', station.y)
-                        .attr('r', 6)
-                        .attr('fill', '#fff')
-                        .attr('class', `station-circle line-${line.id}`);
-
-                    // White overlay drawn above lines so connected stations
-                    // remain visually distinct from unrelated passing lines.
+                    // Drawn in normalStations (above lines) so connected stations
+                    // are visible on top of any line passing through.
                     normalStationsGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 6)
-                        .attr('fill', '#fff');
+                        .attr('fill', '#fff')
+                        .attr('stroke', TRANSFER_COLOR)
+                        .attr('stroke-width', 2)
+                        .attr('class', `line-${line.id}`);
 
                     interactiveElement = normalStationsGroup.append('circle')
                         .attr('cx', station.x)
