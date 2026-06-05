@@ -453,6 +453,17 @@ export class MetroRenderer {
                     strokeColor = getTintedColor(line.color, zoneColors.get(line.zone));
                 }
 
+                // White halo drawn first — creates a thin outline that visually
+                // separates the line from the transfer station background.
+                linesGroup.append('path')
+                    .datum(seg.path)
+                    .attr('d', lineGenerator)
+                    .attr('stroke', '#ffffff')
+                    .attr('stroke-width', 11)
+                    .attr('fill', 'none')
+                    .attr('stroke-linecap', 'round')
+                    .attr('stroke-linejoin', 'round');
+
                 linesGroup.append('path')
                     .datum(seg.path)
                     .attr('d', lineGenerator)
