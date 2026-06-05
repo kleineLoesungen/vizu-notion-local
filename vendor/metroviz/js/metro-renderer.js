@@ -484,8 +484,18 @@ export class MetroRenderer {
     }
 
     renderTransfers(bgGroup, fgGroup, transferLinks) {
+        const TRANSFER_BORDER = '#475569';
         transferLinks.forEach(link => {
             bgGroup.append('line')
+                .attr('x1', link.source.x)
+                .attr('y1', link.source.y)
+                .attr('x2', link.target.x)
+                .attr('y2', link.target.y)
+                .attr('stroke', TRANSFER_BORDER)
+                .attr('stroke-width', 10)
+                .attr('stroke-linecap', 'round');
+
+            fgGroup.append('line')
                 .attr('x1', link.source.x)
                 .attr('y1', link.source.y)
                 .attr('x2', link.target.x)
@@ -625,19 +635,20 @@ export class MetroRenderer {
                 if (isTransfer) {
                     // Drawn in normalStations (above lines) so connected stations
                     // are visible on top of any line passing through.
+                    // r=4 matches the 8px-wide connector bar; border slightly darker.
                     normalStationsGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
-                        .attr('r', 6)
+                        .attr('r', 4)
                         .attr('fill', TRANSFER_COLOR)
-                        .attr('stroke', TRANSFER_COLOR)
-                        .attr('stroke-width', 2)
+                        .attr('stroke', '#475569')
+                        .attr('stroke-width', 1.5)
                         .attr('class', `line-${line.id}`);
 
                     interactiveElement = normalStationsGroup.append('circle')
                         .attr('cx', station.x)
                         .attr('cy', station.y)
-                        .attr('r', 9)
+                        .attr('r', 8)
                         .attr('fill', 'transparent')
                         .attr('class', `station-circle line-${line.id}`)
                         .style('cursor', 'pointer');
