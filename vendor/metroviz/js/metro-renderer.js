@@ -629,7 +629,7 @@ export class MetroRenderer {
                         .attr('cx', station.x)
                         .attr('cy', station.y)
                         .attr('r', 6)
-                        .attr('fill', '#fff')
+                        .attr('fill', TRANSFER_COLOR)
                         .attr('stroke', TRANSFER_COLOR)
                         .attr('stroke-width', 2)
                         .attr('class', `line-${line.id}`);
