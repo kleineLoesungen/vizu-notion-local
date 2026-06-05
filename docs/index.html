@@ -408,124 +408,134 @@
 
         <!-- Metro Map Mockup -->
         <div class="preview-card">
-          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 500 300" role="img" aria-label="Metro map visualization mockup">
-            <!-- Background -->
-            <rect width="500" height="300" fill="#f7f6f3" rx="4"/>
-
-            <!-- Blue line: Goals → Q1 Goals → Product Vision (top arc, then diagonal) -->
-            <polyline points="40,80 150,80 270,140 420,140" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-
-            <!-- Green line: Research → Projects → Launch v1 (diagonal, mid-low) -->
-            <polyline points="40,200 160,200 260,140 380,200 460,200" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-
-            <!-- Red line: Tasks → Fix Bug #42 → Write Docs (lower, branches off) -->
-            <polyline points="100,260 220,260 260,200 340,260 440,260" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-
-            <!-- Station dots — Blue line -->
-            <circle cx="40" cy="80" r="6" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
-            <circle cx="150" cy="80" r="6" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
-            <circle cx="420" cy="140" r="6" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
-
-            <!-- Station dots — Green line -->
-            <circle cx="40" cy="200" r="6" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
-            <circle cx="160" cy="200" r="6" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
-            <circle cx="380" cy="200" r="6" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
-            <circle cx="460" cy="200" r="6" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
-
-            <!-- Station dots — Red line -->
-            <circle cx="100" cy="260" r="6" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
-            <circle cx="220" cy="260" r="6" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
-            <circle cx="340" cy="260" r="6" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
-            <circle cx="440" cy="260" r="6" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
-
-            <!-- Interchange station (blue+green intersection) -->
-            <circle cx="260" cy="140" r="8" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"/>
-
-            <!-- Interchange station (green+red intersection) -->
-            <circle cx="260" cy="200" r="8" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"/>
-
-            <!-- Labels — Blue line -->
-            <text x="40" y="70" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Goals</text>
-            <text x="150" y="70" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Q1 Goals</text>
-            <text x="420" y="130" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Product Vision</text>
-
-            <!-- Labels — Green line -->
-            <text x="40" y="215" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Research</text>
-            <text x="160" y="215" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Projects</text>
-            <text x="380" y="215" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Launch v1</text>
-            <text x="460" y="215" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Roadmap</text>
-
-            <!-- Labels — Red line -->
-            <text x="100" y="276" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Tasks</text>
-            <text x="220" y="276" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Fix Bug #42</text>
-            <text x="340" y="276" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Write Docs</text>
-            <text x="440" y="276" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Deploy</text>
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 290" role="img" aria-label="Metro map visualization">
+            <rect width="760" height="290" fill="#ffffff" rx="4"/>
+            <!-- Title -->
+            <text x="16" y="24" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Milestones</text>
+            <!-- Section label -->
+            <text x="16" y="50" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1a1a1a">▼  Product Launch</text>
+            <!-- Legend: Planning (green) -->
+            <line x1="16" y1="73" x2="40" y2="73" stroke="#4a8c6a" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="40" cy="73" r="4" fill="#ffffff" stroke="#4a8c6a" stroke-width="1.5"/>
+            <text x="52" y="78" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#444">Planning</text>
+            <!-- Legend: Design (pink) -->
+            <line x1="16" y1="100" x2="40" y2="100" stroke="#b07888" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="40" cy="100" r="4" fill="#ffffff" stroke="#b07888" stroke-width="1.5"/>
+            <text x="52" y="105" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#444">Design</text>
+            <!-- Legend: Review (slate) -->
+            <line x1="16" y1="127" x2="40" y2="127" stroke="#6e7a8a" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="40" cy="127" r="4" fill="#ffffff" stroke="#6e7a8a" stroke-width="1.5"/>
+            <text x="52" y="132" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#444">Review</text>
+            <!-- Legend: Deploy (teal) -->
+            <line x1="16" y1="154" x2="40" y2="154" stroke="#2c6370" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="40" cy="154" r="4" fill="#ffffff" stroke="#2c6370" stroke-width="1.5"/>
+            <text x="52" y="159" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#444">Deploy</text>
+            <!-- Panel divider -->
+            <line x1="155" y1="35" x2="155" y2="215" stroke="#e8e8e8" stroke-width="1"/>
+            <!-- Timeline: month labels + dashed markers -->
+            <text x="305" y="44" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Mar</text>
+            <line x1="305" y1="48" x2="305" y2="215" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="3 3"/>
+            <text x="720" y="44" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Apr</text>
+            <!-- Convergence bar + selection outline -->
+            <rect x="490" y="56" width="7" height="170" rx="2" fill="#1a1a1a"/>
+            <rect x="481" y="50" width="25" height="182" rx="4" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <!-- GREEN LINE: Kickoff → Sprint 1 -->
+            <line x1="278" y1="73" x2="481" y2="73" stroke="#4a8c6a" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="278" cy="73" r="5" fill="#ffffff" stroke="#4a8c6a" stroke-width="2"/>
+            <circle cx="481" cy="73" r="5" fill="#ffffff" stroke="#4a8c6a" stroke-width="2"/>
+            <text x="278" y="62" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Kickoff</text>
+            <text x="508" y="62" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555">Sprint 1</text>
+            <!-- PINK LINE: Wireframes arc -->
+            <polyline points="506,100 546,82 578,94 612,106" fill="none" stroke="#b07888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="506" cy="100" r="5" fill="#ffffff" stroke="#b07888" stroke-width="2"/>
+            <circle cx="546" cy="82" r="5" fill="#ffffff" stroke="#b07888" stroke-width="2"/>
+            <circle cx="578" cy="94" r="5" fill="#ffffff" stroke="#b07888" stroke-width="2"/>
+            <circle cx="612" cy="106" r="5" fill="#ffffff" stroke="#b07888" stroke-width="2"/>
+            <text x="506" y="116" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Wireframes</text>
+            <text x="546" y="71" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">User Test</text>
+            <text x="578" y="83" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Prototype</text>
+            <text x="612" y="120" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Launch</text>
+            <!-- SLATE LINE: Review → Approve -->
+            <polyline points="506,127 568,127 606,137" fill="none" stroke="#6e7a8a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="506" cy="127" r="5" fill="#ffffff" stroke="#6e7a8a" stroke-width="2"/>
+            <circle cx="568" cy="127" r="5" fill="#ffffff" stroke="#6e7a8a" stroke-width="2"/>
+            <circle cx="606" cy="137" r="5" fill="#ffffff" stroke="#6e7a8a" stroke-width="2"/>
+            <text x="506" y="115" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Review</text>
+            <text x="568" y="115" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Revise</text>
+            <text x="606" y="151" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Approve</text>
+            <!-- TEAL LINE: Staging → Go-live -->
+            <line x1="506" y1="154" x2="690" y2="154" stroke="#2c6370" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="506" cy="154" r="5" fill="#ffffff" stroke="#2c6370" stroke-width="2"/>
+            <circle cx="690" cy="154" r="5" fill="#ffffff" stroke="#2c6370" stroke-width="2"/>
+            <text x="506" y="142" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Staging</text>
+            <text x="690" y="142" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#555" text-anchor="middle">Go-live</text>
+            <!-- Section 2 divider -->
+            <line x1="0" y1="222" x2="760" y2="222" stroke="#e8e8e8" stroke-width="1"/>
+            <text x="16" y="245" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1a1a1a">▼  Quarterly Planning</text>
+            <!-- Legend item for section 2 -->
+            <line x1="16" y1="267" x2="40" y2="267" stroke="#2c6370" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="40" cy="267" r="4" fill="#ffffff" stroke="#2c6370" stroke-width="1.5"/>
+            <text x="52" y="272" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#444">Deploy</text>
+            <!-- Small 2-node pair (signature "loop" element from the tool) -->
+            <polyline points="352,267 364,267 372,261 380,267 392,267" fill="none" stroke="#2c6370" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="352" cy="267" r="4" fill="#ffffff" stroke="#2c6370" stroke-width="1.5"/>
+            <circle cx="364" cy="267" r="4" fill="#ffffff" stroke="#2c6370" stroke-width="1.5"/>
+            <circle cx="380" cy="267" r="4" fill="#ffffff" stroke="#2c6370" stroke-width="1.5"/>
+            <circle cx="392" cy="267" r="4" fill="#ffffff" stroke="#2c6370" stroke-width="1.5"/>
+            <text x="372" y="281" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#888" text-anchor="middle">Step A   Step B</text>
           </svg>
-          <p class="preview-caption">Metro Map — Hierarchical databases rendered as transit-style diagrams</p>
+          <p class="preview-caption">Metro Map — Milestones and phases rendered as transit-style timeline tracks</p>
         </div>
 
         <!-- Process Flow Mockup -->
         <div class="preview-card">
-          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 500 300" role="img" aria-label="Process flow visualization mockup">
-            <!-- Arrowhead marker -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 660 430" role="img" aria-label="Flow diagram visualization">
             <defs>
-              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+              <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#8898b0"/>
               </marker>
             </defs>
-
-            <!-- Background -->
-            <rect width="500" height="300" fill="#f9f9f9" rx="4"/>
-
-            <!-- Main flow nodes: Research → Design → Build → Review → Ship -->
-            <!-- Research node -->
-            <rect x="20" y="128" width="90" height="44" rx="6" fill="#ffffff" stroke="#e8e8e8" stroke-width="1.5"/>
-            <text x="65" y="154" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Research</text>
-
-            <!-- Design node -->
-            <rect x="135" y="128" width="90" height="44" rx="6" fill="#ffffff" stroke="#e8e8e8" stroke-width="1.5"/>
-            <text x="180" y="154" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Design</text>
-
-            <!-- Build node -->
-            <rect x="250" y="128" width="90" height="44" rx="6" fill="#ffffff" stroke="#e8e8e8" stroke-width="1.5"/>
-            <text x="295" y="154" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Build</text>
-
-            <!-- Review node -->
-            <rect x="365" y="128" width="90" height="44" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
-            <text x="410" y="154" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="600">Review</text>
-
-            <!-- Ship node -->
-            <rect x="365" y="40" width="90" height="44" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
-            <text x="410" y="66" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="600">Ship</text>
-
-            <!-- Revise node (loops back) -->
-            <rect x="250" y="216" width="90" height="44" rx="6" fill="#ffffff" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 2"/>
-            <text x="295" y="242" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#dc2626" text-anchor="middle" font-weight="500">Revise</text>
-
-            <!-- Arrows: main flow -->
-            <line x1="110" y1="150" x2="132" y2="150" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-            <line x1="225" y1="150" x2="247" y2="150" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-            <line x1="340" y1="150" x2="362" y2="150" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-            <!-- Arrow: Review → Ship (upward, approved path) -->
-            <line x1="410" y1="128" x2="410" y2="87" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrow)"/>
-            <text x="420" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#16a34a">Approve</text>
-
-            <!-- Arrow: Review → Revise (downward, revise path) -->
-            <line x1="410" y1="172" x2="410" y2="238" stroke="#dc2626" stroke-width="1.5"/>
-            <line x1="410" y1="238" x2="343" y2="238" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arrow)"/>
-            <text x="420" y="210" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#dc2626">Revise</text>
-
-            <!-- Arrow: Revise → Build (loop back) -->
-            <path d="M250,238 C210,238 210,150 247,150" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
-
-            <!-- Step labels -->
-            <text x="65" y="185" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#999999" text-anchor="middle">Step 1</text>
-            <text x="180" y="185" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#999999" text-anchor="middle">Step 2</text>
-            <text x="295" y="185" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#999999" text-anchor="middle">Step 3</text>
-            <text x="410" y="185" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#999999" text-anchor="middle">Step 4</text>
+            <rect width="660" height="430" fill="#ffffff" rx="4"/>
+            <!-- Arrows (behind nodes) -->
+            <!-- N1 → N2 -->
+            <line x1="330" y1="50" x2="330" y2="100" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N2 → N3 curve left -->
+            <path d="M 322,140 C 322,170 130,170 130,190" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N2 → N4 straight -->
+            <line x1="330" y1="140" x2="330" y2="190" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N2 → N6 curve right -->
+            <path d="M 338,140 C 338,170 530,170 530,190" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N3 → N5 -->
+            <path d="M 130,230 C 130,258 230,258 230,280" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N4 → N5 -->
+            <path d="M 320,230 C 320,258 240,258 238,280" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N6 → N7 -->
+            <path d="M 530,230 C 530,258 430,258 430,280" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N5 → N8 -->
+            <path d="M 240,320 C 240,348 320,348 320,370" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- N7 → N8 -->
+            <path d="M 420,320 C 420,348 340,348 340,370" fill="none" stroke="#8898b0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <!-- Nodes -->
+            <rect x="270" y="12" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="330" y="36" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Kickoff</text>
+            <rect x="270" y="102" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="330" y="126" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Planning</text>
+            <rect x="70" y="192" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="130" y="216" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Design</text>
+            <rect x="270" y="192" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="330" y="216" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Engineering</text>
+            <rect x="470" y="192" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="530" y="216" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">API Design</text>
+            <rect x="170" y="282" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="230" y="306" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Integration</text>
+            <rect x="370" y="282" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="430" y="306" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Testing</text>
+            <rect x="270" y="372" width="120" height="38" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+            <text x="330" y="396" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="500">Release</text>
+            <!-- Hint -->
+            <text x="656" y="426" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#aaa" text-anchor="end">^ Scroll to zoom · drag to pan</text>
           </svg>
-          <p class="preview-caption">Process Flow — Sequential workflows rendered as node-edge diagrams</p>
+          <p class="preview-caption">Flow Diagram — Notion databases rendered as navigable node-edge graphs</p>
         </div>
 
       </div>
