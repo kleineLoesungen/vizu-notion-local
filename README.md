@@ -103,6 +103,12 @@ A source is eligible for flow diagram when it has **`next`** in `columnMappings`
 - A source with both `date` and `next` is eligible for **metro map** (can also toggle to flow)
 - When both types are available, metro map is shown by default
 
+**Mapping `next` from a Notion database:**
+
+The `next` role maps to any Notion Relation property that points forward to the next entry. The simplest way to set this up is Notion's built-in **Dependencies** feature — enabling it on a database automatically creates a "Blocked by" / "Blocking" relation pair. Map `next` to whichever direction represents the forward link (e.g. `"next": "Blocking"`).
+
+→ [Notion docs: Dependencies](https://www.notion.so/help/timeline-and-dependencies)
+
 ### Example sources.json
 
 ```json
