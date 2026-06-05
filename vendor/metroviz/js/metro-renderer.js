@@ -491,7 +491,7 @@ export class MetroRenderer {
                 .attr('x2', link.target.x)
                 .attr('y2', link.target.y)
                 .attr('stroke', TRANSFER_COLOR)
-                .attr('stroke-width', 8)
+                .attr('stroke-width', 16)
                 .attr('stroke-linecap', 'round');
         });
     }
@@ -626,9 +626,9 @@ export class MetroRenderer {
                     // Rectangle drawn above lines — marks the connected line's junction
                     // on the transfer bar. Sized to match the 8px bar width, no border.
                     normalStationsGroup.append('rect')
-                        .attr('x', station.x - 4)
+                        .attr('x', station.x - 8)
                         .attr('y', station.y - 4)
-                        .attr('width', 8)
+                        .attr('width', 16)
                         .attr('height', 8)
                         .attr('fill', TRANSFER_COLOR)
                         .attr('class', `line-${line.id}`);
