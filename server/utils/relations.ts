@@ -79,7 +79,8 @@ export async function resolveRelations(
   // We can only know which db a related page belongs to AFTER fetching it,
   // so we fetch all related pages first, then filter by checking their parent.
   // This is simpler and avoids needing to pre-query relation metadata.
-  const configuredDatabaseIds = new Set(allSources.map(s => s.databaseId))
+  const normalize = (id: string) => id.replace(/-/g, '')
+  const configuredDatabaseIds = new Set(allSources.map(s => normalize(s.databaseId)))
 
   // Fetch all depth-1 related pages in parallel (respects rate limiter via retrievePage)
   const allRelatedPages = new Map<string, PageObjectResponse>() // pageId -> page
@@ -104,7 +105,7 @@ export async function resolveRelations(
       const { pageId, page } = result.value
       // D-06: Only include pages whose parent database is in configuredSources
       const parentDbId = (page.parent as any)?.database_id
-      if (parentDbId && configuredDatabaseIds.has(parentDbId)) {
+      if (parentDbId && configuredDatabaseIds.has(normalize(parentDbId))) {
         allRelatedPages.set(pageId, page)
       }
       // If parent db not configured, silently skip (D-06)

@@ -16,7 +16,8 @@ export default defineEventHandler(async (_event) => {
   if (_initialized) return
 
   try {
-    await loadConfig('/app/config/sources.json')
+    const configPath = process.env.VIZU_CONFIG_PATH ?? (process.env.NODE_ENV === 'production' ? '/app/config/sources.json' : 'config/sources.json')
+    await loadConfig(configPath)
     _initialized = true
   } catch (err) {
     _initError = err as Error

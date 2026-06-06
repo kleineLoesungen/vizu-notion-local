@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   app:
     build:
@@ -9,11 +7,12 @@ services:
       - "3000:3000"
     volumes:
       - ./config:/app/config:ro
-      # Persistent share-link token store. On first run: mkdir -p ./data/shares && chmod 777 ./data/shares
+      # Persistent share-link token store (shares.json). On first run: mkdir -p ./data && chmod 777 ./data
       - ./data:/app/data:rw
     environment:
       NODE_ENV: production
-      NOTION_API_TOKEN: ${NOTION_API_TOKEN}
+      # Nuxt reads runtimeConfig overrides via NUXT_<KEY> at runtime (not NOTION_API_TOKEN directly)
+      NUXT_NOTION_API_TOKEN: ${NOTION_API_TOKEN}
     env_file:
       - .env
     restart: unless-stopped

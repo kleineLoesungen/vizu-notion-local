@@ -156,21 +156,25 @@ export class LayoutEngine {
                     }
                 }
 
-                // If line has more than 2 stations, alternate the Y position for intermediate stations
-                if (isLongLine && i > 0 && i < sortedStations.length - 1) {
-                    // Alternate between base line (0) and a slight offset (-1, meaning up)
-                    // instead of swinging wildly from +1 to -1
-                    let direction = i % 2 === 0 ? 0 : -1;
-                    
-                    // Override alternating direction if this station is part of a transfer
-                    if (transferDirection !== 0) {
-                        direction = transferDirection;
-                    }
+                // noSlope: hub stubs must stay at baseY so the line segment to the next
+                // real station is horizontal, not diagonal.
+                if (!station.noSlope) {
+                    // If line has more than 2 stations, alternate the Y position for intermediate stations
+                    if (isLongLine && i > 0 && i < sortedStations.length - 1) {
+                        // Alternate between base line (0) and a slight offset (-1, meaning up)
+                        // instead of swinging wildly from +1 to -1
+                        let direction = i % 2 === 0 ? 0 : -1;
 
-                    stationY = baseY + (direction * dynamicConfig.lineSpacing * 0.35);
-                } else if (transferDirection !== 0) {
-                    // Even for first/last stations, bend them towards the transfer to make it look connected
-                    stationY = baseY + (transferDirection * dynamicConfig.lineSpacing * 0.35);
+                        // Override alternating direction if this station is part of a transfer
+                        if (transferDirection !== 0) {
+                            direction = transferDirection;
+                        }
+
+                        stationY = baseY + (direction * dynamicConfig.lineSpacing * 0.35);
+                    } else if (transferDirection !== 0) {
+                        // Even for first/last stations, bend them towards the transfer to make it look connected
+                        stationY = baseY + (transferDirection * dynamicConfig.lineSpacing * 0.35);
+                    }
                 }
 
                 // Avoid the final bend: the last station always inherits the Y-position of the penultimate station

@@ -7,7 +7,7 @@
  * @param {number} ty - Target Y coordinate
  * @returns {string} SVG path string
  */
-const TRANSFER_COLOR = '#64748b';
+const TRANSFER_COLOR = '#334155';
 
 function buildOrthogonalRelationPath(sx, sy, tx, ty) {
     const off = 14;
@@ -637,22 +637,15 @@ export class MetroRenderer {
                     // Endpoints (only transferTo OR only transferFrom) get circles that
                     // align with the bar's rounded caps. Middle stations get rectangles.
                     const isEndpoint = !station.transferTo || !station.transferFrom;
-                    if (isEndpoint) {
-                        normalStationsGroup.append('circle')
-                            .attr('cx', station.x)
-                            .attr('cy', station.y)
-                            .attr('r', 8)
-                            .attr('fill', TRANSFER_COLOR)
-                            .attr('class', `line-${line.id}`);
-                    } else {
-                        normalStationsGroup.append('rect')
-                            .attr('x', station.x - 8)
-                            .attr('y', station.y - 4)
-                            .attr('width', 16)
-                            .attr('height', 8)
-                            .attr('fill', TRANSFER_COLOR)
-                            .attr('class', `line-${line.id}`);
-                    }
+                    // All transfer stations get a 16×16 rect — covers full bar width and
+                    // line halo (11px stroke → ±5.5px) at both endpoints and mid-junctions.
+                    normalStationsGroup.append('rect')
+                        .attr('x', station.x - 8)
+                        .attr('y', station.y - 8)
+                        .attr('width', 16)
+                        .attr('height', 16)
+                        .attr('fill', TRANSFER_COLOR)
+                        .attr('class', `line-${line.id}`);
 
                     interactiveElement = normalStationsGroup.append('circle')
                         .attr('cx', station.x)
@@ -685,14 +678,14 @@ export class MetroRenderer {
                              .on('click', (event) => interactiveElement.dispatch('click', {bubbles: true, detail: event}));
                              
                 } else {
-                    interactiveElement = normalStationsGroup.append('circle')
-                        .attr('cx', station.x)
-                        .attr('cy', station.y)
-                        .attr('r', 6)
+                    interactiveElement = normalStationsGroup.append('rect')
+                        .attr('x', station.x - 8)
+                        .attr('y', station.y - 8)
+                        .attr('width', 16)
+                        .attr('height', 16)
                         .attr('class', `station-circle line-${line.id}`)
-                        .attr('fill', '#fff')
-                        .attr('stroke-width', 2)
-                        .attr('stroke', stationColor)
+                        .style('fill', stationColor)
+                        .style('stroke', 'none')
                         .style('cursor', 'pointer');
                 }
 

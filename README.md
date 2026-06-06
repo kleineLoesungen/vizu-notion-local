@@ -4,10 +4,11 @@
 
 ## Features
 
-- **Metro map visualization** — Hierarchical Notion databases (goals → projects → tasks) rendered as metro-line style diagrams using Metroviz
-- **Process flow diagrams** — Sequential/workflow databases rendered as node-edge flow charts using Vue Flow
+- **Metro map visualization** — Hierarchical Notion databases (goals → projects → tasks) rendered as metro-line style diagrams
+- **Process flow diagrams** — Sequential/workflow databases rendered as node-edge flow charts
 - **Config-driven** — Define sources and column mappings in a JSON file; restart container to apply
-- **Fully local** — Single `docker-compose up`, your Notion token stays server-side, no cloud relay
+- **Share links** — Copy a short URL that restores the exact view (hidden nodes, active sources, viz type) for anyone on your local network
+- **Fully local** — Single `docker compose up`, your Notion token stays server-side, no cloud relay
 
 ## Prerequisites
 
@@ -21,7 +22,7 @@
 
 ```bash
 cp .env.example .env
-# Edit .env and set NOTION_API_TOKEN=secret_...
+# Edit .env — set NOTION_API_TOKEN=secret_...
 ```
 
 **Step 2:** Copy `config/sources.example.json` to `config/sources.json` and fill in your database IDs and column mappings:
@@ -31,46 +32,34 @@ cp config/sources.example.json config/sources.json
 # Edit config/sources.json with your Notion database IDs and column names
 ```
 
-**Step 3:** Start the app and open [http://localhost:3000](http://localhost:3000):
+**Step 3:** Create the data directory for share link persistence:
 
 ```bash
-docker-compose up
+mkdir -p ./data && chmod 777 ./data
 ```
 
-### docker-compose.yml (for reference)
+**Step 4:** Build and start:
 
-```yaml
-version: '3.9'
-
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./config:/app/config:ro
-    environment:
-      NODE_ENV: production
-      NOTION_API_TOKEN: ${NOTION_API_TOKEN}
-    env_file:
-      - .env
-    restart: unless-stopped
+```bash
+make run        # builds image + starts container
+# or directly:
+docker compose up --build
 ```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+> On subsequent runs `docker compose up` (or `make run`) is enough unless you change application code.
+
+---
 
 ## Configuration Reference
 
-### Config file: `config/sources.json`
-
-Mount path: `/app/config/sources.json`
-
-### Source object fields
+### `config/sources.json`
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `databaseId` | string | Yes | Notion database ID (32-char hex from the database URL) |
-| `name` | string | Yes | Display name shown in the UI source switcher |
+| `name` | string | Yes | Display name shown in the UI |
 | `columnMappings` | object | Yes | Maps role names to Notion property/column names |
 
 ### columnMappings roles — Metro Map
@@ -80,10 +69,10 @@ A source is eligible for metro map when it has **both** `date` and `next` in `co
 | Role | Required | Notion Type | Description |
 |------|----------|-------------|-------------|
 | `date` | **Yes** | Date | Positions each entry on the timeline x-axis |
-| `next` | **Yes** | Relation | Points to the next entry in sequence — defines how metro lines are drawn |
-| `title` | Recommended | Title | Station label on the map (falls back to entry ID if omitted) |
-| `parent` | Optional | Relation | Groups entries under a parent row label when `tag` is not defined |
-| `tag` | Optional | Select / Text | Groups entries into labeled zone bands (visible as section headers) |
+| `next` | **Yes** | Relation | Points to the next entry — defines how metro lines connect |
+| `title` | Recommended | Title | Station label (falls back to entry ID if omitted) |
+| `parent` | Optional | Relation | Groups entries under a parent label when `tag` is not defined |
+| `tag` | Optional | Select / Text | Groups entries into labeled zone bands (section headers) |
 | `status` | Optional | Select / Status | Enables status-based filtering in the sidebar |
 
 ### columnMappings roles — Flow Diagram
@@ -92,24 +81,22 @@ A source is eligible for flow diagram when it has **`next`** in `columnMappings`
 
 | Role | Required | Notion Type | Description |
 |------|----------|-------------|-------------|
-| `next` | **Yes** | Relation | Points to the next node — creates directed edges between nodes |
+| `next` | **Yes** | Relation | Points to the next node — creates directed edges |
 | `title` | Recommended | Title | Node label (falls back to entry ID if omitted) |
-| `status` | Optional | Select / Status | Shown as a sub-label on each node (selectable in the UI) |
+| `status` | Optional | Select / Status | Shown as a sub-label on each node |
 | `date` | Optional | Date | Shown as a sub-label on each node |
 | `assignee` | Optional | People | Shown as a sub-label on each node |
 
 **Visualization type auto-detection:**
-- A source with `next` in `columnMappings` is eligible for **flow diagram**
-- A source with both `date` and `next` is eligible for **metro map** (can also toggle to flow)
+- `next` only → flow diagram eligible
+- `date` + `next` → metro map eligible (can also toggle to flow)
 - When both types are available, metro map is shown by default
 
-**Mapping `next` from a Notion database:**
-
-The `next` role maps to any Notion Relation property that points forward to the next entry. The simplest way to set this up is Notion's built-in **Dependencies** feature — enabling it on a database automatically creates a "Blocked by" / "Blocking" relation pair. Map `next` to whichever direction represents the forward link (e.g. `"next": "Blocking"`).
+**Mapping `next` from Notion:** The `next` role maps to any Relation property that points forward. Notion's built-in **Dependencies** feature creates a "Blocked by" / "Blocking" pair automatically — map `next` to the forward direction (e.g. `"next": "Blocking"`).
 
 → [Notion docs: Dependencies](https://www.notion.so/help/timeline-and-dependencies)
 
-### Example sources.json
+### Example `sources.json`
 
 ```json
 {
@@ -139,29 +126,73 @@ The `next` role maps to any Notion Relation property that points forward to the 
 }
 ```
 
+---
+
+## Makefile Commands
+
+```bash
+make help       # list all targets
+make run        # docker compose up --build (build + start)
+make stop       # docker compose down
+make dev        # nuxt dev (local development, no Docker)
+make build      # build Docker image only
+make publish DOCKER_HUB_USER=you   # build multi-arch (amd64 + arm64) and push to Docker Hub
+```
+
 ## Architecture
 
 - **Nuxt 3 server routes** proxy all Notion API calls — your integration token is never exposed to the browser
 - **LRU memory cache** (1-hour TTL) reduces redundant API calls and respects Notion's 3 req/s rate limit
-- **Config-driven** — no application code changes needed; only `config/sources.json` and `.env`
+- **`./config`** mounted read-only — edit `sources.json` and restart to apply changes
+- **`./data`** mounted read-write — stores `shares.json` for share link persistence
+
+### docker-compose.yml
+
+```yaml
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data:rw
+    environment:
+      NODE_ENV: production
+      NUXT_NOTION_API_TOKEN: ${NOTION_API_TOKEN}
+    env_file:
+      - .env
+    restart: unless-stopped
+```
+
+> **Why `NUXT_NOTION_API_TOKEN`?** Nuxt reads `runtimeConfig` overrides at runtime via env vars prefixed `NUXT_`. The value comes from `NOTION_API_TOKEN` in your `.env` file — you don't need to rename anything.
+
+---
 
 ## Troubleshooting
+
+**502 Bad Gateway on data fetch / "NOTION_API_TOKEN is not set"**
+
+- Ensure `.env` exists and contains `NOTION_API_TOKEN=secret_...`
+- Verify the integration has been shared with the target databases (database → Share → invite integration)
+- If you edited `docker-compose.yml` manually, confirm the `NUXT_NOTION_API_TOKEN` environment entry is present
 
 **Container exits immediately / "Invalid config" error**
 
 - Ensure `config/sources.json` exists (copy from `config/sources.example.json`)
-- Verify all `databaseId` values are 32-character hex strings (remove hyphens from Notion URL ID)
+- Verify all `databaseId` values are 32-character hex strings (remove hyphens from the Notion URL)
 - Check that each property name in `columnMappings` matches the exact column name in your Notion database
 
-**"NOTION_API_TOKEN not set" error**
+**Share links return 404 after container restart**
 
-- Ensure `.env` exists and contains `NOTION_API_TOKEN=secret_...`
-- Verify your Notion integration has been shared with the target databases (database → Share → invite integration)
+- `./data/shares.json` must be present and the directory writable by the container: `chmod 777 ./data`
 
-**Blank diagram / no data loads**
+**Blank diagram / no data**
 
-- Check browser console for API errors
-- Use the "Fetch All" button on the dashboard to trigger a fresh Notion API fetch
+- Use **Fetch All** on the dashboard to trigger a fresh Notion API call
+- Check the browser console for API errors
 - Confirm the Notion integration has read access to all configured databases
 
 **Port 3000 already in use**
