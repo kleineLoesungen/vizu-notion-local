@@ -232,3 +232,4 @@ Plan: Not started
 | 260604-v9k | per-source display mode toggle on metro (Milestones/Line) | 2026-06-04 | d817c13 | [260604-v9k-per-source-display-mode-toggle-on-metro-](./quick/260604-v9k-per-source-display-mode-toggle-on-metro-/) |
 | 260604-vki | fix milestones mode for additional metro sources | 2026-06-04 | c5dabb0 | [260604-vki-fix-milestones-mode-for-additional-metro](./quick/260604-vki-fix-milestones-mode-for-additional-metro/) |
 | 260604-vql | metro word-wrap event labels with tspan + fitToContent auto-zoom | 2026-06-04 | d36ce3e | [260604-vql-metro-word-wrap-event-labels-with-tspan-](./quick/260604-vql-metro-word-wrap-event-labels-with-tspan-/) |
+| 260606-4q8 | implement lz-string compression + invert selection for share link | 2026-06-06 | af5384b | [260606-4q8-implement-lz-string-compression-invert-s](./quick/260606-4q8-implement-lz-string-compression-invert-s/) |
