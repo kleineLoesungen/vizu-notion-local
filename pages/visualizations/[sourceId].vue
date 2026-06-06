@@ -672,16 +672,41 @@ const flowAttributeOptions = computed(() => {
 // UI-06: Restore state from URL on mount (shared link restoration)
 onMounted(() => {
   const state = urlState.value
-  // Restore viz type
+  // Restore viz type immediately (doesn't need pages to be loaded)
   if (state.vizType && (state.vizType === 'metro' || state.vizType === 'flow')) {
     activeVizType.value = state.vizType
   }
-  // Restore filters and hidden nodes (after pages load — watch for pages to be available)
-  if (state.filters.length > 0 || state.hiddenNodes.length > 0) {
+  // Restore all page-dependent state inside a watch so it runs after data loads.
+  // This includes: filters, hiddenNodes (with invert-aware decode), selectedSourceIds,
+  // and sourceDisplayModes.
+  const hasStateToRestore = (
+    state.filters.length > 0 ||
+    state.hiddenNodes.length > 0 ||
+    state.selectedSourceIds.length > 0 ||
+    Object.keys(state.sourceDisplayModes).length > 0
+  )
+  if (hasStateToRestore) {
     const unwatch = watch(pages, (newPages) => {
       if (newPages.length > 0) {
+        // Restore filters
         setActiveFilters(state.filters)
-        setHiddenNodes(state.hiddenNodes)
+
+        // Restore hidden nodes — apply inversion if the stored list is actually visible IDs
+        const hiddenNodes = state.invertedSelection
+          ? newPages.filter(p => !state.hiddenNodes.includes(p.id)).map(p => p.id)
+          : state.hiddenNodes
+        setHiddenNodes(hiddenNodes)
+
+        // Restore extra source selections (primary source already in selectedSourceIds)
+        if (state.selectedSourceIds.length > 0) {
+          selectedSourceIds.value = new Set([sourceId.value, ...state.selectedSourceIds])
+        }
+
+        // Restore per-source display modes
+        for (const [id, mode] of Object.entries(state.sourceDisplayModes)) {
+          sourceDisplayModes[id] = mode as 'milestones' | 'line'
+        }
+
         unwatch()
       }
     }, { immediate: true })
@@ -690,14 +715,36 @@ onMounted(() => {
 
 // UI-06: Copy shareable link (explicit action only — not on every change)
 const handleCopyLink = async () => {
+  const totalNodes = pages.value.length
+  const allHiddenIds = pages.value
+    .filter(p => !visibleNodeIds.value.has(p.id))
+    .map(p => p.id)
+
+  // Invert-selection: when more nodes are hidden than visible, store the shorter
+  // visible-IDs list so the compressed URL stays small.
+  const useInvert = allHiddenIds.length > totalNodes / 2
+  const storedNodes = useInvert
+    ? pages.value.filter(p => visibleNodeIds.value.has(p.id)).map(p => p.id)
+    : allHiddenIds
+
+  // Extra source IDs (primary is implicit from the route — excluded here)
+  const extraSrcIds = [...selectedSourceIds.value].filter(id => id !== sourceId.value)
+
+  // Per-source display modes — only keep entries for currently selected extra sources
+  const activeModes: Record<string, string> = {}
+  for (const id of extraSrcIds) {
+    if (sourceDisplayModes[id]) activeModes[id] = sourceDisplayModes[id]
+  }
+
   const state = {
     vizType: activeVizType.value,
     filters: activeFilters.value,
-    hiddenNodes: pages.value
-      .filter(p => !visibleNodeIds.value.has(p.id))
-      .map(p => p.id),
+    hiddenNodes: storedNodes,
+    invertedSelection: useInvert,
+    selectedSourceIds: extraSrcIds,
+    sourceDisplayModes: activeModes,
   }
-  const success = await copyShareLink(state)
+  const success = await copyShareLink(state, totalNodes)
   copyLinkSuccess.value = success
   // Clear toast after 2 seconds
   setTimeout(() => { copyLinkSuccess.value = null }, 2000)

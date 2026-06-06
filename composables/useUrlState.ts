@@ -20,9 +20,11 @@ export function useUrlState() {
   /**
    * Encode the current ViewState into the URL (replaces current history entry).
    * Called when user clicks "Copy Link" — not on every interaction.
+   * @param state       Current view state (with pre-computed inversion if applicable)
+   * @param totalNodes  Total primary-source page count (passed through to encodeViewState)
    */
-  const pushState = (state: ViewState) => {
-    const params = encodeViewState(state)
+  const pushState = (state: ViewState, totalNodes: number) => {
+    const params = encodeViewState(state, totalNodes)
     router.replace({ query: params as any })
   }
 
@@ -30,9 +32,11 @@ export function useUrlState() {
    * Copy the current page URL to clipboard.
    * First encodes state into URL, then copies to clipboard.
    * Returns true on success, false on failure.
+   * @param state       Current view state
+   * @param totalNodes  Total primary-source page count for invert-selection heuristic
    */
-  const copyShareLink = async (state: ViewState): Promise<boolean> => {
-    pushState(state)
+  const copyShareLink = async (state: ViewState, totalNodes: number): Promise<boolean> => {
+    pushState(state, totalNodes)
     // Wait for router to update before copying
     await nextTick()
     try {
