@@ -418,8 +418,25 @@
         grid-template-columns: 1fr;
       }
 
+      /* On mobile: hide the separate label row; inject labels into each card header */
       .comparison-col-labels {
-        grid-template-columns: 1fr;
+        display: none;
+      }
+
+      .comparison-card-header.before::before {
+        content: "IN NOTION · ";
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: #9ca3af;
+      }
+
+      .comparison-card-header.after::before {
+        content: "WITH VIZU · ";
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: #2563eb;
       }
     }
   </style>
