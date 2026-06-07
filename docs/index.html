@@ -292,6 +292,86 @@
       text-align: center;
     }
 
+    /* ── Before / After Comparison ── */
+
+    .comparison-block {
+      margin-bottom: 48px;
+    }
+
+    .comparison-col-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .comparison-col-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .comparison-col-label.before { color: #9ca3af; }
+    .comparison-col-label.after  { color: #2563eb; }
+
+    .comparison-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .comparison-card {
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .comparison-card-header {
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .comparison-card-header.before {
+      background: #f9fafb;
+      color: #6b7280;
+    }
+
+    .comparison-card-header.after {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .comparison-card svg { display: block; width: 100%; }
+
+    .comparison-card-footer {
+      padding: 9px 14px;
+      font-size: 12px;
+      color: #888;
+      line-height: 1.5;
+      border-top: 1px solid #e8e8e8;
+      background: #fafafa;
+    }
+
+    .comparison-card-footer.after {
+      background: #f8faff;
+      border-color: #bfdbfe;
+    }
+
+    .comparison-divider {
+      border: none;
+      border-top: 1px solid #e8e8e8;
+      margin: 32px 0 24px;
+    }
+
     /* ── Responsive ── */
 
     @media (max-width: 767px) {
@@ -331,6 +411,14 @@
       }
 
       .previews-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-col-labels {
         grid-template-columns: 1fr;
       }
     }
@@ -404,6 +492,269 @@
         <h2>See It In Action</h2>
         <p style="margin-top: 12px; font-size: 18px; color: #666666;">Render your Notion data as interactive metro maps or process flows.</p>
       </div>
+      <!-- Before / After Comparison -->
+      <div class="comparison-block">
+
+        <!-- Comparison 1: Gantt → Metro Map with transfer stations -->
+        <div class="comparison-col-labels">
+          <span class="comparison-col-label before">In Notion</span>
+          <span class="comparison-col-label after">With vizu</span>
+        </div>
+        <div class="comparison-cols">
+
+          <!-- C1 Before: Notion gantt/timeline, same data -->
+          <div class="comparison-card">
+            <div class="comparison-card-header before">Timeline — bars on a time axis</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <defs>
+                <marker id="cmp-garr1" viewBox="0 0 6 5" refX="5" refY="2.5" markerWidth="6" markerHeight="5" orient="auto">
+                  <path d="M0,0.5 L5,2.5 L0,4.5" fill="none" stroke="#bbb" stroke-width="1"/>
+                </marker>
+              </defs>
+              <text x="86" y="14" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" letter-spacing="0.3">Product Roadmap · Notion Timeline</text>
+              <rect width="80" height="210" fill="#f9fafb"/>
+              <line x1="80" y1="0" x2="80" y2="210" stroke="#e8e8e8"/>
+              <line x1="205" y1="18" x2="205" y2="210" stroke="#f2f2f2"/><text x="205" y="16" font-family="system-ui,sans-serif" font-size="9" fill="#ccc" text-anchor="middle">Mar</text>
+              <line x1="365" y1="18" x2="365" y2="210" stroke="#f2f2f2"/><text x="365" y="16" font-family="system-ui,sans-serif" font-size="9" fill="#ccc" text-anchor="middle">Apr</text>
+              <line x1="80" y1="46" x2="480" y2="46" stroke="#f5f5f5"/><line x1="80" y1="72" x2="480" y2="72" stroke="#f5f5f5"/><line x1="80" y1="98" x2="480" y2="98" stroke="#f5f5f5"/><line x1="80" y1="124" x2="480" y2="124" stroke="#f5f5f5"/><line x1="80" y1="150" x2="480" y2="150" stroke="#f5f5f5"/><line x1="80" y1="176" x2="480" y2="176" stroke="#f5f5f5"/>
+              <text x="74" y="38"  font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 1</text>
+              <text x="74" y="64"  font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 2</text>
+              <text x="74" y="90"  font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 3</text>
+              <text x="74" y="116" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 4</text>
+              <text x="74" y="142" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 5</text>
+              <text x="74" y="168" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 6</text>
+              <!-- Bars (Step 5 starts after Step 3 ends; Step 6 after Step 4) -->
+              <rect x="88"  y="22"  width="77"  height="16" rx="3" fill="#52796F" opacity="0.75"/>
+              <rect x="168" y="48"  width="127" height="16" rx="3" fill="#52796F" opacity="0.75"/>
+              <rect x="298" y="74"  width="92"  height="16" rx="3" fill="#B5838D" opacity="0.75"/>
+              <rect x="298" y="100" width="82"  height="16" rx="3" fill="#6D6875" opacity="0.75"/>
+              <rect x="393" y="126" width="67"  height="16" rx="3" fill="#B5838D" opacity="0.75"/>
+              <rect x="383" y="152" width="77"  height="16" rx="3" fill="#264653" opacity="0.75"/>
+              <!-- Dependency edges -->
+              <path d="M165,30 L168,48" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr1)"/>
+              <path d="M295,56 L298,74" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr1)"/>
+              <path d="M295,56 C296,56 298,96 298,100" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr1)"/>
+              <path d="M390,82 L393,126" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr1)"/>
+              <path d="M380,108 L383,152" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr1)"/>
+            </svg>
+            <div class="comparison-card-footer">Six steps in six rows — you can see timing, but tracing which step directly enables which still requires following each small arrow.</div>
+          </div>
+
+          <!-- C1 After: Mini Metro with transfer station -->
+          <div class="comparison-card">
+            <div class="comparison-card-header after">Metro Map — parallel tracks with transfer stations</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <text x="12" y="14" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" letter-spacing="0.3">Product Roadmap · Metro Map</text>
+              <rect x="0" y="22" width="480" height="185" fill="#f3f4f6" opacity="0.5"/>
+              <path d="M8,38 L16,38 L12,43 Z" fill="#888"/>
+              <text x="20" y="43" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#555">Product Roadmap</text>
+              <!-- 1. Colored lines (under station rects) -->
+              <!-- Green trunk -->
+              <path d="M55,82 L212,82" stroke="white" stroke-width="11" stroke-linecap="round"/>
+              <path d="M55,82 L212,82" stroke="#52796F" stroke-width="8" stroke-linecap="round"/>
+              <!-- Pink branch: from transfer at y=110, steps up to y=96, then right -->
+              <path d="M212,110 L226,110 L240,96" stroke="white" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M212,110 L226,110 L240,96" stroke="#B5838D" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M240,96 L390,96" stroke="white" stroke-width="11" stroke-linecap="round"/>
+              <path d="M240,96 L390,96" stroke="#B5838D" stroke-width="8" stroke-linecap="round"/>
+              <!-- Purple branch: from transfer at y=140, straight right -->
+              <path d="M212,140 L390,140" stroke="white" stroke-width="11" stroke-linecap="round"/>
+              <path d="M212,140 L390,140" stroke="#6D6875" stroke-width="8" stroke-linecap="round"/>
+              <!-- 3. Station rects — drawn last, on top of all lines -->
+              <rect x="78"  y="75"  width="14" height="14" fill="#52796F"/>
+              <!-- Transfer station: one unified dark rect spanning all connection points -->
+              <rect x="204" y="74" width="16" height="80" fill="#334155"/>
+              <rect x="270" y="89"  width="14" height="14" fill="#B5838D"/>
+              <rect x="372" y="89"  width="14" height="14" fill="#B5838D"/>
+              <rect x="268" y="133" width="14" height="14" fill="#6D6875"/>
+              <rect x="372" y="133" width="14" height="14" fill="#6D6875"/>
+              <!-- Terminus indicators -->
+              <line x1="379" y1="87"  x2="379" y2="103" stroke="#B5838D" stroke-width="3" stroke-linecap="round"/>
+              <line x1="379" y1="131" x2="379" y2="147" stroke="#6D6875" stroke-width="3" stroke-linecap="round"/>
+              <!-- Labels -->
+              <text x="85"  y="68"  font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 1</text>
+              <text x="212" y="62"  font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 2</text>
+              <text x="277" y="82"  font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 3</text>
+              <text x="379" y="82"  font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 5</text>
+              <text x="275" y="126" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 4</text>
+              <text x="379" y="126" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 6</text>
+            </svg>
+            <div class="comparison-card-footer after">Same steps — follow any path at a glance. Step 2 as a transfer station makes the branching point immediately obvious without tracing arrows.</div>
+          </div>
+
+        </div><!-- /.comparison-cols -->
+
+        <hr class="comparison-divider"/>
+
+        <!-- Comparison 2: Notion silos vs overlaid databases -->
+        <div class="comparison-col-labels">
+          <span class="comparison-col-label before">In Notion</span>
+          <span class="comparison-col-label after">With vizu</span>
+        </div>
+        <div class="comparison-cols">
+
+          <div class="comparison-card">
+            <div class="comparison-card-header before">Separate databases — switch pages to see each</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <!-- Sidebar -->
+              <rect width="168" height="210" fill="#f7f6f3"/>
+              <text x="12" y="22" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#1a1a1a">My Workspace</text>
+              <!-- DB 1 selected -->
+              <rect x="4" y="30" width="160" height="26" rx="4" fill="#e8e4de"/>
+              <rect x="13" y="37" width="12" height="12" rx="2" fill="#52796F"/>
+              <text x="32" y="48" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#1a1a1a">Product Roadmap</text>
+              <!-- DB 2 -->
+              <rect x="4" y="60" width="160" height="26" rx="4" fill="transparent"/>
+              <rect x="13" y="67" width="12" height="12" rx="2" fill="#354F52"/>
+              <text x="32" y="78" font-family="system-ui,sans-serif" font-size="11" fill="#6b7280">Quarterly Planning</text>
+              <line x1="0" y1="100" x2="168" y2="100" stroke="#e0dbd4" stroke-width="1"/>
+              <text x="12" y="118" font-family="system-ui,sans-serif" font-size="10" fill="#aaa">← click to switch database</text>
+              <!-- Main area -->
+              <text x="182" y="22" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#1a1a1a">Product Roadmap</text>
+              <line x1="182" y1="30" x2="472" y2="30" stroke="#e8e8e8"/>
+              <text x="182" y="46" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">↗  Step 1</text>
+              <line x1="182" y1="54" x2="472" y2="54" stroke="#f0f0f0"/>
+              <text x="182" y="70" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">↗  Step 2</text>
+              <line x1="182" y1="78" x2="472" y2="78" stroke="#f0f0f0"/>
+              <text x="182" y="94" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">↗  Step 3</text>
+              <line x1="182" y1="102" x2="472" y2="102" stroke="#f0f0f0"/>
+              <!-- Locked DB notice -->
+              <rect x="182" y="116" width="290" height="56" rx="5" fill="#f9fafb" stroke="#e8e8e8"/>
+              <text x="327" y="140" font-family="system-ui,sans-serif" font-size="11" fill="#9ca3af" text-anchor="middle">Quarterly Planning</text>
+              <text x="327" y="157" font-family="system-ui,sans-serif" font-size="10" fill="#c8cacd" text-anchor="middle">open in a separate page →</text>
+              <text x="182" y="200" font-family="system-ui,sans-serif" font-size="10" fill="#d1d5db" font-style="italic">No combined view in Notion</text>
+            </svg>
+            <div class="comparison-card-footer">No combined view. Context is lost when switching between databases.</div>
+          </div>
+
+          <div class="comparison-card">
+            <div class="comparison-card-header after">Metro Map — both databases in one diagram</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <text x="12" y="14" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" letter-spacing="0.3">2 sources overlaid · Metro Map</text>
+              <!-- Zone 1: Product Roadmap -->
+              <rect x="0" y="22" width="480" height="102" fill="#f3f4f6" opacity="0.5"/>
+              <path d="M8,38 L16,38 L12,43 Z" fill="#888"/>
+              <text x="20" y="43" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#555">Product Roadmap</text>
+              <!-- 1. Colored lines (under station rects) -->
+              <!-- Full green line -->
+              <path d="M55,62 L360,62" stroke="white" stroke-width="11" stroke-linecap="round"/>
+              <path d="M55,62 L360,62" stroke="#52796F" stroke-width="8" stroke-linecap="round"/>
+              <!-- Pink branch from transfer at y=88 -->
+              <path d="M214,88 L242,88 L256,102 L360,102" stroke="white" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M214,88 L242,88 L256,102 L360,102" stroke="#B5838D" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- 3. Station rects — on top of all lines -->
+              <rect x="82"  y="55" width="14" height="14" fill="#52796F"/>
+              <!-- Transfer station: one unified dark rect spanning both connection points -->
+              <rect x="206" y="54" width="16" height="42" fill="#334155"/>
+              <rect x="337" y="55" width="14" height="14" fill="#52796F"/>
+              <rect x="272" y="95" width="14" height="14" fill="#B5838D"/>
+              <!-- Labels -->
+              <text x="89"  y="48" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 1</text>
+              <text x="214" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 2</text>
+              <text x="344" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 3</text>
+              <text x="279" y="88" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step 4</text>
+              <!-- Zone 2: Quarterly Planning -->
+              <rect x="0" y="128" width="480" height="78" fill="#f3f4f6" opacity="0.3"/>
+              <path d="M8,144 L16,144 L12,149 Z" fill="#888"/>
+              <text x="20" y="149" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#555">Quarterly Planning</text>
+              <path d="M55,168 L230,168" stroke="white" stroke-width="11" stroke-linecap="round"/>
+              <line x1="55" y1="168" x2="230" y2="168" stroke="#354F52" stroke-width="8" stroke-linecap="round"/>
+              <rect x="82"  y="161" width="14" height="14" fill="#354F52"/>
+              <text x="89"  y="154" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step A</text>
+              <rect x="200" y="161" width="14" height="14" fill="#354F52"/>
+              <text x="207" y="154" font-family="system-ui,sans-serif" font-size="9" fill="#333" text-anchor="middle">Step B</text>
+            </svg>
+            <div class="comparison-card-footer after">Zone bands separate each source. No relations required — any two Notion databases can be overlaid in one diagram.</div>
+          </div>
+
+        </div><!-- /.comparison-cols -->
+
+        <hr class="comparison-divider"/>
+
+        <!-- Comparison 3: Gantt → Flow Diagram -->
+        <div class="comparison-col-labels">
+          <span class="comparison-col-label before">In Notion</span>
+          <span class="comparison-col-label after">With vizu</span>
+        </div>
+        <div class="comparison-cols">
+
+          <!-- C3 Before: same gantt, dependency arrows barely visible -->
+          <div class="comparison-card">
+            <div class="comparison-card-header before">Timeline — dependencies hidden behind the time axis</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <defs>
+                <marker id="cmp-garr" viewBox="0 0 6 5" refX="5" refY="2.5" markerWidth="6" markerHeight="5" orient="auto">
+                  <path d="M0,0.5 L5,2.5 L0,4.5" fill="none" stroke="#bbb" stroke-width="1"/>
+                </marker>
+              </defs>
+              <text x="86" y="14" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" letter-spacing="0.3">Product Roadmap · Notion Timeline</text>
+              <rect width="80" height="210" fill="#f9fafb"/>
+              <line x1="80" y1="0" x2="80" y2="210" stroke="#e8e8e8"/>
+              <line x1="205" y1="18" x2="205" y2="210" stroke="#f2f2f2"/><text x="205" y="16" font-family="system-ui,sans-serif" font-size="9" fill="#ccc" text-anchor="middle">Mar</text>
+              <line x1="365" y1="18" x2="365" y2="210" stroke="#f2f2f2"/><text x="365" y="16" font-family="system-ui,sans-serif" font-size="9" fill="#ccc" text-anchor="middle">Apr</text>
+              <line x1="80" y1="46" x2="480" y2="46" stroke="#f5f5f5"/><line x1="80" y1="72" x2="480" y2="72" stroke="#f5f5f5"/><line x1="80" y1="98" x2="480" y2="98" stroke="#f5f5f5"/><line x1="80" y1="124" x2="480" y2="124" stroke="#f5f5f5"/><line x1="80" y1="150" x2="480" y2="150" stroke="#f5f5f5"/>
+              <text x="74" y="38" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 1</text>
+              <text x="74" y="64" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 2</text>
+              <text x="74" y="90" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 3</text>
+              <text x="74" y="116" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 4</text>
+              <text x="74" y="142" font-family="system-ui,sans-serif" font-size="11" fill="#666" text-anchor="end">Step 5</text>
+              <!-- Bars (Steps 3, 4, 5 all start when Step 2 ends — all branch from Step 2) -->
+              <rect x="88"  y="22"  width="77"  height="16" rx="3" fill="#52796F" opacity="0.75"/>
+              <rect x="168" y="48"  width="127" height="16" rx="3" fill="#52796F" opacity="0.75"/>
+              <rect x="298" y="74"  width="92"  height="16" rx="3" fill="#B5838D" opacity="0.75"/>
+              <rect x="298" y="100" width="82"  height="16" rx="3" fill="#6D6875" opacity="0.75"/>
+              <rect x="298" y="126" width="102" height="16" rx="3" fill="#B5838D" opacity="0.75"/>
+              <!-- Dependency arrows: tiny, easy to miss -->
+              <path d="M165,30 L168,48"  stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr)"/>
+              <path d="M295,56 L298,74"  stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr)"/>
+              <path d="M295,56 C296,56 298,96 298,100" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr)"/>
+              <path d="M295,56 C296,56 298,122 298,126" stroke="#bbb" stroke-width="1" fill="none" stroke-dasharray="2,2" marker-end="url(#cmp-garr)"/>
+              <!-- Callout -->
+              <text x="310" y="60" font-family="system-ui,sans-serif" font-size="9" fill="#ccc" font-style="italic">← Steps 3, 4, 5 all branch from Step 2</text>
+            </svg>
+            <div class="comparison-card-footer">The x-axis dominates. Dependency arrows exist but are easy to miss — it's hard to see that Step 2 enables Step 3, Step 4 and Step 5 simultaneously.</div>
+          </div>
+
+          <!-- C3 After: Flow Diagram -->
+          <div class="comparison-card">
+            <div class="comparison-card-header after">Flow Diagram — direct connections made explicit</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <defs>
+                <marker id="cmp-farr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                </marker>
+              </defs>
+              <!-- Step 1 -->
+              <rect x="25" y="88" width="105" height="34" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+              <text x="77" y="110" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">Step 1</text>
+              <!-- Step 2 -->
+              <rect x="185" y="88" width="105" height="34" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+              <text x="237" y="110" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">Step 2</text>
+              <!-- Step 3 (top) -->
+              <rect x="350" y="42" width="105" height="34" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+              <text x="402" y="64" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">Step 3</text>
+              <!-- Step 4 (middle) -->
+              <rect x="350" y="88" width="105" height="34" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+              <text x="402" y="110" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">Step 4</text>
+              <!-- Step 5 (bottom) -->
+              <rect x="350" y="134" width="105" height="34" rx="6" fill="white" stroke="#1e293b" stroke-width="2"/>
+              <text x="402" y="156" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">Step 5</text>
+              <!-- Arrows -->
+              <path d="M130,105 H185" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#cmp-farr)"/>
+              <path d="M290,99 C320,99 320,59 350,59" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#cmp-farr)"/>
+              <path d="M290,105 H350" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#cmp-farr)"/>
+              <path d="M290,111 C320,111 320,151 350,151" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#cmp-farr)"/>
+              <text x="240" y="175" font-family="system-ui,sans-serif" font-size="10" fill="#aaa" text-anchor="middle" font-style="italic">3 connections from Step 2 — impossible to miss</text>
+            </svg>
+            <div class="comparison-card-footer after">No time axis — only connections matter. Step 2's three arrows make the branching structure immediately clear.</div>
+          </div>
+
+        </div><!-- /.comparison-cols -->
+
+      </div><!-- /.comparison-block -->
+
+      <p style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-bottom:20px; padding-top:8px;">Full Diagram Examples</p>
+
       <div class="previews-grid">
 
         <!-- Metro Map Mockup -->
