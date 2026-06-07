@@ -121,36 +121,62 @@ function extractSubLabel(prop: any): string {
 export function useFlowData(
   pages: EnrichedPage[],
   columnMappings: ColumnMappings,
-  nodeAttribute?: string
+  nodeAttribute?: string,
+  allPages?: EnrichedPage[]
 ): { nodes: FlowNode[]; edges: FlowEdge[] } {
   const titlePropName = columnMappings['title']
   const nextPropName = columnMappings['next']
 
-  const pageIds = new Set(pages.map(p => p.id))
+  const visibleIds = new Set(pages.map(p => p.id))
   const edges: FlowEdge[] = []
 
   if (nextPropName) {
-    for (const page of pages) {
+    // Build full adjacency from ALL pages (or visible-only if allPages not provided)
+    const sourcePages = allPages ?? pages
+    const allIds = new Set(sourcePages.map(p => p.id))
+    const adj = new Map<string, string[]>()
+    for (const page of sourcePages) {
       const prop = page.properties[nextPropName]
       if (!prop || prop.type !== 'relation') continue
+      const targets = ((prop as any).relation as Array<{ id: string }>)
+        ?.filter(r => allIds.has(r.id))
+        ?.map(r => r.id) ?? []
+      if (targets.length) adj.set(page.id, targets)
+    }
 
-      const nextRelations = (prop as any).relation as Array<{ id: string }>
-      if (!nextRelations?.length) continue
-
-      for (const { id: targetId } of nextRelations) {
-        if (!pageIds.has(targetId)) continue
-        edges.push({
-          id: `${page.id}->${targetId}`,
-          source: page.id,
-          target: targetId,
-          type: 'smoothstep',
-          markerEnd: { type: 'arrowclosed', color: '#1e293b', width: 25, height: 25 },
-        })
+    // For each visible source: BFS through hidden nodes to reach visible targets.
+    // This preserves connectivity when intermediate nodes are filtered out.
+    const edgeSeen = new Set<string>()
+    for (const srcPage of pages) {
+      const queue = [...(adj.get(srcPage.id) ?? [])]
+      const visited = new Set<string>([srcPage.id])
+      while (queue.length) {
+        const curr = queue.shift()!
+        if (visited.has(curr)) continue
+        visited.add(curr)
+        if (visibleIds.has(curr)) {
+          const edgeId = `${srcPage.id}->${curr}`
+          if (!edgeSeen.has(edgeId)) {
+            edgeSeen.add(edgeId)
+            edges.push({
+              id: edgeId,
+              source: srcPage.id,
+              target: curr,
+              type: 'smoothstep',
+              markerEnd: { type: 'arrowclosed', color: '#1e293b', width: 25, height: 25 },
+            })
+          }
+          // Don't traverse through visible nodes — their outgoing edges are covered by their own BFS
+        } else {
+          for (const next of (adj.get(curr) ?? [])) {
+            if (!visited.has(next)) queue.push(next)
+          }
+        }
       }
     }
   }
 
-  const positions = computeLayout(Array.from(pageIds), edges)
+  const positions = computeLayout(Array.from(visibleIds), edges)
 
   const nodes: FlowNode[] = pages.map((page) => {
     let label = page.id.slice(0, 8)

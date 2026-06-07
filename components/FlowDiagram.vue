@@ -30,6 +30,7 @@
           :d="edgePath(edge)"
           stroke="#94a3b8"
           stroke-width="1.5"
+          stroke-opacity="0.65"
           fill="none"
           marker-end="url(#flow-arrow)"
         />
@@ -95,6 +96,7 @@ import type { ColumnMappings } from '@/server/utils/config'
 
 const props = defineProps<{
   data: EnrichedPage[]
+  allPages?: EnrichedPage[]
   columnMappings: ColumnMappings
   nodeAttribute?: string
 }>()
@@ -159,7 +161,7 @@ const nodeRenderMap = computed((): Map<string, NodeRender> => {
 const nr = (id: string) => nodeRenderMap.value.get(id)!
 
 // ── Data ────────────────────────────────────────────────────────────────────
-const flowData = computed(() => useFlowData(props.data, props.columnMappings, props.nodeAttribute))
+const flowData = computed(() => useFlowData(props.data, props.columnMappings, props.nodeAttribute, props.allPages))
 const nodes = computed(() => flowData.value.nodes)
 const edges = computed(() => flowData.value.edges)
 const nodeMap = computed(() => new Map(nodes.value.map(n => [n.id, n])))
@@ -173,14 +175,50 @@ const oy = computed(() => {
   return PAD - Math.min(...nodes.value.map(n => n.position.y))
 })
 
-// ── Edges (use per-node height for source bottom) ───────────────────────────
+// ── Edge spread: sort sibling edges by target/source x so they fan out naturally ──
+const outEdgeMap = computed(() => {
+  const map = new Map<string, FlowEdge[]>()
+  for (const edge of edges.value) {
+    if (!map.has(edge.source)) map.set(edge.source, [])
+    map.get(edge.source)!.push(edge)
+  }
+  // Sort each group by target x so left-targets get left-side exit points
+  for (const [, group] of map) {
+    group.sort((a, b) => (nodeMap.value.get(a.target)?.position.x ?? 0) - (nodeMap.value.get(b.target)?.position.x ?? 0))
+  }
+  return map
+})
+
+const inEdgeMap = computed(() => {
+  const map = new Map<string, FlowEdge[]>()
+  for (const edge of edges.value) {
+    if (!map.has(edge.target)) map.set(edge.target, [])
+    map.get(edge.target)!.push(edge)
+  }
+  // Sort each group by source x so left-sources arrive at left-side entry points
+  for (const [, group] of map) {
+    group.sort((a, b) => (nodeMap.value.get(a.source)?.position.x ?? 0) - (nodeMap.value.get(b.source)?.position.x ?? 0))
+  }
+  return map
+})
+
+// ── Edges: spread exit/entry x across node width to eliminate overlap ─────────
 const edgePath = (edge: FlowEdge): string => {
   const src = nodeMap.value.get(edge.source)
   const tgt = nodeMap.value.get(edge.target)
   if (!src || !tgt) return ''
-  const x1 = ox.value + src.position.x + NW / 2
+
+  const srcGroup = outEdgeMap.value.get(edge.source) ?? []
+  const srcIdx = srcGroup.findIndex(e => e.id === edge.id)
+  const srcFrac = srcGroup.length > 1 ? (srcIdx + 1) / (srcGroup.length + 1) : 0.5
+
+  const tgtGroup = inEdgeMap.value.get(edge.target) ?? []
+  const tgtIdx = tgtGroup.findIndex(e => e.id === edge.id)
+  const tgtFrac = tgtGroup.length > 1 ? (tgtIdx + 1) / (tgtGroup.length + 1) : 0.5
+
+  const x1 = ox.value + src.position.x + srcFrac * NW
   const y1 = oy.value + src.position.y + (nodeRenderMap.value.get(edge.source)?.nh ?? 44)
-  const x2 = ox.value + tgt.position.x + NW / 2
+  const x2 = ox.value + tgt.position.x + tgtFrac * NW
   const y2 = oy.value + tgt.position.y
   const cy = (y1 + y2) / 2
   return `M ${x1} ${y1} C ${x1} ${cy}, ${x2} ${cy}, ${x2} ${y2}`

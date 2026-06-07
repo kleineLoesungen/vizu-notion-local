@@ -271,6 +271,7 @@
               </div>
               <FlowDiagram
                 :data="filteredPages"
+                :all-pages="pages"
                 :column-mappings="columnMappings"
                 :node-attribute="flowNodeAttribute || undefined"
                 @node-click="handleFlowNodeClick"
