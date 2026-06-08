@@ -99,6 +99,7 @@ Plans:
 | 2. Visualization | 2/4 | In Progress|  |
 | 3. User Experience | 7/7 | Complete   | 2026-06-03 |
 | 4. Deployment | 3/3 | Complete   | 2026-06-06 |
+| 5. Mermaid Diagrams | 0/0 | Planned | |
 
 ### Phase 4: Deployment
 
@@ -121,6 +122,23 @@ Plans:
 
 ---
 
+### Phase 5: Mermaid Diagram Templates
+
+**Goal**: Admin can define Mermaid diagram templates in `config/*.mmd` files that bind to live Notion data from configured sources, rendered client-side via mermaid.js
+
+**Depends on**: Phase 1 (config model + data pipeline), Phase 3 (viz type selector)
+
+**Requirements**: MERM-01 through MERM-05
+
+**Success Criteria** (what must be TRUE):
+1. Admin creates a `.mmd` file in `config/` with YAML frontmatter declaring `title` and `sources`, restarts container — the diagram title appears as a viz type option in the selector for every source listed
+2. Template body uses Handlebars-style bindings (`{{title}}`, `{{#each source-name}}`) substituted with live Notion data at request time
+3. Mermaid.js renders the substituted diagram string client-side with no server-side rendering required
+4. A template referencing multiple sources combines rows from all listed sources in the template context
+5. Invalid templates (bad Mermaid syntax, unknown source names) fail gracefully with a visible error message rather than a blank view
+
+**Plans**: TBD
+
 ---
 
 *Roadmap created: 2026-06-02*
@@ -129,3 +147,4 @@ Plans:
 *Phase 3 planned: 2026-06-03*
 *Phase 3 gap closure planned: 2026-06-03*
 *Phase 4 planned: 2026-06-05*
+*Phase 5 planned: 2026-06-08*
