@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-08T19:31:30.258Z"
+last_updated: "2026-06-08T19:36:36.016Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 05 (mermaid-diagrams) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Project Metrics
 
@@ -159,6 +159,16 @@ Plan: 2 of 3
 | handleSourceChange preserves activeVizType via ?vizType= query param | User stays on their current viz type (metro/flow) after switching source | Implemented |
 | Fallback h1 shown while allSources is loading | Cleaner UX than empty/partially-loaded dropdown — avoids layout issues on slow fetch | Implemented |
 
+### Key Decisions (05-02: Mermaid API Route and Composables)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| extractPropertyValue handles 10 Notion property types with safe '' fallback | Comprehensive coverage for common admin templates; unsupported types silently return empty string | Implemented |
+| page.id always included in mappedRows as 'id' key | Stable reference for Handlebars templates that need to link back to source pages | Implemented |
+| useMermaidTemplate uses dynamic import('mermaid') inside onMounted | mermaid.js accesses window/document at import time — SSR-safe pattern | Implemented |
+| /api/mermaid/templates is a separate endpoint (no Notion API calls) | Lightweight metadata-only call safe to call on every page load | Implemented |
+| hasMermaidTemplates derived from sourceName (not databaseId) | Template frontmatter references sources by name, matching getConfig() source.name | Implemented |
+
 ### Key Decisions (05-01: Mermaid Template Loader)
 
 | Decision | Rationale | Status |
@@ -195,10 +205,10 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-**Last Activity**: 05-01-PLAN.md complete — template loader, validate-config extension, example .mmd, README section
+**Last Activity**: 05-02-PLAN.md complete — Mermaid API route, useMermaidTemplate composable, useSourceData extension
 **Date**: 2026-06-08
-**Stopped At**: Phase 05 Plan 1 of 3 complete
-**Next Step**: Execute 05-02 (Mermaid API route and composable)
+**Stopped At**: Phase 05 Plan 2 of 3 complete
+**Next Step**: Execute 05-03 (Mermaid diagram UI component)
 
 ---
 
