@@ -125,12 +125,17 @@ flowchart TD
 
 | Syntax | What it does |
 |--------|-------------|
-| `{{fieldName}}` | Inserts a scalar value; `fieldName` is a `columnMappings` key (e.g. `title`, `status`) |
+| `{{fieldName}}` | Inserts a scalar value from the top-level context; `fieldName` is a `columnMappings` key (e.g. `title`, `status`) or `id` (Notion page ID, always available) |
 | `{{#each source-name}} … {{/each}}` | Iterates over all rows from the named source |
 | `{{this.fieldName}}` | Inside `#each`, accesses a field on the current row |
-| `{{@index}}` | Inside `#each`, the zero-based row index (useful for unique node IDs) |
+| `{{this.id}}` | Inside `#each`, the Notion page ID — available without a `columnMappings` entry; useful for stable unique node IDs |
+| `{{@index}}` | Inside `#each`, the zero-based iteration index (useful for unique node IDs) |
+| `{{@first}}` | Inside `#each`, boolean `true` on the first iteration — useful with `#unless` to skip leading separators |
+| `{{#unless condition}} … {{/unless}}` | Renders the block only when `condition` is falsy — commonly used with `@first` to suppress the first separator or arrow |
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
+
+> **Note:** No arithmetic or comparison helpers are registered. If you need a computed value (e.g. an index starting at 1, or a formatted number), add a Notion formula column to your database, map it in `columnMappings`, and reference it with `{{this.fieldName}}`.
 
 **Multi-source templates:** list multiple sources in `sources:` and use a separate `{{#each}}` block per source in the template body.
 
