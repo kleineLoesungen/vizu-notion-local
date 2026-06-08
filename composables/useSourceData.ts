@@ -42,7 +42,10 @@ export function useSourceData(sourceId: string | Ref<string>) {
 
   const { data, pending, error } = useFetch<SourceApiResponse>(
     () => `/api/sources/${id.value}`,
-    { key: () => `source-${id.value}` }
+    {
+      key: () => id.value ? `source-${id.value}` : 'source-skip',
+      skip: computed(() => !id.value),
+    }
   )
 
   const columnMappings = computed<ColumnMappings>(() => data.value?.source.columnMappings ?? {})
