@@ -11,10 +11,13 @@ export function useMermaidTemplate(templateId: string | Ref<string>) {
   const renderError = ref<string | null>(null)
   let mermaidInstance: any = null
 
-  const { data, pending: isLoading, error: fetchError } = useFetch<MermaidTemplateResponse>(
+  const { data, pending: isLoading, error: fetchError, execute: executeFetch } = useFetch<MermaidTemplateResponse>(
     () => `/api/mermaid/${id.value}`,
-    { key: () => `mermaid-template-${id.value}` }
+    { key: () => `mermaid-template-${id.value}`, immediate: false }
   )
+
+  // Only fetch when a template is actually selected — avoids 404 on initial empty ID
+  watch(id, (newId) => { if (newId) executeFetch() }, { immediate: true })
 
   const diagramString = computed(() => data.value?.diagramString ?? '')
   const title = computed(() => data.value?.title ?? '')
