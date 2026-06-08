@@ -54,9 +54,11 @@ Inherited from existing project (TailwindCSS defaults):
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px (text-sm) | 400 (normal) | 1.5 |
-| Label | 12px (text-xs) | 500 (medium) | 1.25 |
+| Label | 12px (text-xs) | 400 (normal) | 1.25 |
 | Heading | 16px (text-base) / 20px (text-lg) | 600 (semibold) | 1.5 |
 | Error message | 14px (text-sm) | 400 (normal) | 1.5 |
+
+**Font weights declared:** 2 (400 normal, 600 semibold)
 
 **Mermaid-specific:** No custom typography applied to rendered Mermaid SVG (Mermaid library controls diagram text). Error/loading states use existing ErrorAlert and LoadingSpinner components (text-sm, font-semibold for headings).
 
@@ -64,7 +66,7 @@ Inherited from existing project (TailwindCSS defaults):
 
 ## Color
 
-Inherited from existing project palette:
+Inherited from existing project palette (60/30/10 split):
 
 | Role | Value | Usage |
 |------|-------|-------|
