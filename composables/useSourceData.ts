@@ -50,6 +50,27 @@ export function useSourceData(sourceId: string | Ref<string>) {
   const pages = computed<EnrichedPage[]>(() => (data.value?.pages ?? []) as EnrichedPage[])
   const sourceName = computed<string>(() => data.value?.source.name ?? '')
 
+  // Fetch template list for Mermaid eligibility (D-08, D-09)
+  // Separate endpoint returns lightweight metadata — no Notion API calls
+  const { data: templatesData } = useFetch<Array<{ id: string; title: string; sources: string[] }>>(
+    '/api/mermaid/templates',
+    { key: 'mermaid-templates-list' }
+  )
+
+  const hasMermaidTemplates = computed<boolean>(() => {
+    const name = sourceName.value
+    if (!name || !templatesData.value) return false
+    return templatesData.value.some((t) => t.sources.includes(name))
+  })
+
+  const mermaidTemplates = computed<Array<{ id: string; title: string }>>(() => {
+    const name = sourceName.value
+    if (!name || !templatesData.value) return []
+    return templatesData.value
+      .filter((t) => t.sources.includes(name))
+      .map((t) => ({ id: t.id, title: t.title }))
+  })
+
   return {
     sourceData: data,
     pages,
@@ -61,5 +82,8 @@ export function useSourceData(sourceId: string | Ref<string>) {
     // VIZ-03 eligibility helpers
     isMetroEligible: computed(() => isMetroEligible(availableRoles.value)),
     isFlowEligible: computed(() => isFlowEligible(availableRoles.value)),
+    // MERM-03: Mermaid template eligibility (D-08, D-09)
+    hasMermaidTemplates,
+    mermaidTemplates,
   }
 }
