@@ -720,6 +720,20 @@ onMounted(async () => {
     activeVizType.value = state.vizType
   }
 
+  // Phase 5 quick: Deep-link Mermaid template activation via ?template= query param
+  const templateQuery = useRoute().query.template
+  if (templateQuery && typeof templateQuery === 'string') {
+    // Wait for mermaidTemplates to be available before activating
+    const unwatch = watch(mermaidTemplates, (templates) => {
+      if (!templates) return
+      const match = templates.find((t) => t.id === templateQuery)
+      if (match) {
+        selectMermaidTemplate(match.id)
+        unwatch()
+      }
+    }, { immediate: true })
+  }
+
   // Restore all page-dependent state inside a watch so it runs after data loads.
   // This includes: filters, hiddenNodes (with invert-aware decode), selectedSourceIds,
   // and sourceDisplayModes.
