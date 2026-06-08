@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-08T19:36:36.016Z"
+last_updated: "2026-06-08T19:43:09.563Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # STATE: vizu-notion-local
@@ -159,6 +159,15 @@ Plan: 3 of 3
 | handleSourceChange preserves activeVizType via ?vizType= query param | User stays on their current viz type (metro/flow) after switching source | Implemented |
 | Fallback h1 shown while allSources is loading | Cleaner UX than empty/partially-loaded dropdown — avoids layout issues on slow fetch | Implemented |
 
+### Key Decisions (05-03: Mermaid UI Integration)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| activeVizType extended to 'metro' \| 'flow' \| 'mermaid' | Mermaid is user-initiated only (click template button) — no auto-selection on load | Implemented |
+| Mermaid vizType excluded from share links (falls back to metro) | ViewState.vizType typed 'metro' \| 'flow'; templateId not stored in ViewState; user re-selects on arrival | Implemented |
+| Not eligible condition updated to include !hasMermaidTemplates | Sources with only Mermaid templates no longer show red error banner | Implemented |
+| MetrovizMap + FlowDiagram guarded with activeVizType !== 'mermaid' | Prevents background rendering when Mermaid is active | Implemented |
+
 ### Key Decisions (05-02: Mermaid API Route and Composables)
 
 | Decision | Rationale | Status |
@@ -205,10 +214,10 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-**Last Activity**: 05-02-PLAN.md complete — Mermaid API route, useMermaidTemplate composable, useSourceData extension
+**Last Activity**: 05-03-PLAN.md Task 1 complete — [sourceId].vue extended with Mermaid viz type selector and render area
 **Date**: 2026-06-08
-**Stopped At**: Phase 05 Plan 2 of 3 complete
-**Next Step**: Execute 05-03 (Mermaid diagram UI component)
+**Stopped At**: Phase 05 Plan 3 of 3 — paused at checkpoint:human-verify after Task 1
+**Next Step**: Human verification of full Phase 5 Mermaid feature (6 test scenarios)
 
 ---
 
