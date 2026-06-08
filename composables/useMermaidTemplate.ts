@@ -37,7 +37,11 @@ export function useMermaidTemplate(templateId: string | Ref<string>) {
     if (!diagramString.value || !mermaidInstance) return
 
     try {
-      const { svg } = await mermaidInstance.render(containerId, diagramString.value)
+      // Use a separate ephemeral ID for mermaid.render() — Mermaid 10+ removes the
+      // element with that ID from the DOM during cleanup, so passing the container's
+      // own ID would delete the container before we can write to it.
+      const renderId = `mermaid-svg-${Date.now()}`
+      const { svg } = await mermaidInstance.render(renderId, diagramString.value)
       const container = document.getElementById(containerId)
       if (container) {
         container.innerHTML = svg
