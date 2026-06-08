@@ -99,7 +99,7 @@ Plans:
 | 2. Visualization | 2/4 | In Progress|  |
 | 3. User Experience | 7/7 | Complete   | 2026-06-03 |
 | 4. Deployment | 3/3 | Complete   | 2026-06-06 |
-| 5. Mermaid Diagrams | 0/0 | Planned | |
+| 5. Mermaid Diagrams | 0/3 | Planned | |
 
 ### Phase 4: Deployment
 
@@ -137,7 +137,12 @@ Plans:
 4. A template referencing multiple sources combines rows from all listed sources in the template context
 5. Invalid templates (bad Mermaid syntax, unknown source names) fail gracefully with a visible error message rather than a blank view
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Install dependencies (handlebars, gray-matter, mermaid) + server/utils/templates.ts template loader + validate-config.ts extension
+- [ ] 05-02-PLAN.md — GET /api/mermaid/:templateId route (Handlebars render with live data) + useMermaidTemplate composable + useSourceData extension (hasMermaidTemplates)
+- [ ] 05-03-PLAN.md — UI integration: Mermaid template buttons in viz type selector + Mermaid render area + error display in [sourceId].vue + human verification checkpoint
 
 ---
 
