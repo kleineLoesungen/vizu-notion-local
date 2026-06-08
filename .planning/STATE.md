@@ -264,3 +264,4 @@ Plan: 3 of 3
 | 260606-4q8 | implement lz-string compression + invert selection for share link | 2026-06-06 | af5384b | [260606-4q8-implement-lz-string-compression-invert-s](./quick/260606-4q8-implement-lz-string-compression-invert-s/) |
 | 260606-5jc | server-side share links via POST /api/share token store | 2026-06-06 | 671a4fc | [260606-5jc-implement-server-side-share-links-instea](./quick/260606-5jc-implement-server-side-share-links-instea/) |
 | 260608-ueq | document Handlebars template helpers in README + fix example | 2026-06-08 | fbb7d3d | [260608-ueq-document-handlebars-template-helpers-in-](./quick/260608-ueq-document-handlebars-template-helpers-in-/) |
+| 260608-vlm | list Mermaid diagram templates on dashboard with deep-link navigation | 2026-06-08 | 08f6da0 | [260608-vlm-list-mermaid-diagram-templates-on-the-da](./quick/260608-vlm-list-mermaid-diagram-templates-on-the-da/) |
