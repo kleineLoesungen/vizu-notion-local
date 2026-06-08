@@ -96,6 +96,48 @@ A source is eligible for flow diagram when it has **`next`** in `columnMappings`
 
 → [Notion docs: Dependencies](https://www.notion.so/help/timeline-and-dependencies)
 
+### Mermaid Diagram Templates
+
+Create a `.mmd` file in `config/` to define a custom Mermaid diagram. Any `.mmd` file found at startup is loaded automatically — no code changes required.
+
+**File format:**
+
+```
+---
+title: "My Diagram"
+sources:
+  - source-name
+---
+flowchart TD
+  {{#each source-name}}
+  {{this.title}}
+  {{/each}}
+```
+
+**Frontmatter fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | string | Label shown in the viz type selector for this diagram |
+| `sources` | string[] | Source names (from `sources.json`) whose data this template can use |
+
+**Handlebars bindings:**
+
+| Syntax | What it does |
+|--------|-------------|
+| `{{fieldName}}` | Inserts a scalar value; `fieldName` is a `columnMappings` key (e.g. `title`, `status`) |
+| `{{#each source-name}} … {{/each}}` | Iterates over all rows from the named source |
+| `{{this.fieldName}}` | Inside `#each`, accesses a field on the current row |
+| `{{@index}}` | Inside `#each`, the zero-based row index (useful for unique node IDs) |
+
+> Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
+
+**Multi-source templates:** list multiple sources in `sources:` and use a separate `{{#each}}` block per source in the template body.
+
+**Error handling:** invalid templates (unknown source name, bad Mermaid syntax) show an error message in the diagram area and log details to the container console. The container does not crash — fix the template and restart.
+
+See `config/mermaid.example.mmd` for an annotated starting point.
+
 ### Example `sources.json`
 
 ```json

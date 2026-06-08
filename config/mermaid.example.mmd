@@ -1,0 +1,33 @@
+{{!--
+  mermaid.example.mmd — copy this file, rename it (e.g. my-diagram.mmd), and edit.
+  Place it in config/ alongside sources.json, then restart the container.
+  The template title will appear as a viz type button on any source page it references.
+--}}
+---
+# title: shown as the viz type button label in the UI
+title: "Example Diagram"
+
+# sources: list one or more source names exactly as they appear in sources.json.
+# The template appears on every source page listed here.
+sources:
+  - my-source
+---
+flowchart TD
+  %% Use {{fieldName}} to insert a single value from the current row.
+  %% fieldName must match a key in that source's columnMappings (not the raw Notion property name).
+  %%
+  %% Use {{#each sourceName}} ... {{/each}} to iterate over all rows from a source.
+  %% Inside the block, {{this.fieldName}} refers to a field on each row.
+
+  %% Example: static node
+  Start([Start])
+
+  %% Example: iterate over rows from the source named "my-source"
+  {{#each my-source}}
+  node_{{@index}}["{{this.title}}"]
+  {{/each}}
+
+  %% Example: link all rows in sequence
+  {{#each my-source}}
+  {{#unless @first}}node_{{math @index '-' 1}}["{{this.title}}"] --> {{/unless}}node_{{@index}}["{{this.title}}"]
+  {{/each}}
