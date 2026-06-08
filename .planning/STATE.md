@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-05T22:55:33.177Z"
+last_updated: "2026-06-08T19:31:30.258Z"
 progress:
-  total_phases: 4
-  completed_phases: 3
-  total_plans: 18
-  completed_plans: 17
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
 ---
 
 # STATE: vizu-notion-local
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 04
-Plan: Not started
+Phase: 05 (mermaid-diagrams) — EXECUTING
+Plan: 2 of 3
 
 ## Project Metrics
 
@@ -159,6 +159,15 @@ Plan: Not started
 | handleSourceChange preserves activeVizType via ?vizType= query param | User stays on their current viz type (metro/flow) after switching source | Implemented |
 | Fallback h1 shown while allSources is loading | Cleaner UX than empty/partially-loaded dropdown — avoids layout issues on slow fetch | Implemented |
 
+### Key Decisions (05-01: Mermaid Template Loader)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| Template loading is non-fatal (D-11) | Template errors log and continue; source config errors remain fatal in production | Implemented |
+| getTemplates() returns [] before initialization | Safe for eligibility checks at any time; never throws | Implemented |
+| templateDir derived from configPath by last-slash split | Handles both /app/config/sources.json and config/sources.json | Implemented |
+| Handlebars@4.x bundles its own types | No @types/handlebars package needed | Implemented |
+
 ### Roadmap Evolution
 
 - Phase 4 added: Deployment — Dockerfile + docker-compose, Docker Hub prep, README.md, single HTML product page
@@ -186,10 +195,10 @@ Plan: Not started
 
 ## Session Continuity
 
-**Last Activity**: 04-03-PLAN.md complete — docs/index.html product page approved at checkpoint, SUMMARY.md created
-**Date**: 2026-06-06
-**Stopped At**: Phase 04 complete — all 3 plans done (README, Makefile, product page)
-**Next Step**: Project v1 complete — ready for Docker Hub publishing via `make publish`
+**Last Activity**: 05-01-PLAN.md complete — template loader, validate-config extension, example .mmd, README section
+**Date**: 2026-06-08
+**Stopped At**: Phase 05 Plan 1 of 3 complete
+**Next Step**: Execute 05-02 (Mermaid API route and composable)
 
 ---
 
