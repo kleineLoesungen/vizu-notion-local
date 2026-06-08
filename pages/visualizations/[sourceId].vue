@@ -133,7 +133,7 @@
 
       <!-- Not eligible -->
       <div
-        v-else-if="!isMetroEligible && !isFlowEligible"
+        v-else-if="!isMetroEligible && !isFlowEligible && !hasMermaidTemplates"
         class="p-4 rounded"
         style="border: 1px solid #ef4444; background: #fee2e2;"
       >
@@ -146,27 +146,32 @@
         <div class="flex gap-0">
           <!-- Main visualization column -->
           <div class="flex-1 min-w-0">
-            <!-- Viz type label/toggle (UI-03 + Gap 4 fix) -->
-            <div class="mb-4 flex items-center gap-3">
-              <!-- When both types eligible: show interactive toggle buttons -->
-              <template v-if="isMetroEligible && isFlowEligible">
+            <!-- Viz type label/toggle (UI-03 + Gap 4 fix + MERM-03 Mermaid buttons) -->
+            <div class="mb-4 flex items-center gap-3 flex-wrap">
+              <!-- Viz type toggle buttons — shown when any viz type is available -->
+              <template v-if="isMetroEligible || isFlowEligible || hasMermaidTemplates">
                 <button
+                  v-if="isMetroEligible"
                   :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'metro' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
                   @click="activeVizType = 'metro'"
                 >
                   Metro Map
                 </button>
                 <button
+                  v-if="isFlowEligible"
                   :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'flow' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
                   @click="activeVizType = 'flow'"
                 >
                   Process Flow
                 </button>
+                <!-- One button per Mermaid template that references this source (D-08) -->
+                <button
+                  v-for="tmpl in mermaidTemplates"
+                  :key="tmpl.id"
+                  :class="['px-4 py-2 rounded text-sm font-medium', activeVizType === 'mermaid' && activeMermaidTemplateId === tmpl.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700']"
+                  @click="selectMermaidTemplate(tmpl.id)"
+                >{{ tmpl.title }}</button>
               </template>
-              <!-- When only one type eligible: show read-only label so user knows what they're viewing -->
-              <span v-else class="px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white">
-                {{ activeVizType === 'metro' ? 'Metro Map' : 'Process Flow' }}
-              </span>
 
               <!-- Timeline axis toggle (metro only) -->
               <label v-if="activeVizType === 'metro'" class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer ml-1">
@@ -214,8 +219,9 @@
             </div>
 
             <!-- Metro map (VIZ-01) — receives filteredPages via metrovizData -->
+            <!-- Hidden when Mermaid is active to avoid rendering in background -->
             <MetrovizMap
-              v-if="(activeVizType === 'metro' || !isFlowEligible) && isMetroEligible"
+              v-if="activeVizType !== 'mermaid' && (activeVizType === 'metro' || !isFlowEligible) && isMetroEligible"
               ref="metrovizMapRef"
               :data="metrovizData"
               :source-title="sourceName"
@@ -224,7 +230,7 @@
             />
 
             <!-- Process flow (VIZ-02) — receives timeframe-filtered pages directly -->
-            <template v-else-if="isFlowEligible">
+            <template v-else-if="activeVizType !== 'mermaid' && isFlowEligible">
               <!-- Flow node attribute picker -->
               <div v-if="flowAttributeOptions.length > 0" class="mb-3 flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">Show in nodes:</span>
@@ -278,6 +284,24 @@
               />
             </template>
 
+            <!-- Mermaid diagram (MERM-03) — rendered client-side via mermaid.js -->
+            <template v-else-if="activeVizType === 'mermaid' && activeMermaidTemplateId">
+              <LoadingSpinner v-if="mermaidDiagram.isLoading.value" />
+              <ErrorAlert
+                v-else-if="mermaidDiagram.fetchError.value"
+                heading="Failed to load diagram data"
+                :message="`Could not fetch data for diagram: ${mermaidDiagram.fetchError.value?.message ?? 'Unknown error'}. Check that sources are configured correctly in sources.json and Notion integration is accessible.`"
+              />
+              <ErrorAlert
+                v-else-if="mermaidDiagram.renderError.value"
+                heading="Failed to render diagram"
+                :message="`Template rendering failed: ${mermaidDiagram.renderError.value} — check the template syntax in config/${activeMermaidTemplateId}.mmd and consult Mermaid docs for valid syntax.`"
+              />
+              <div v-else class="p-6 bg-white rounded border border-gray-200 min-h-96">
+                <div :id="mermaidDiagram.containerId.value" style="display: flex; justify-content: center;"></div>
+              </div>
+            </template>
+
             <!-- D-10: Notion links list — primary + all visible extra-source pages -->
             <NotionLinksList
               :pages="allVisiblePages"
@@ -316,6 +340,7 @@ import { ref, computed, watch, reactive, onMounted, onBeforeUnmount, nextTick } 
 import { useRoute } from 'vue-router'
 import { useSourceData } from '@/composables/useSourceData'
 import type { SourceApiResponse } from '@/composables/useSourceData'
+import { useMermaidTemplate } from '@/composables/useMermaidTemplate'
 import { useMetrovizData, mergeMetrovizData, useMetrovizMilestoneEvents } from '@/composables/useMetrovizData'
 import type { MetrovizInputData } from '@/composables/useMetrovizData'
 import { useFilterState } from '@/composables/useFilterState'
@@ -358,6 +383,8 @@ const {
   fetchError,
   isMetroEligible,
   isFlowEligible,
+  hasMermaidTemplates,
+  mermaidTemplates,
 } = useSourceData(sourceId)
 
 // Fetch all configured sources (for header nav + metro multi-source)
@@ -496,7 +523,19 @@ const {
 const { fetchSharedState, copyShareLink } = useUrlState()
 
 // Phase 3 — UI-03: Viz type (read from URL on mount, fallback to metro)
-const activeVizType = ref<'metro' | 'flow'>('metro')
+// Phase 5 — MERM-03: Extended to include 'mermaid' as a third viz type
+const activeVizType = ref<'metro' | 'flow' | 'mermaid'>('metro')
+
+// Phase 5 — MERM-03: Active Mermaid template tracking
+const activeMermaidTemplateId = ref<string>('')
+
+function selectMermaidTemplate(templateId: string) {
+  activeMermaidTemplateId.value = templateId
+  activeVizType.value = 'mermaid'
+}
+
+// Phase 5 — MERM-03: Mermaid diagram composable (SSR-safe, client-only rendering)
+const mermaidDiagram = useMermaidTemplate(activeMermaidTemplateId)
 
 // Phase 3 — UI-05: Selected page for detail panel
 const selectedPage = ref<EnrichedPage | null>(null)
@@ -676,6 +715,7 @@ onMounted(async () => {
   if (!state) return
 
   // Restore viz type immediately (doesn't need pages to be loaded)
+  // Note: 'mermaid' type is not restored from URL (no templateId stored) — user re-selects
   if (state.vizType && (state.vizType === 'metro' || state.vizType === 'flow')) {
     activeVizType.value = state.vizType
   }
@@ -728,8 +768,10 @@ const handleCopyLink = async () => {
     if (sourceDisplayModes[id]) activeModes[id] = sourceDisplayModes[id]
   }
 
+  // Mermaid is not stored in share links — fall back to metro when active
+  const shareVizType = activeVizType.value === 'mermaid' ? 'metro' : activeVizType.value
   const state: import('@/utils/state-encoding').ViewState = {
-    vizType: activeVizType.value,
+    vizType: shareVizType,
     filters: activeFilters.value,
     // Store exact hidden node IDs — no inversion needed (server stores full state)
     hiddenNodes: pages.value.filter(p => !visibleNodeIds.value.has(p.id)).map(p => p.id),
@@ -742,6 +784,18 @@ const handleCopyLink = async () => {
   // Clear toast after 2 seconds
   setTimeout(() => { copyLinkSuccess.value = null }, 2000)
 }
+
+// Phase 5 — MERM-03: Re-render when diagram string changes and activeVizType is 'mermaid'.
+// The composable has an internal watch too, but this ensures the container div is mounted
+// before renderDiagram is called (page-level watch runs after the template updates).
+watch(
+  () => mermaidDiagram.diagramString.value,
+  async (newStr) => {
+    if (!newStr || activeVizType.value !== 'mermaid') return
+    await nextTick()
+    await mermaidDiagram.renderDiagram(mermaidDiagram.containerId.value)
+  }
+)
 
 // UI-05: Node click handler for FlowDiagram
 const handleFlowNodeClick = (page: EnrichedPage) => {
