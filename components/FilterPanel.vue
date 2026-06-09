@@ -19,35 +19,6 @@
       </button>
     </div>
 
-    <!-- ── Sources ── -->
-    <div v-if="sources && sources.length > 0" class="mb-4">
-      <h3 class="text-xs font-medium text-gray-700 mb-2">Sources</h3>
-      <div class="space-y-1">
-        <div
-          v-for="src in sources"
-          :key="src.name"
-          class="flex items-center gap-2 text-xs"
-          :class="src.selectable ? 'cursor-pointer' : ''"
-          @click="src.selectable ? emit('toggle-source', src.name) : undefined"
-        >
-          <input
-            v-if="src.selectable"
-            type="checkbox"
-            :checked="src.selected"
-            class="w-3.5 h-3.5 pointer-events-none"
-            @click.prevent
-          />
-          <span v-else class="w-3.5 h-3.5 flex-shrink-0 flex items-center justify-center">
-            <span
-              class="w-1.5 h-1.5 rounded-full"
-              :class="src.selected ? 'bg-blue-500' : 'bg-gray-300'"
-            />
-          </span>
-          <span class="truncate" :class="src.selected ? 'text-gray-800' : 'text-gray-400'">{{ src.name }}</span>
-        </div>
-      </div>
-    </div>
-
     <!-- ── Timeframe (only when source has a date role) ── -->
       <div v-if="hasDateRole" class="mb-4">
         <div class="flex items-center justify-between mb-2">
@@ -182,7 +153,6 @@ const props = defineProps<{
   pages: EnrichedPage[]
   columnMappings: ColumnMappings
   visibleNodeIds: Set<string>
-  sources?: Array<{ name: string; selected: boolean; selectable: boolean }>
   showNodeVisibility?: boolean
 }>()
 
@@ -191,7 +161,6 @@ const emit = defineEmits<{
   'toggle-node': [pageId: string]
   'set-nodes-visible': [ids: string[], visible: boolean]
   'set-timeframe': [range: { start: string; end: string } | null]
-  'toggle-source': [name: string]
 }>()
 
 const activeShortcut = ref<ShortcutKey | null>(null)

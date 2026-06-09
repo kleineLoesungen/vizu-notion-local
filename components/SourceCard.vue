@@ -73,7 +73,9 @@ interface Props {
   mermaidTemplates?: Array<{ id: string; title: string }>
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  mermaidTemplates: () => [],
+})
 
 const emit = defineEmits<{
   navigate: [vizType: 'metro' | 'flow']

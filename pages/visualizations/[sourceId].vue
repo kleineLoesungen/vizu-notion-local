@@ -314,16 +314,13 @@
           <FilterPanel
             :key="sourceId"
             :open="filterPanelOpen"
-            :pages="activeVizType !== 'mermaid' ? allPagesForPanel : []"
-            :column-mappings="activeVizType !== 'mermaid' ? columnMappings : {}"
-            :visible-node-ids="allVisibleIds"
-            :sources="filterPanelSources"
-            :show-node-visibility="activeVizType !== 'mermaid'"
+            :pages="activeVizType === 'mermaid' ? mermaidFakePages : activeVizType === 'flow' ? pages : allPagesForPanel"
+            :column-mappings="activeVizType === 'mermaid' ? mermaidColumnMappings : columnMappings"
+            :visible-node-ids="activeVizType === 'mermaid' ? mermaidVisibleIds : allVisibleIds"
             @update:open="filterPanelOpen = $event"
             @toggle-node="handleToggleNode"
             @set-nodes-visible="handleSetNodesVisible"
             @set-timeframe="applyTimeframeToVisibility"
-            @toggle-source="handleToggleSource"
           />
         </div>
 
@@ -500,8 +497,17 @@ const allVisibleIds = computed(() => new Set([
   ...extraVisibleIds.value,
 ]))
 
-// Route toggle events to primary or extra visibility state
+// Route toggle events to primary, extra, or Mermaid visibility state
 const handleToggleNode = (pageId: string) => {
+  if (activeVizType.value === 'mermaid') {
+    const tmplId = activeMermaidTemplateId.value
+    const current = mermaidHiddenIdsMap.value[tmplId] ?? new Set<string>()
+    const next = new Set(current)
+    if (next.has(pageId)) next.delete(pageId)
+    else next.add(pageId)
+    mermaidHiddenIdsMap.value = { ...mermaidHiddenIdsMap.value, [tmplId]: next }
+    return
+  }
   if (extraPageIds.value.has(pageId)) {
     const next = new Set(extraVisibleIds.value)
     if (next.has(pageId)) next.delete(pageId)
@@ -531,19 +537,21 @@ const activeVizType = ref<'metro' | 'flow' | 'mermaid'>('metro')
 
 // Phase 5 — MERM-03: Active Mermaid template tracking
 const activeMermaidTemplateId = ref<string>('')
-// Selected sources for the active Mermaid template (supports multi-source filtering)
-const mermaidSelectedSources = ref<string[]>([])
 
 function selectMermaidTemplate(templateId: string) {
   activeMermaidTemplateId.value = templateId
   activeVizType.value = 'mermaid'
-  // Initialize with all template sources selected
-  const tmpl = mermaidTemplates.value.find((t) => t.id === templateId)
-  mermaidSelectedSources.value = tmpl?.sources ? [...tmpl.sources] : []
 }
 
+// Hidden node IDs per template — persists across viz type switches so state is remembered
+const mermaidHiddenIdsMap = ref<Record<string, Set<string>>>({})
+
+const activeMermaidHiddenIds = computed<Set<string>>(
+  () => mermaidHiddenIdsMap.value[activeMermaidTemplateId.value] ?? new Set<string>()
+)
+
 // Phase 5 — MERM-03: Mermaid diagram composable (SSR-safe, client-only rendering)
-const mermaidDiagram = useMermaidTemplate(activeMermaidTemplateId, mermaidSelectedSources)
+const mermaidDiagram = useMermaidTemplate(activeMermaidTemplateId, activeMermaidHiddenIds)
 
 // Phase 3 — UI-05: Selected page for detail panel
 const selectedPage = ref<EnrichedPage | null>(null)
@@ -617,6 +625,18 @@ const applyTimeframeToVisibility = (range: { start: string; end: string } | null
 
 // Bulk visibility toggle used by FilterPanel group headers
 const handleSetNodesVisible = (ids: string[], visible: boolean) => {
+  if (activeVizType.value === 'mermaid') {
+    const tmplId = activeMermaidTemplateId.value
+    const current = mermaidHiddenIdsMap.value[tmplId] ?? new Set<string>()
+    const next = new Set(current)
+    for (const id of ids) {
+      if (visible) next.delete(id)
+      else next.add(id)
+    }
+    mermaidHiddenIdsMap.value = { ...mermaidHiddenIdsMap.value, [tmplId]: next }
+    return
+  }
+
   const primaryIds = ids.filter(id => !extraPageIds.value.has(id))
   const extraIds = ids.filter(id => extraPageIds.value.has(id))
 
@@ -640,42 +660,28 @@ const handleSetNodesVisible = (ids: string[], visible: boolean) => {
   }
 }
 
-// Sources shown in the FilterPanel — content differs per viz type
-const filterPanelSources = computed(() => {
-  if (activeVizType.value === 'flow') {
-    return sourceName.value ? [{ name: sourceName.value, selected: true, selectable: false }] : []
-  }
-  if (activeVizType.value === 'metro') {
-    const result: Array<{ name: string; selected: boolean; selectable: boolean }> = []
-    if (sourceName.value) result.push({ name: sourceName.value, selected: true, selectable: false })
-    for (const src of eligibleAdditionalSources.value) {
-      result.push({ name: src.name, selected: selectedSourceIds.value.has(src.id), selectable: false })
-    }
-    return result
-  }
-  if (activeVizType.value === 'mermaid' && activeMermaidTemplateId.value) {
-    const tmpl = mermaidTemplates.value.find((t) => t.id === activeMermaidTemplateId.value)
-    if (!tmpl?.sources?.length) return []
-    return tmpl.sources.map((name) => ({
-      name,
-      selected: mermaidSelectedSources.value.includes(name),
-      selectable: true,
-    }))
-  }
-  return []
-})
+// Fake EnrichedPage objects built from Mermaid rows — lets FilterPanel show node checkboxes
+// using the same pattern as Metro/Flow without changing the FilterPanel component.
+const mermaidFakePages = computed<EnrichedPage[]>(() =>
+  mermaidDiagram.rows.value.map((row) => ({
+    id: row.id,
+    properties: {
+      __mermaid_title: {
+        type: 'title' as const,
+        title: [{ plain_text: row.title || row.id.slice(0, 8) }],
+      },
+    },
+    resolvedRelations: {},
+  })) as unknown as EnrichedPage[]
+)
 
-// Toggle a Mermaid source in the filter (at least one source must remain selected)
-const handleToggleSource = (name: string) => {
-  if (activeVizType.value !== 'mermaid') return
-  const current = mermaidSelectedSources.value
-  if (current.includes(name)) {
-    if (current.length <= 1) return  // keep at least one source
-    mermaidSelectedSources.value = current.filter((s) => s !== name)
-  } else {
-    mermaidSelectedSources.value = [...current, name]
-  }
-}
+// Maps role 'title' → the synthetic property key used in mermaidFakePages
+const mermaidColumnMappings = { title: '__mermaid_title' }
+
+// Visible IDs for Mermaid (inverse of hidden)
+const mermaidVisibleIds = computed<Set<string>>(
+  () => new Set(mermaidDiagram.rows.value.map((r) => r.id).filter((id) => !activeMermaidHiddenIds.value.has(id)))
+)
 
 // Copy link state for toast feedback
 const copyLinkSuccess = ref<boolean | null>(null) // null = not shown, true = success, false = error

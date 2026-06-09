@@ -4,11 +4,12 @@ export interface MermaidTemplateResponse {
   templateId: string
   title: string
   diagramString: string
+  rows: Array<{ id: string; title: string; sourceName: string }>
 }
 
 export function useMermaidTemplate(
   templateId: string | Ref<string>,
-  selectedSources?: Ref<string[]>,
+  hiddenIds?: Ref<Set<string>>,
 ) {
   const id = isRef(templateId) ? templateId : ref(templateId)
   const renderError = ref<string | null>(null)
@@ -17,21 +18,26 @@ export function useMermaidTemplate(
   const { data, pending: isLoading, error: fetchError, execute: executeFetch } = useFetch<MermaidTemplateResponse>(
     () => {
       const base = `/api/mermaid/${id.value}`
-      const sources = selectedSources?.value ?? []
-      return sources.length ? `${base}?sources=${encodeURIComponent(sources.join(','))}` : base
+      const hidden = hiddenIds?.value
+      const query = hidden?.size ? `?hiddenIds=${encodeURIComponent([...hidden].join(','))}` : ''
+      return `${base}${query}`
     },
-    { key: () => `mermaid-template-${id.value}-${(selectedSources?.value ?? []).join(',')}`, immediate: false }
+    {
+      key: () => `mermaid-template-${id.value}-${[...(hiddenIds?.value ?? [])].join(',')}`,
+      immediate: false,
+    }
   )
 
   // Only fetch when a template is actually selected — avoids 404 on initial empty ID
   watch(id, (newId) => { if (newId) executeFetch() }, { immediate: true })
-  // Re-fetch when source selection changes (Mermaid multi-source filter)
-  if (selectedSources) {
-    watch(selectedSources, () => { if (id.value) executeFetch() }, { deep: true })
+  // Re-fetch when node visibility changes
+  if (hiddenIds) {
+    watch(hiddenIds, () => { if (id.value) executeFetch() })
   }
 
   const diagramString = computed(() => data.value?.diagramString ?? '')
   const title = computed(() => data.value?.title ?? '')
+  const rows = computed(() => data.value?.rows ?? [])
 
   // Initialize mermaid on client only (SSR-safe)
   // Dynamic import required: mermaid.js accesses browser globals (window, document)
@@ -73,6 +79,7 @@ export function useMermaidTemplate(
   return {
     diagramString,
     title,
+    rows,
     isLoading,
     fetchError,
     renderError,

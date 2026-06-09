@@ -32,21 +32,18 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // ?sources=name1,name2 — optional filter; excluded sources get an empty array in context
-  const sourcesParam = getQuery(event).sources as string | undefined
-  const allowedSources = sourcesParam
-    ? new Set(sourcesParam.split(',').map((s) => s.trim()).filter(Boolean))
+  // ?hiddenIds=id1,id2 — page IDs to exclude from Handlebars context (node visibility filter)
+  const hiddenIdsParam = getQuery(event).hiddenIds as string | undefined
+  const hiddenIds = hiddenIdsParam
+    ? new Set(hiddenIdsParam.split(',').map((s) => s.trim()).filter(Boolean))
     : null
 
   const config = getConfig()
   const context: Record<string, Record<string, string>[]> = {}
+  // All rows (unfiltered) — returned to client so the FilterPanel can show every node
+  const allRows: Array<{ id: string; title: string; sourceName: string }> = []
 
   for (const sourceName of template.sources) {
-    if (allowedSources && !allowedSources.has(sourceName)) {
-      context[sourceName] = []
-      continue
-    }
-
     const source = config.sources.find((s) => s.name === sourceName)
     if (!source) {
       throw createError({
@@ -68,10 +65,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Map each page to flat object using columnMappings keys (D-05)
-    // Key = columnMappings role (e.g., 'title', 'date'), Value = extracted string
     const mappedRows = pages.map((page: any) => {
       const row: Record<string, string> = {}
-      row['id'] = page.id  // always include page id for reference
+      row['id'] = page.id
       for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
         const prop = page.properties?.[notionPropName as string]
         row[role] = extractPropertyValue(prop)
@@ -79,7 +75,13 @@ export default defineEventHandler(async (event) => {
       return row
     })
 
-    context[sourceName] = mappedRows
+    // Collect all rows for the client (before hiding) so FilterPanel can list every node
+    for (const row of mappedRows) {
+      allRows.push({ id: row['id'] ?? '', title: row['title'] ?? '', sourceName })
+    }
+
+    // Apply hiddenIds filter: excluded rows are removed from Handlebars context
+    context[sourceName] = hiddenIds ? mappedRows.filter((r) => !hiddenIds.has(r['id'] ?? '')) : mappedRows
   }
 
   let diagramString: string
@@ -97,5 +99,6 @@ export default defineEventHandler(async (event) => {
     templateId,
     title: template.title,
     diagramString,
+    rows: allRows,
   }
 })
