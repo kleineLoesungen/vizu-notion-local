@@ -32,10 +32,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // ?sources=name1,name2 — optional filter; excluded sources get an empty array in context
+  const sourcesParam = getQuery(event).sources as string | undefined
+  const allowedSources = sourcesParam
+    ? new Set(sourcesParam.split(',').map((s) => s.trim()).filter(Boolean))
+    : null
+
   const config = getConfig()
   const context: Record<string, Record<string, string>[]> = {}
 
   for (const sourceName of template.sources) {
+    if (allowedSources && !allowedSources.has(sourceName)) {
+      context[sourceName] = []
+      continue
+    }
+
     const source = config.sources.find((s) => s.name === sourceName)
     if (!source) {
       throw createError({

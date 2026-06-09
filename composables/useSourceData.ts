@@ -66,12 +66,12 @@ export function useSourceData(sourceId: string | Ref<string>) {
     return templatesData.value.some((t) => t.sources.includes(name))
   })
 
-  const mermaidTemplates = computed<Array<{ id: string; title: string }>>(() => {
+  const mermaidTemplates = computed<Array<{ id: string; title: string; sources: string[] }>>(() => {
     const name = sourceName.value
     if (!name || !templatesData.value) return []
     return templatesData.value
       .filter((t) => t.sources.includes(name))
-      .map((t) => ({ id: t.id, title: t.title }))
+      .map((t) => ({ id: t.id, title: t.title, sources: t.sources }))
   })
 
   return {

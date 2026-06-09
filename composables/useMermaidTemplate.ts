@@ -6,18 +6,29 @@ export interface MermaidTemplateResponse {
   diagramString: string
 }
 
-export function useMermaidTemplate(templateId: string | Ref<string>) {
+export function useMermaidTemplate(
+  templateId: string | Ref<string>,
+  selectedSources?: Ref<string[]>,
+) {
   const id = isRef(templateId) ? templateId : ref(templateId)
   const renderError = ref<string | null>(null)
   let mermaidInstance: any = null
 
   const { data, pending: isLoading, error: fetchError, execute: executeFetch } = useFetch<MermaidTemplateResponse>(
-    () => `/api/mermaid/${id.value}`,
-    { key: () => `mermaid-template-${id.value}`, immediate: false }
+    () => {
+      const base = `/api/mermaid/${id.value}`
+      const sources = selectedSources?.value ?? []
+      return sources.length ? `${base}?sources=${encodeURIComponent(sources.join(','))}` : base
+    },
+    { key: () => `mermaid-template-${id.value}-${(selectedSources?.value ?? []).join(',')}`, immediate: false }
   )
 
   // Only fetch when a template is actually selected — avoids 404 on initial empty ID
   watch(id, (newId) => { if (newId) executeFetch() }, { immediate: true })
+  // Re-fetch when source selection changes (Mermaid multi-source filter)
+  if (selectedSources) {
+    watch(selectedSources, () => { if (id.value) executeFetch() }, { deep: true })
+  }
 
   const diagramString = computed(() => data.value?.diagramString ?? '')
   const title = computed(() => data.value?.title ?? '')

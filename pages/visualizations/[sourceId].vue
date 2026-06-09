@@ -314,13 +314,16 @@
           <FilterPanel
             :key="sourceId"
             :open="filterPanelOpen"
-            :pages="allPagesForPanel"
-            :column-mappings="columnMappings"
+            :pages="activeVizType !== 'mermaid' ? allPagesForPanel : []"
+            :column-mappings="activeVizType !== 'mermaid' ? columnMappings : {}"
             :visible-node-ids="allVisibleIds"
+            :sources="filterPanelSources"
+            :show-node-visibility="activeVizType !== 'mermaid'"
             @update:open="filterPanelOpen = $event"
             @toggle-node="handleToggleNode"
             @set-nodes-visible="handleSetNodesVisible"
             @set-timeframe="applyTimeframeToVisibility"
+            @toggle-source="handleToggleSource"
           />
         </div>
 
@@ -528,14 +531,19 @@ const activeVizType = ref<'metro' | 'flow' | 'mermaid'>('metro')
 
 // Phase 5 — MERM-03: Active Mermaid template tracking
 const activeMermaidTemplateId = ref<string>('')
+// Selected sources for the active Mermaid template (supports multi-source filtering)
+const mermaidSelectedSources = ref<string[]>([])
 
 function selectMermaidTemplate(templateId: string) {
   activeMermaidTemplateId.value = templateId
   activeVizType.value = 'mermaid'
+  // Initialize with all template sources selected
+  const tmpl = mermaidTemplates.value.find((t) => t.id === templateId)
+  mermaidSelectedSources.value = tmpl?.sources ? [...tmpl.sources] : []
 }
 
 // Phase 5 — MERM-03: Mermaid diagram composable (SSR-safe, client-only rendering)
-const mermaidDiagram = useMermaidTemplate(activeMermaidTemplateId)
+const mermaidDiagram = useMermaidTemplate(activeMermaidTemplateId, mermaidSelectedSources)
 
 // Phase 3 — UI-05: Selected page for detail panel
 const selectedPage = ref<EnrichedPage | null>(null)
@@ -629,6 +637,43 @@ const handleSetNodesVisible = (ids: string[], visible: boolean) => {
       else next.delete(id)
     }
     extraVisibleIds.value = next
+  }
+}
+
+// Sources shown in the FilterPanel — content differs per viz type
+const filterPanelSources = computed(() => {
+  if (activeVizType.value === 'flow') {
+    return sourceName.value ? [{ name: sourceName.value, selected: true, selectable: false }] : []
+  }
+  if (activeVizType.value === 'metro') {
+    const result: Array<{ name: string; selected: boolean; selectable: boolean }> = []
+    if (sourceName.value) result.push({ name: sourceName.value, selected: true, selectable: false })
+    for (const src of eligibleAdditionalSources.value) {
+      result.push({ name: src.name, selected: selectedSourceIds.value.has(src.id), selectable: false })
+    }
+    return result
+  }
+  if (activeVizType.value === 'mermaid' && activeMermaidTemplateId.value) {
+    const tmpl = mermaidTemplates.value.find((t) => t.id === activeMermaidTemplateId.value)
+    if (!tmpl?.sources?.length) return []
+    return tmpl.sources.map((name) => ({
+      name,
+      selected: mermaidSelectedSources.value.includes(name),
+      selectable: true,
+    }))
+  }
+  return []
+})
+
+// Toggle a Mermaid source in the filter (at least one source must remain selected)
+const handleToggleSource = (name: string) => {
+  if (activeVizType.value !== 'mermaid') return
+  const current = mermaidSelectedSources.value
+  if (current.includes(name)) {
+    if (current.length <= 1) return  // keep at least one source
+    mermaidSelectedSources.value = current.filter((s) => s !== name)
+  } else {
+    mermaidSelectedSources.value = [...current, name]
   }
 }
 
