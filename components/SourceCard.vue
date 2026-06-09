@@ -29,9 +29,19 @@
         Process Flow
       </button>
 
+      <!-- Mermaid diagram template buttons -->
+      <button
+        v-for="tmpl in mermaidTemplates"
+        :key="tmpl.id"
+        class="px-3 py-2 rounded text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+        @click="emit('navigate-template', tmpl.id)"
+      >
+        {{ tmpl.title }}
+      </button>
+
       <!-- No viz type available -->
       <span
-        v-if="!isMetroEligible && !isFlowEligible"
+        v-if="!isMetroEligible && !isFlowEligible && !mermaidTemplates.length"
         class="text-xs text-gray-400 py-2"
       >
         No visualization type available
@@ -60,12 +70,14 @@ interface Props {
   }
   lastFetched?: string
   isRefreshing?: boolean
+  mermaidTemplates?: Array<{ id: string; title: string }>
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
   navigate: [vizType: 'metro' | 'flow']
+  'navigate-template': [templateId: string]
   refresh: []
 }>()
 

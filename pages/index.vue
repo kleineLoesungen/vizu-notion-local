@@ -33,7 +33,9 @@
         :source="source"
         :last-fetched="sourceTimestamps[source.id]"
         :is-refreshing="refreshingMap[source.id] ?? false"
+        :mermaid-templates="templatesForSource(source)"
         @navigate="navigateToViz(source.id, $event)"
+        @navigate-template="navigateToTemplate(source.id, $event)"
         @refresh="refreshSource(source.id)"
       />
     </div>
@@ -48,23 +50,6 @@
         {{ isAnyRefreshing ? 'Fetching...' : 'Fetch All' }}
       </button>
     </div>
-
-    <!-- Mermaid Diagram Templates section -->
-    <div v-if="templateCards.length > 0" class="mt-12">
-      <h2 class="text-xl font-semibold text-gray-900 mb-1">Diagram Templates</h2>
-      <p class="text-sm text-gray-500 mb-4">Pre-configured Mermaid diagrams — click to open</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <button
-          v-for="tmpl in templateCards"
-          :key="tmpl.id"
-          class="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-400 hover:shadow-sm transition-all bg-white"
-          @click="navigateToTemplate(tmpl.sourceId!, tmpl.id)"
-        >
-          <p class="font-medium text-gray-900 text-sm">{{ tmpl.title }}</p>
-          <p class="text-xs text-gray-400 mt-1">{{ tmpl.sources.join(', ') }}</p>
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -74,20 +59,18 @@ import { ref, computed, onMounted } from 'vue'
 const { data, pending, error, refresh: refetchSources } = useFetch('/api/sources')
 const sources = computed(() => data.value?.sources ?? [])
 
-// Mermaid templates for dashboard listing — lightweight metadata endpoint, no Notion calls
+// Mermaid templates — lightweight metadata, no Notion calls
 const { data: templatesData } = useFetch<Array<{ id: string; title: string; sources: string[] }>>(
   '/api/mermaid/templates',
   { key: 'mermaid-templates-dashboard' }
 )
 
-const templateCards = computed(() => {
-  if (!templatesData.value?.length || !sources.value.length) return []
-  return templatesData.value.map((tmpl) => {
-    // Find the first source ID whose name matches any of the template's source names
-    const firstSource = sources.value.find((s: any) => tmpl.sources.includes(s.name))
-    return { ...tmpl, sourceId: firstSource?.id ?? null }
-  }).filter((t) => t.sourceId !== null)
-})
+const templatesForSource = (source: { name: string }): Array<{ id: string; title: string }> => {
+  if (!templatesData.value) return []
+  return templatesData.value
+    .filter((t) => t.sources.includes(source.name))
+    .map((t) => ({ id: t.id, title: t.title }))
+}
 
 const navigateToTemplate = (sourceId: string, templateId: string) => {
   navigateTo(`/visualizations/${sourceId}?template=${templateId}`)
