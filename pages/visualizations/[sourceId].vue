@@ -711,19 +711,14 @@ const flowAttributeOptions = computed(() => {
 
 // UI-06: Restore state from URL on mount (shared link restoration)
 onMounted(async () => {
-  const state = await fetchSharedState()
-  if (!state) return
+  const query = useRoute().query
 
-  // Restore viz type immediately (doesn't need pages to be loaded)
-  // Note: 'mermaid' type is not restored from URL (no templateId stored) — user re-selects
-  if (state.vizType && (state.vizType === 'metro' || state.vizType === 'flow')) {
-    activeVizType.value = state.vizType
-  }
+  // ?vizType= direct navigation from dashboard — processed before share-state fetch
+  if (query.vizType === 'flow') activeVizType.value = 'flow'
 
-  // Phase 5 quick: Deep-link Mermaid template activation via ?template= query param
-  const templateQuery = useRoute().query.template
-  if (templateQuery && typeof templateQuery === 'string') {
-    // Wait for mermaidTemplates to be available before activating
+  // ?template= deep-link Mermaid template — processed before share-state fetch
+  if (query.template && typeof query.template === 'string') {
+    const templateQuery = query.template
     const unwatch = watch(mermaidTemplates, (templates) => {
       if (!templates) return
       const match = templates.find((t) => t.id === templateQuery)
@@ -732,6 +727,16 @@ onMounted(async () => {
         unwatch()
       }
     }, { immediate: true })
+  }
+
+  // Shared state (?s=token or legacy ?v=) — overrides direct params when present
+  const state = await fetchSharedState()
+  if (!state) return
+
+  // Restore viz type from shared state (overrides ?vizType= if both present)
+  // Note: 'mermaid' type is not stored in share links — user re-selects after restore
+  if (state.vizType && (state.vizType === 'metro' || state.vizType === 'flow')) {
+    activeVizType.value = state.vizType
   }
 
   // Restore all page-dependent state inside a watch so it runs after data loads.
