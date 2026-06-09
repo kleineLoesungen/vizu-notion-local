@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 
 const { data, pending, error, refresh: refetchSources } = useFetch('/api/sources')
 const sources = computed(() => data.value?.sources ?? [])
@@ -78,44 +78,29 @@ const navigateToTemplate = (sourceId: string, templateId: string) => {
 
 // Per-source refresh state: sourceId -> boolean
 const refreshingMap = ref<Record<string, boolean>>({})
-// Per-source last fetched timestamps: sourceId -> display string
-const sourceTimestamps = ref<Record<string, string>>({})
 const isAnyRefreshing = computed(() => Object.values(refreshingMap.value).some(Boolean))
 
-// Load persisted timestamps from sessionStorage (survive navigation, not page reload)
-const TIMESTAMP_STORAGE_KEY = 'vizu-source-timestamps'
-
-onMounted(() => {
-  try {
-    const saved = sessionStorage.getItem(TIMESTAMP_STORAGE_KEY)
-    if (saved) {
-      const parsed = JSON.parse(saved) as Record<string, string>
-      sourceTimestamps.value = parsed
+// Timestamps come from the server (cachedAt in the sources API response) — always accurate
+// regardless of which browser tab or session triggered the last Notion fetch.
+const sourceTimestamps = computed<Record<string, string>>(() => {
+  const result: Record<string, string> = {}
+  for (const source of sources.value as Array<{ id: string; cachedAt?: string | null }>) {
+    if (source.cachedAt) {
+      result[source.id] = new Date(source.cachedAt).toLocaleTimeString()
     }
-  } catch {
-    // sessionStorage unavailable or parse error — start with empty timestamps (safe default)
   }
+  return result
 })
 
-const persistTimestamps = () => {
-  try {
-    sessionStorage.setItem(TIMESTAMP_STORAGE_KEY, JSON.stringify(sourceTimestamps.value))
-  } catch {
-    // sessionStorage write failed (private mode, quota exceeded) — non-fatal, timestamps just won't persist
-  }
-}
-
-// D-04: Per-source refresh — POST to cache invalidation endpoint, then re-fetch
+// D-04: Per-source refresh — POST to cache invalidation endpoint, re-fetch source data,
+// then refresh the sources list so the updated cachedAt is reflected in the dashboard.
 const refreshSource = async (sourceId: string) => {
   refreshingMap.value = { ...refreshingMap.value, [sourceId]: true }
   try {
     await $fetch(`/api/sources/${sourceId}/refresh`, { method: 'POST' })
-    // Force re-fetch of source data by calling the source endpoint (this updates the LRU cache)
     await $fetch(`/api/sources/${sourceId}`)
-    sourceTimestamps.value = { ...sourceTimestamps.value, [sourceId]: new Date().toLocaleTimeString() }
-    persistTimestamps()
+    await refetchSources()
   } catch (err: any) {
-    // D-05: Show specific error — let the browser console capture the error
     console.error(`[dashboard] Refresh failed for ${sourceId}:`, err.message)
   } finally {
     refreshingMap.value = { ...refreshingMap.value, [sourceId]: false }

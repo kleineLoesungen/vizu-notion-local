@@ -83,6 +83,20 @@
             <span>SVG</span>
           </button>
 
+          <!-- Download SVG (mermaid) -->
+          <button
+            v-if="activeVizType === 'mermaid' && !mermaidDiagram.isLoading.value && !mermaidDiagram.fetchError.value && !mermaidDiagram.renderError.value && mermaidDiagram.diagramString.value"
+            :disabled="isExporting"
+            title="Download SVG"
+            class="flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
+            @click="downloadSVG(mermaidDiagram.containerId.value, `visualization-mermaid-${activeMermaidTemplateId}`)"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>SVG</span>
+          </button>
+
           <!-- Copy shareable link -->
           <button
             v-if="!isLoading && !fetchError && filteredPages.length > 0"
@@ -784,9 +798,20 @@ onMounted(async () => {
   const state = await fetchSharedState()
   if (!state) return
 
-  // Restore viz type from shared state (overrides ?vizType= if both present)
-  // Note: 'mermaid' type is not stored in share links — user re-selects after restore
-  if (state.vizType && (state.vizType === 'metro' || state.vizType === 'flow')) {
+  // Restore Mermaid view — pre-load hidden IDs then activate the template
+  if (state.vizType === 'mermaid' && state.mermaidTemplateId) {
+    if (state.mermaidHiddenIds?.length) {
+      mermaidHiddenIdsMap.value = {
+        ...mermaidHiddenIdsMap.value,
+        [state.mermaidTemplateId]: new Set(state.mermaidHiddenIds),
+      }
+    }
+    const targetId = state.mermaidTemplateId
+    const unwatchMermaid = watch(mermaidTemplates, (templates) => {
+      const match = templates.find((t) => t.id === targetId)
+      if (match) { selectMermaidTemplate(match.id); unwatchMermaid() }
+    }, { immediate: true })
+  } else if (state.vizType === 'metro' || state.vizType === 'flow') {
     activeVizType.value = state.vizType
   }
 
@@ -838,13 +863,13 @@ const handleCopyLink = async () => {
     if (sourceDisplayModes[id]) activeModes[id] = sourceDisplayModes[id]
   }
 
-  // Mermaid is not stored in share links — fall back to metro when active
-  const shareVizType = activeVizType.value === 'mermaid' ? 'metro' : activeVizType.value
+  const isMermaid = activeVizType.value === 'mermaid'
   const state: import('@/utils/state-encoding').ViewState = {
-    vizType: shareVizType,
+    vizType: activeVizType.value,
+    mermaidTemplateId: isMermaid ? activeMermaidTemplateId.value : undefined,
+    mermaidHiddenIds: isMermaid ? [...activeMermaidHiddenIds.value] : [],
     filters: activeFilters.value,
-    // Store exact hidden node IDs — no inversion needed (server stores full state)
-    hiddenNodes: pages.value.filter(p => !visibleNodeIds.value.has(p.id)).map(p => p.id),
+    hiddenNodes: isMermaid ? [] : pages.value.filter(p => !visibleNodeIds.value.has(p.id)).map(p => p.id),
     invertedSelection: false,
     selectedSourceIds: extraSrcIds,
     sourceDisplayModes: activeModes,

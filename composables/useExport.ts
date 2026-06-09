@@ -14,7 +14,7 @@ export function useExport() {
 
   const timestamp = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
 
-  const downloadSVG = async (containerId: string) => {
+  const downloadSVG = async (containerId: string, filePrefix = 'visualization-metro') => {
     if (isExporting.value) return
     isExporting.value = true
     try {
@@ -25,7 +25,7 @@ export function useExport() {
       const svgString = new XMLSerializer().serializeToString(svg)
       const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
       const url = URL.createObjectURL(blob)
-      triggerDownload(url, `visualization-metro-${timestamp()}.svg`)
+      triggerDownload(url, `${filePrefix}-${timestamp()}.svg`)
       URL.revokeObjectURL(url)
     } finally {
       isExporting.value = false

@@ -34,6 +34,13 @@ const cache = new LRUCache<string, unknown>({
   allowStale: false,
 })
 
+// Per-database fetch timestamp — set when data lands in LRU, cleared on manual refresh
+const cacheTimestamps = new Map<string, string>()
+
+export function getCacheTimestamp(databaseId: string): string | null {
+  return cacheTimestamps.get(databaseId) ?? null
+}
+
 // Query all pages in a database, handling pagination (max 100 per request).
 // filterPropertyIds: if provided, only those property IDs are included in each page response.
 export async function queryDatabase(databaseId: string, filterPropertyIds?: string[]): Promise<PageObjectResponse[]> {
@@ -67,6 +74,7 @@ export async function queryDatabase(databaseId: string, filterPropertyIds?: stri
   } while (cursor)
 
   cache.set(cacheKey, pages)
+  cacheTimestamps.set(databaseId, new Date().toISOString())
   return pages
 }
 
@@ -106,6 +114,7 @@ export function clearCacheForDatabase(databaseId: string): void {
   for (const key of keysToDelete) {
     cache.delete(key)
   }
+  cacheTimestamps.delete(databaseId)
 }
 
 // Retrieve database schema (used for DATA-05 column mapping validation)

@@ -7,7 +7,9 @@ export interface FilterCriteria {
 }
 
 export interface ViewState {
-  vizType: 'metro' | 'flow'
+  vizType: 'metro' | 'flow' | 'mermaid'
+  mermaidTemplateId?: string     // active template ID when vizType === 'mermaid'
+  mermaidHiddenIds?: string[]    // hidden node IDs for the active Mermaid template
   filters: FilterCriteria[]
   hiddenNodes: string[]          // stored list (may be inverted — see invertedSelection)
   invertedSelection: boolean     // true when hiddenNodes actually stores VISIBLE ids
@@ -32,6 +34,8 @@ export function encodeViewState(state: ViewState, totalNodes: number): Record<st
   // Build compact payload — omit defaults
   const payload: Record<string, unknown> = {}
   if (state.vizType !== 'metro') payload.vizType = state.vizType
+  if (state.mermaidTemplateId) payload.mermaidTemplateId = state.mermaidTemplateId
+  if (state.mermaidHiddenIds?.length) payload.mermaidHiddenIds = state.mermaidHiddenIds
   if (state.filters.length > 0) payload.filters = state.filters
   if (state.hiddenNodes.length > 0) payload.hiddenNodes = state.hiddenNodes
   if (state.invertedSelection) payload.invertedSelection = true
@@ -62,7 +66,9 @@ export function decodeViewState(query: Record<string, string | string[]>): ViewS
       if (json) {
         const parsed = JSON.parse(json) as Record<string, unknown>
         return {
-          vizType: (parsed.vizType as 'metro' | 'flow') ?? 'metro',
+          vizType: (parsed.vizType as 'metro' | 'flow' | 'mermaid') ?? 'metro',
+          mermaidTemplateId: typeof parsed.mermaidTemplateId === 'string' ? parsed.mermaidTemplateId : undefined,
+          mermaidHiddenIds: Array.isArray(parsed.mermaidHiddenIds) ? (parsed.mermaidHiddenIds as string[]) : [],
           filters: Array.isArray(parsed.filters) ? (parsed.filters as FilterCriteria[]) : [],
           hiddenNodes: Array.isArray(parsed.hiddenNodes) ? (parsed.hiddenNodes as string[]) : [],
           invertedSelection: parsed.invertedSelection === true,
@@ -94,7 +100,9 @@ export function decodeViewState(query: Record<string, string | string[]>): ViewS
   } catch { hiddenNodes = [] }
 
   return {
-    vizType: (query.vizType as 'metro' | 'flow') || 'metro',
+    vizType: (query.vizType as 'metro' | 'flow' | 'mermaid') || 'metro',
+    mermaidTemplateId: undefined,
+    mermaidHiddenIds: [],
     filters,
     hiddenNodes,
     invertedSelection: false,

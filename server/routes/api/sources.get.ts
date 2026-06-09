@@ -1,4 +1,5 @@
 import { getConfig } from '../../utils/config'
+import { getCacheTimestamp } from '../../utils/notion'
 
 export default defineEventHandler(async (event) => {
   const config = getConfig()
@@ -9,9 +10,9 @@ export default defineEventHandler(async (event) => {
       id: source.databaseId,
       name: source.name,
       databaseId: source.databaseId,
-      // columnMappings are included so the client knows the available roles
-      // (e.g., which property is "title", "status", "parent" etc.)
       columnMappings: source.columnMappings,
+      // ISO timestamp of last successful Notion fetch — null if never fetched this session
+      cachedAt: getCacheTimestamp(source.databaseId),
     }))
   }
 })
