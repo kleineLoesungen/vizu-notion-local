@@ -684,13 +684,18 @@ const mermaidFakePages = computed<EnrichedPage[]>(() =>
         type: 'title' as const,
         title: [{ plain_text: row.title || row.id.slice(0, 8) }],
       },
+      __mermaid_source: {
+        type: 'select' as const,
+        select: { name: row.sourceName || 'Unknown' },
+      },
     },
     resolvedRelations: {},
   })) as unknown as EnrichedPage[]
 )
 
-// Maps role 'title' → the synthetic property key used in mermaidFakePages
-const mermaidColumnMappings = { title: '__mermaid_title' }
+// Maps role 'title' and 'parent' → synthetic property keys used in mermaidFakePages.
+// 'parent' triggers FilterPanel's group-by-source rendering with source-level toggle.
+const mermaidColumnMappings = { title: '__mermaid_title', parent: '__mermaid_source' }
 
 // Visible IDs for Mermaid (inverse of hidden)
 const mermaidVisibleIds = computed<Set<string>>(
@@ -880,13 +885,14 @@ const handleCopyLink = async () => {
   setTimeout(() => { copyLinkSuccess.value = null }, 2000)
 }
 
-// Phase 5 — MERM-03: Re-render when diagram string changes and activeVizType is 'mermaid'.
-// The composable has an internal watch too, but this ensures the container div is mounted
-// before renderDiagram is called (page-level watch runs after the template updates).
+// Re-render when diagram string changes OR when switching back to mermaid.
+// The container div is destroyed by v-if when leaving mermaid, so switching back
+// creates a fresh empty div — we must re-inject the SVG even if diagramString
+// hasn't changed.
 watch(
-  () => mermaidDiagram.diagramString.value,
-  async (newStr) => {
-    if (!newStr || activeVizType.value !== 'mermaid') return
+  [() => mermaidDiagram.diagramString.value, activeVizType],
+  async ([newStr, vizType]) => {
+    if (!newStr || vizType !== 'mermaid') return
     await nextTick()
     await mermaidDiagram.renderDiagram(mermaidDiagram.containerId.value)
   }

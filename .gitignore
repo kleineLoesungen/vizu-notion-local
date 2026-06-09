@@ -11,6 +11,7 @@ dist/
 
 # Config — admin creates this from sources.example.json
 config/sources.json
+config/*.mmd
 
 # OS files
 .DS_Store
