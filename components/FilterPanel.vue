@@ -75,7 +75,7 @@
       </div>
 
       <!-- ── Node Visibility ── -->
-      <div v-if="showNodeVisibility !== false">
+      <div>
         <h3 class="text-xs font-medium text-gray-700 mb-2">Node Visibility</h3>
 
         <!-- Grouped by parent (when parent role is configured) -->
@@ -153,7 +153,6 @@ const props = defineProps<{
   pages: EnrichedPage[]
   columnMappings: ColumnMappings
   visibleNodeIds: Set<string>
-  showNodeVisibility?: boolean
 }>()
 
 const emit = defineEmits<{
