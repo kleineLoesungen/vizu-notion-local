@@ -153,7 +153,7 @@
 
     .cards-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 24px;
     }
 
@@ -206,6 +206,58 @@
       font-weight: 600;
       color: #1a1a1a;
       line-height: 1.4;
+    }
+
+    /* ── Local Scope Section ── */
+
+    .local-scope {
+      background-color: #fafafa;
+      padding: 64px 0;
+      border-top: 1px solid #e8e8e8;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .local-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .local-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e8e8e8;
+      background: #ffffff;
+    }
+
+    .local-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      width: fit-content;
+    }
+
+    .local-badge--out {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .local-item h3 {
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .local-item p {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.55;
+      margin: 0;
     }
 
     /* ── Footer ── */
@@ -263,7 +315,7 @@
 
     .previews-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       margin-top: 32px;
     }
@@ -414,6 +466,10 @@
         grid-template-columns: 1fr;
       }
 
+      .local-grid {
+        grid-template-columns: 1fr;
+      }
+
       .comparison-cols {
         grid-template-columns: 1fr;
       }
@@ -466,7 +522,7 @@
       <div class="hero-inner">
         <div class="hero-text">
           <h1>Visualize Your Notion Workspace</h1>
-          <p>Render hierarchical or sequential Notion databases as interactive metro maps and process flows — no code changes required.</p>
+          <p>Render your Notion data as metro maps, process flows, or fully custom <a href="https://mermaid.js.org/" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:2px;text-decoration:underline;">Mermaid</a> diagrams — no code changes required.</p>
         </div>
         <div class="hero-ctas">
           <a href="https://github.com/kleineLoesungen/vizu-notion-local" class="btn btn-primary">View on GitHub</a>
@@ -490,13 +546,18 @@
         </div>
         <div class="card">
           <div class="card-icon">◉</div>
-          <h3>Two Visualization Types</h3>
-          <p>Hierarchical databases render as metro-style maps. Sequential/workflow databases render as process flows. The app auto-detects which type is available for each source.</p>
+          <h3>Built-in Visualization Types</h3>
+          <p>Hierarchical databases render as metro-style maps. Sequential/workflow databases render as process flows. The app auto-detects which type fits each source.</p>
         </div>
         <div class="card">
           <div class="card-icon">▶</div>
           <h3>Fully Local &amp; Self-Hosted</h3>
           <p>Single <code>docker-compose up</code> command. Your Notion token stays server-side. No cloud relay, no external dependencies — run on your own machine.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">◈</div>
+          <h3>Custom Diagram Templates</h3>
+          <p>Drop a <code>.mmd</code> template file into the config folder and restart — any <a href="https://mermaid.js.org/intro/" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:2px;text-decoration:underline;">Mermaid diagram type</a> rendered with live Notion data. No code changes required.</p>
         </div>
       </div>
     </div>
@@ -768,6 +829,118 @@
 
         </div><!-- /.comparison-cols -->
 
+        <hr class="comparison-divider"/>
+
+        <!-- Comparison 4: Notion flat list → Mermaid Gantt via template -->
+        <div class="comparison-col-labels">
+          <span class="comparison-col-label before">In Notion</span>
+          <span class="comparison-col-label after">With vizu — custom Mermaid template</span>
+        </div>
+        <div class="comparison-cols">
+
+          <div class="comparison-card">
+            <div class="comparison-card-header before">Database — flat rows with dates and status</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <text x="12" y="14" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" letter-spacing="0.3">Sprint Planning · Notion Database</text>
+              <!-- Header row -->
+              <rect x="0" y="22" width="480" height="22" fill="#f9fafb"/>
+              <line x1="0" y1="44" x2="480" y2="44" stroke="#e8e8e8"/>
+              <text x="12" y="37" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#6b7280">Task</text>
+              <text x="200" y="37" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#6b7280">Start</text>
+              <text x="280" y="37" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#6b7280">End</text>
+              <text x="370" y="37" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#6b7280">Status</text>
+              <!-- Rows -->
+              <line x1="0" y1="66" x2="480" y2="66" stroke="#f0f0f0"/>
+              <text x="12" y="59" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">Auth Flow</text>
+              <text x="200" y="59" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 1</text>
+              <text x="280" y="59" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 8</text>
+              <rect x="366" y="49" width="42" height="16" rx="3" fill="#dcfce7"/>
+              <text x="370" y="60" font-family="system-ui,sans-serif" font-size="9" font-weight="500" fill="#16a34a">Done</text>
+
+              <line x1="0" y1="88" x2="480" y2="88" stroke="#f0f0f0"/>
+              <text x="12" y="81" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">DB Migration</text>
+              <text x="200" y="81" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 6</text>
+              <text x="280" y="81" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 16</text>
+              <rect x="366" y="71" width="68" height="16" rx="3" fill="#dbeafe"/>
+              <text x="370" y="82" font-family="system-ui,sans-serif" font-size="9" font-weight="500" fill="#1d4ed8">In Progress</text>
+
+              <line x1="0" y1="110" x2="480" y2="110" stroke="#f0f0f0"/>
+              <text x="12" y="103" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">API Layer</text>
+              <text x="200" y="103" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 15</text>
+              <text x="280" y="103" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 24</text>
+              <rect x="366" y="93" width="34" height="16" rx="3" fill="#f3f4f6"/>
+              <text x="370" y="104" font-family="system-ui,sans-serif" font-size="9" font-weight="500" fill="#6b7280">Todo</text>
+
+              <line x1="0" y1="132" x2="480" y2="132" stroke="#f0f0f0"/>
+              <text x="12" y="125" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">Frontend</text>
+              <text x="200" y="125" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 22</text>
+              <text x="280" y="125" font-family="system-ui,sans-serif" font-size="11" fill="#666">Apr 1</text>
+              <rect x="366" y="115" width="34" height="16" rx="3" fill="#f3f4f6"/>
+              <text x="370" y="126" font-family="system-ui,sans-serif" font-size="9" font-weight="500" fill="#6b7280">Todo</text>
+
+              <line x1="0" y1="154" x2="480" y2="154" stroke="#f0f0f0"/>
+              <text x="12" y="147" font-family="system-ui,sans-serif" font-size="11" fill="#37352f">QA &amp; Deploy</text>
+              <text x="200" y="147" font-family="system-ui,sans-serif" font-size="11" fill="#666">Mar 28</text>
+              <text x="280" y="147" font-family="system-ui,sans-serif" font-size="11" fill="#666">Apr 5</text>
+              <rect x="366" y="137" width="34" height="16" rx="3" fill="#f3f4f6"/>
+              <text x="370" y="148" font-family="system-ui,sans-serif" font-size="9" font-weight="500" fill="#6b7280">Todo</text>
+
+              <text x="12" y="185" font-family="system-ui,sans-serif" font-size="10" fill="#d1d5db" font-style="italic">Start/end dates exist — no timeline view in Notion</text>
+            </svg>
+            <div class="comparison-card-footer">Five tasks with date columns — no way to see overlaps, dependencies, or progress at a glance in Notion's database view.</div>
+          </div>
+
+          <div class="comparison-card">
+            <div class="comparison-card-header after">Mermaid Gantt — rendered from a .mmd template + live Notion data</div>
+            <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" style="background:#fff;">
+              <text x="12" y="13" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" letter-spacing="0.3">Sprint Planning · Mermaid Gantt</text>
+              <!-- Left label column -->
+              <rect x="0" y="16" width="90" height="194" fill="#f9fafb"/>
+              <line x1="90" y1="16" x2="90" y2="210" stroke="#e2e8f0"/>
+              <!-- Timeline header bg -->
+              <rect x="90" y="16" width="390" height="18" fill="#f1f5f9"/>
+              <line x1="90" y1="34" x2="480" y2="34" stroke="#e2e8f0"/>
+              <!-- Week grid lines + labels — 4 weeks, ~97px/week -->
+              <line x1="90"  y1="16" x2="90"  y2="210" stroke="#e2e8f0"/>
+              <line x1="187" y1="16" x2="187" y2="210" stroke="#e2e8f0" stroke-dasharray="2,3" stroke-opacity="0.7"/>
+              <line x1="284" y1="16" x2="284" y2="210" stroke="#e2e8f0" stroke-dasharray="2,3" stroke-opacity="0.7"/>
+              <line x1="381" y1="16" x2="381" y2="210" stroke="#e2e8f0" stroke-dasharray="2,3" stroke-opacity="0.7"/>
+              <text x="90"  y="28" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">Mar 1</text>
+              <text x="187" y="28" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">Mar 8</text>
+              <text x="284" y="28" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">Mar 15</text>
+              <text x="381" y="28" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">Mar 22</text>
+              <!-- Section alternating bands -->
+              <rect x="90" y="34" width="390" height="58" fill="#f8fbff" opacity="0.8"/>
+              <rect x="90" y="92" width="390" height="58" fill="#f0f7ff" opacity="0.6"/>
+              <rect x="90" y="150" width="390" height="60" fill="#f8fbff" opacity="0.8"/>
+              <!-- Section labels -->
+              <text x="86" y="58" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#64748b" text-anchor="end">Infra</text>
+              <text x="86" y="116" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#64748b" text-anchor="end">Backend</text>
+              <text x="86" y="174" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#64748b" text-anchor="end">Frontend</text>
+              <!-- Task labels -->
+              <text x="86" y="76" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8" text-anchor="end">Auth</text>
+              <text x="86" y="134" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8" text-anchor="end">DB</text>
+              <text x="86" y="152" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8" text-anchor="end">API</text>
+              <text x="86" y="192" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8" text-anchor="end">UI</text>
+              <!-- Gantt bars (scale: 97px/week ≈ 13.86px/day) -->
+              <!-- Auth Flow: Mar 1–8 (done) → x=90, width=97 -->
+              <rect x="90" y="64" width="97" height="16" rx="2" fill="#93c5fd"/>
+              <text x="94" y="75" font-family="system-ui,sans-serif" font-size="8" fill="#1e40af">Auth Flow ✓</text>
+              <!-- DB Migration: Mar 6–16 (active) → x=90+70=160, width=139 -->
+              <rect x="160" y="122" width="138" height="16" rx="2" fill="#3b82f6"/>
+              <text x="164" y="133" font-family="system-ui,sans-serif" font-size="8" fill="#fff">DB Migration</text>
+              <!-- API Layer: Mar 15–24 (todo) → x=284, width=125 -->
+              <rect x="284" y="140" width="125" height="16" rx="2" fill="#bfdbfe" stroke="#93c5fd" stroke-width="1"/>
+              <text x="288" y="151" font-family="system-ui,sans-serif" font-size="8" fill="#1d4ed8">API Layer</text>
+              <!-- Frontend: Mar 22–Apr 1 (todo) → x=381, width=99 -->
+              <rect x="381" y="180" width="95" height="16" rx="2" fill="#bfdbfe" stroke="#93c5fd" stroke-width="1"/>
+              <text x="385" y="191" font-family="system-ui,sans-serif" font-size="8" fill="#1d4ed8">Frontend</text>
+            </svg>
+            <div class="comparison-card-footer after">Same five tasks — overlaps, progress, and sequence visible at a glance. Powered by a <code>.mmd</code> template file referencing the same Notion database. <a href="https://mermaid.js.org/syntax/gantt.html" target="_blank" rel="noopener" style="color:#2563eb;">Mermaid Gantt docs →</a></div>
+          </div>
+
+        </div><!-- /.comparison-cols -->
+
       </div><!-- /.comparison-block -->
 
       <p style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-bottom:20px; padding-top:8px;">Full Diagram Examples</p>
@@ -836,6 +1009,77 @@
           <p class="preview-caption">Flow Diagram — Notion databases rendered as navigable node-edge graphs</p>
         </div>
 
+        <!-- Mermaid template example -->
+        <div class="preview-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 640 420" style="display:block;background:#fff;">
+            <!-- Title -->
+            <text x="20" y="28" font-family="system-ui,-apple-system,sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Mermaid Custom Template</text>
+            <text x="20" y="46" font-family="system-ui,-apple-system,sans-serif" font-size="11" fill="#94a3b8">ER diagram generated from a .mmd template + Notion database</text>
+            <!-- ER diagram mockup: 4 entities with relationships -->
+            <!-- Entity: User -->
+            <rect x="40" y="70" width="140" height="104" rx="6" fill="#f8faff" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect x="40" y="70" width="140" height="28" rx="6" fill="#3b82f6"/>
+            <rect x="40" y="88" width="140" height="10" rx="0" fill="#3b82f6"/>
+            <text x="110" y="89" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">User</text>
+            <line x1="40" y1="98" x2="180" y2="98" stroke="#bfdbfe" stroke-width="1"/>
+            <text x="52" y="114" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">id : UUID</text>
+            <text x="52" y="130" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">name : string</text>
+            <text x="52" y="146" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">email : string</text>
+            <text x="52" y="162" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">role : enum</text>
+            <!-- Entity: Project -->
+            <rect x="460" y="70" width="154" height="104" rx="6" fill="#f8faff" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect x="460" y="70" width="154" height="28" rx="6" fill="#3b82f6"/>
+            <rect x="460" y="88" width="154" height="10" rx="0" fill="#3b82f6"/>
+            <text x="537" y="89" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">Project</text>
+            <line x1="460" y1="98" x2="614" y2="98" stroke="#bfdbfe" stroke-width="1"/>
+            <text x="472" y="114" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">id : UUID</text>
+            <text x="472" y="130" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">name : string</text>
+            <text x="472" y="146" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">status : select</text>
+            <text x="472" y="162" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">dueDate : date</text>
+            <!-- Entity: Task -->
+            <rect x="40" y="270" width="140" height="118" rx="6" fill="#f8faff" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect x="40" y="270" width="140" height="28" rx="6" fill="#3b82f6"/>
+            <rect x="40" y="288" width="140" height="10" rx="0" fill="#3b82f6"/>
+            <text x="110" y="289" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">Task</text>
+            <line x1="40" y1="298" x2="180" y2="298" stroke="#bfdbfe" stroke-width="1"/>
+            <text x="52" y="314" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">id : UUID</text>
+            <text x="52" y="330" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">title : string</text>
+            <text x="52" y="346" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">assignee : relation</text>
+            <text x="52" y="362" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">project : relation</text>
+            <text x="52" y="378" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">status : select</text>
+            <!-- Entity: Milestone -->
+            <rect x="460" y="270" width="154" height="104" rx="6" fill="#f8faff" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect x="460" y="270" width="154" height="28" rx="6" fill="#3b82f6"/>
+            <rect x="460" y="288" width="154" height="10" rx="0" fill="#3b82f6"/>
+            <text x="537" y="289" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">Milestone</text>
+            <line x1="460" y1="298" x2="614" y2="298" stroke="#bfdbfe" stroke-width="1"/>
+            <text x="472" y="314" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">id : UUID</text>
+            <text x="472" y="330" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">name : string</text>
+            <text x="472" y="346" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">project : relation</text>
+            <text x="472" y="362" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#475569">date : date</text>
+            <!-- Relationship lines -->
+            <!-- User ||--o{ Task -->
+            <line x1="180" y1="122" x2="320" y2="195" stroke="#64748b" stroke-width="1.5"/>
+            <line x1="320" y1="195" x2="320" y2="310" stroke="#64748b" stroke-width="1.5"/>
+            <line x1="320" y1="310" x2="180" y2="320" stroke="#64748b" stroke-width="1.5"/>
+            <text x="230" y="190" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#94a3b8">assigns</text>
+            <!-- Project ||--o{ Task -->
+            <line x1="460" y1="122" x2="380" y2="195" stroke="#64748b" stroke-width="1.5"/>
+            <line x1="380" y1="195" x2="380" y2="310" stroke="#64748b" stroke-width="1.5"/>
+            <line x1="380" y1="310" x2="320" y2="320" stroke="#64748b" stroke-width="1.5"/>
+            <text x="390" y="190" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#94a3b8">contains</text>
+            <!-- Project ||--o{ Milestone -->
+            <line x1="537" y1="174" x2="537" y2="270" stroke="#64748b" stroke-width="1.5"/>
+            <text x="542" y="228" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#94a3b8">has</text>
+            <!-- Crow's foot markers -->
+            <circle cx="180" cy="320" r="3" fill="none" stroke="#64748b" stroke-width="1.5"/>
+            <line x1="185" y1="317" x2="192" y2="323" stroke="#64748b" stroke-width="1.5"/>
+            <line x1="185" y1="323" x2="192" y2="317" stroke="#64748b" stroke-width="1.5"/>
+            <circle cx="460" cy="270" r="3" fill="none" stroke="#64748b" stroke-width="1.5"/>
+          </svg>
+          <p class="preview-caption">Mermaid ER Diagram — generated from a <code>.mmd</code> Handlebars template. Any <a href="https://mermaid.js.org/intro/" target="_blank" rel="noopener" style="color:#2563eb;">Mermaid diagram type</a> works.</p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -860,7 +1104,39 @@
         <div class="step">
           <span class="step-number">03</span>
           <div class="step-title">Visualize</div>
-          <p>Open the browser and view your data as interactive metro maps or process flows. Filter, export, and share.</p>
+          <p>Open the browser and view your data as metro maps, process flows, or custom <a href="https://mermaid.js.org/" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:2px;text-decoration:underline;">Mermaid</a> diagrams. Filter, export SVG, and share links. For custom diagram types, drop a <code>.mmd</code> Handlebars template into the config folder and restart.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What "Local" Means -->
+  <section class="local-scope">
+    <div class="container">
+      <div class="section-header">
+        <h2>Built for Local Use</h2>
+        <p style="margin-top: 12px; font-size: 18px; color: #666666;">This tool runs on your machine for your eyes. Scope is intentionally narrow.</p>
+      </div>
+      <div class="local-grid">
+        <div class="local-item local-item--out">
+          <span class="local-badge local-badge--out">Not included</span>
+          <h3>User Management</h3>
+          <p>No accounts, no login, no sessions. Anyone who can reach port 3000 on your machine can use the app.</p>
+        </div>
+        <div class="local-item local-item--out">
+          <span class="local-badge local-badge--out">Not included</span>
+          <h3>Access Control</h3>
+          <p>No roles, no read/write separation, no API keys for the UI. Secure it at the network level if needed.</p>
+        </div>
+        <div class="local-item local-item--out">
+          <span class="local-badge local-badge--out">Not included</span>
+          <h3>Backup</h3>
+          <p>No data is written to disk except share link tokens in <code>./data</code>. Your Notion workspace is the source of truth.</p>
+        </div>
+        <div class="local-item local-item--out">
+          <span class="local-badge local-badge--out">Not included</span>
+          <h3>Health Checks &amp; Alerting</h3>
+          <p>No uptime monitoring, no alerting, no SLA. If the container exits, restart it with <code>docker compose up</code>.</p>
         </div>
       </div>
     </div>
@@ -870,7 +1146,7 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-inner">
-        <p class="footer-text">Built with Nuxt + Vue 3 + TailwindCSS. Config-driven visualization for Notion. Metro map rendering powered by <a href="https://github.com/rstockm/Metroviz" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">Metroviz</a>.</p>
+        <p class="footer-text">Built with Nuxt + Vue 3 + TailwindCSS. Config-driven visualization for Notion. Metro map rendering powered by <a href="https://github.com/rstockm/Metroviz" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">Metroviz</a>. Custom diagrams powered by <a href="https://mermaid.js.org/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">Mermaid</a>.</p>
       </div>
     </div>
   </footer>

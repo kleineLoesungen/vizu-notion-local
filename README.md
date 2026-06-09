@@ -135,6 +135,8 @@ flowchart TD
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 
+> **Rows and node visibility:** Each row inside `{{#each source-name}}` is a flat object whose keys are the `columnMappings` roles (`title`, `date`, `status`, etc.) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the filter panel — hidden nodes are excluded from the Handlebars context automatically, so the rendered diagram reflects the panel state without any extra logic in the template.
+
 > **Note:** No arithmetic or comparison helpers are registered. If you need a computed value (e.g. an index starting at 1, or a formatted number), add a Notion formula column to your database, map it in `columnMappings`, and reference it with `{{this.fieldName}}`.
 
 **Multi-source templates:** list multiple sources in `sources:` and use a separate `{{#each}}` block per source in the template body.

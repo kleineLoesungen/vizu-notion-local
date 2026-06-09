@@ -1,6 +1,6 @@
 # vizu-notion-local
 
-Render Notion databases as interactive metro maps and process flow diagrams — self-hosted, config-driven, no code required. Point it at your Notion databases, define column mappings in a JSON file, and get visual diagrams in your browser.
+Render Notion databases as interactive metro maps, process flow diagrams, or fully custom [Mermaid](https://mermaid.js.org/) diagrams — self-hosted, config-driven, no code required. Point it at your Notion databases, define column mappings in a JSON file, and get visual diagrams in your browser.
 
 ---
 
@@ -101,6 +101,52 @@ Open [http://localhost:3000](http://localhost:3000).
 | `assignee` | People | Sub-label on node |
 
 A source with both `date` and `next` is eligible for both diagram types.
+
+---
+
+## Mermaid Diagram Templates
+
+Any [Mermaid diagram type](https://mermaid.js.org/intro/) — Gantt, flowchart, sequence, ER, mindmap, and more — can be rendered from a template file that pulls live data from your Notion sources.
+
+**1. Create a template file**
+
+Add a `.mmd` file inside `config/`. The filename (without extension) becomes the template ID.
+
+```
+config/
+  sources.json
+  sprint-gantt.mmd      ← template ID: sprint-gantt
+  data-model.mmd        ← template ID: data-model
+```
+
+**2. Write the template**
+
+Templates are [Handlebars](https://handlebarsjs.com/) files that produce valid Mermaid syntax. Available variables depend on the sources you declare in the template's frontmatter.
+
+```
+---
+title: Sprint Gantt
+sources:
+  - Project Milestones
+---
+gantt
+  dateFormat YYYY-MM-DD
+  {{#each Project Milestones}}
+  {{this.title}} : {{this.startDate}}, {{this.endDate}}
+  {{/each}}
+```
+
+Inside `{{#each SourceName}}`, each row is a flat object whose keys are the `columnMappings` roles from `sources.json` (e.g. `title`, `date`, `status`) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the UI — hidden nodes are excluded from the Handlebars context automatically.
+
+**3. Restart**
+
+```bash
+docker compose restart
+```
+
+The template appears on the dashboard under each source it references. Clicking it opens the rendered diagram with filter, SVG export, and share-link support.
+
+**Mermaid diagram types**: [mermaid.js.org/intro](https://mermaid.js.org/intro/) lists all supported diagram types and their syntax.
 
 ---
 
