@@ -95,10 +95,9 @@ export function useMermaidTemplate(
       if (!(window as any).d3) (window as any).d3 = d3Module
     }
 
-    // Set SVG to fill its container — required for getBoundingClientRect() to return
-    // non-zero dimensions (RESEARCH.md Pitfall 4)
     svgEl.setAttribute('width', '100%')
     svgEl.setAttribute('height', '100%')
+    svgEl.setAttribute('overflow', 'visible')
     svgEl.style.minHeight = '0'
 
     zoomBehavior = d3Module.zoom()
@@ -114,16 +113,23 @@ export function useMermaidTemplate(
     svgEl.addEventListener('mousedown', () => { svgEl.style.cursor = 'grabbing' })
     svgEl.addEventListener('mouseup', () => { svgEl.style.cursor = 'grab' })
 
-    // Fit-to-content: scale and center the diagram inside the container (D-14)
+    // Fit-to-content in SVG user coordinates.
+    // getBoundingClientRect() returns CSS pixels — a different coordinate system from
+    // getBBox() which returns SVG user units. Mixing them produces translate values that
+    // land outside the viewBox and make the diagram invisible. Use the viewBox dimensions
+    // as the container extent (they are already in SVG user units).
     await nextTick()
-    const containerRect = svgEl.getBoundingClientRect()
+    const viewBox = svgEl.viewBox?.baseVal
+    const vw = (viewBox && viewBox.width > 0) ? viewBox.width : svgEl.clientWidth
+    const vh = (viewBox && viewBox.height > 0) ? viewBox.height : svgEl.clientHeight
     const contentRect = innerG.getBBox()
-    if (contentRect.width > 0 && containerRect.width > 0 && containerRect.height > 0) {
-      const scaleX = containerRect.width / (contentRect.width + 40)
-      const scaleY = containerRect.height / (contentRect.height + 40)
+    if (contentRect.width > 0 && vw > 0 && vh > 0) {
+      const padding = 20
+      const scaleX = (vw - padding * 2) / contentRect.width
+      const scaleY = (vh - padding * 2) / contentRect.height
       const scale = Math.min(scaleX, scaleY, 1)
-      const tx = (containerRect.width - contentRect.width * scale) / 2 - contentRect.x * scale
-      const ty = Math.max(10, (containerRect.height - contentRect.height * scale) / 2 - contentRect.y * scale)
+      const tx = (vw - contentRect.width * scale) / 2 - contentRect.x * scale
+      const ty = Math.max(padding, (vh - contentRect.height * scale) / 2 - contentRect.y * scale)
       const t = d3Module.zoomIdentity.translate(tx, ty).scale(scale)
       d3Module.select(svgEl).call(zoomBehavior.transform, t)
       innerG.setAttribute('transform', t.toString())
