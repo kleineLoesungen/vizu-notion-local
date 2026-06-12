@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="open"
-    class="w-72 p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto flex-shrink-0"
+    class="w-72 p-4 bg-gray-50 border-l border-gray-200 overflow-y-auto flex-shrink-0 max-h-screen"
     role="region"
     aria-label="Visibility"
   >
@@ -79,7 +79,7 @@
         <h3 class="text-xs font-medium text-gray-700 mb-2">Node Visibility</h3>
 
         <!-- Grouped by parent (when parent role is configured) -->
-        <div v-if="hasParentGroups" class="space-y-2 overflow-y-auto" style="max-height: 20rem;">
+        <div v-if="hasParentGroups" class="space-y-2">
           <div v-for="group in parentGroups" :key="group.key">
             <!-- Group header row -->
             <div
@@ -113,7 +113,7 @@
         </div>
 
         <!-- Flat list (no parent role configured) -->
-        <div v-else class="space-y-1 overflow-y-auto" style="max-height: 20rem;">
+        <div v-else class="space-y-1">
           <label
             v-for="page in pages"
             :key="page.id"
