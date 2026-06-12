@@ -214,10 +214,10 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-**Last Activity**: 05-03-PLAN.md Task 1 complete — [sourceId].vue extended with Mermaid viz type selector and render area
-**Date**: 2026-06-08
-**Stopped At**: Phase 05 Plan 3 of 3 — paused at checkpoint:human-verify after Task 1
-**Next Step**: Human verification of full Phase 5 Mermaid feature (6 test scenarios)
+**Last Activity**: 06-01-PLAN.md complete — stableId(), nodeId Handlebars helper, and body rewrite added to templates.ts
+**Date**: 2026-06-12
+**Stopped At**: Completed Phase 06 Plan 1 of 4
+**Next Step**: Execute 06-02 (FilterPanel max-height fix)
 
 ---
 
