@@ -4,6 +4,28 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { getConfig } from './config'
 
+// FNV-1a 32-bit hash → 7-char base-36 string safe for Mermaid node IDs (D-03, D-04)
+// Input: attributeName + '\x00' + value  (null separator prevents "ab"+"c" == "a"+"bc")
+// Output: 'n' prefix + 6 base-36 chars — always valid Mermaid ID (can't start with digit)
+function stableId(attrName: string, value: string): string {
+  const input = attrName + '\x00' + String(value)
+  let h = 0x811c9dc5
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 0x01000193) >>> 0
+  }
+  return 'n' + h.toString(36).padStart(6, '0')
+}
+
+// nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
+// Returns full Mermaid rectangle node definition: id["label"] (D-01, D-02, D-05)
+// SafeString prevents Handlebars from HTML-escaping the square brackets.
+Handlebars.registerHelper('nodeId', function(attrName: string, value: unknown) {
+  const id = stableId(attrName, String(value ?? ''))
+  const safeLabel = String(value ?? '').replace(/["[\]]/g, '')
+  return new Handlebars.SafeString(`${id}["${safeLabel}"]`)
+})
+
 export interface MermaidTemplate {
   id: string           // filename without .mmd extension (e.g., "project-timeline")
   title: string        // from frontmatter.title
@@ -58,7 +80,15 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
     // Precompile Handlebars template (D-04)
     let compiled: Handlebars.TemplateDelegate
     try {
-      compiled = Handlebars.compile(body)
+      // Rewrite bare {{attr}} bindings → {{nodeId "attr" attr}} before compilation (D-01, D-05)
+      // Only rewrites simple variable references: {{word}} — not helpers, block helpers, or
+      // Handlebars keywords. The blocklist guards else/this/log which match the word pattern.
+      const HB_KEYWORDS = new Set(['else', 'this', 'log'])
+      const rewrittenBody = body.replace(
+        /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
+        (match, name) => HB_KEYWORDS.has(name) ? match : `{{nodeId "${name}" ${name}}}`
+      )
+      compiled = Handlebars.compile(rewrittenBody)
     } catch (err: any) {
       throw new Error(`[vizu] Template "${file}": Handlebars compilation failed: ${err.message}`)
     }
