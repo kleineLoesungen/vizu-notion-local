@@ -331,10 +331,12 @@
             :pages="activeVizType === 'mermaid' ? mermaidFakePages : activeVizType === 'flow' ? pages : allPagesForPanel"
             :column-mappings="activeVizType === 'mermaid' ? mermaidColumnMappings : columnMappings"
             :visible-node-ids="activeVizType === 'mermaid' ? mermaidVisibleIds : allVisibleIds"
+            :relations-map="activeVizType === 'mermaid' ? relationsMap : undefined"
             @update:open="filterPanelOpen = $event"
             @toggle-node="handleToggleNode"
             @set-nodes-visible="handleSetNodesVisible"
             @set-timeframe="applyTimeframeToVisibility"
+            @show-related="handleShowRelated"
           />
         </div>
 
@@ -696,6 +698,47 @@ const mermaidFakePages = computed<EnrichedPage[]>(() =>
 // Maps role 'title' and 'parent' → synthetic property keys used in mermaidFakePages.
 // 'parent' triggers FilterPanel's group-by-source rendering with source-level toggle.
 const mermaidColumnMappings = { title: '__mermaid_title', parent: '__mermaid_source' }
+
+// Tracks which node's "show related" is currently active — null = no related-filter active
+const activeRelatedNodeId = ref<string | null>(null)
+
+// Maps each Mermaid row's page ID to its _relations array — passed to FilterPanel
+// so it knows which nodes have a "show related" button (D-11)
+const relationsMap = computed<Record<string, string[]> | undefined>(() => {
+  const rows = mermaidDiagram.rows.value
+  if (!rows.length) return undefined
+  return Object.fromEntries(rows.map(r => [r.id, r._relations ?? []]))
+})
+
+// Handle "show related" button click from FilterPanel (D-09, D-10)
+// Computes visible set = clicked node + its 1-hop _relations neighbours
+// Clicking the already-active node resets all nodes to visible
+const handleShowRelated = (pageId: string) => {
+  const tmplId = activeMermaidTemplateId.value
+  const allRows = mermaidDiagram.rows.value
+
+  // Toggle off: clicking the active node resets all to visible
+  if (activeRelatedNodeId.value === pageId) {
+    activeRelatedNodeId.value = null
+    mermaidHiddenIdsMap.value = { ...mermaidHiddenIdsMap.value, [tmplId]: new Set<string>() }
+    return
+  }
+
+  activeRelatedNodeId.value = pageId
+  const targetRow = allRows.find(r => r.id === pageId)
+  if (!targetRow) return
+
+  // Visible set: selected node + directly related page IDs that exist in allRows
+  const allRowIds = new Set(allRows.map(r => r.id))
+  const visibleIds = new Set([pageId, ...(targetRow._relations ?? []).filter(id => allRowIds.has(id))])
+
+  // Hide all rows not in the visible set
+  const hiddenIds = allRows.map(r => r.id).filter(id => !visibleIds.has(id))
+  mermaidHiddenIdsMap.value = {
+    ...mermaidHiddenIdsMap.value,
+    [tmplId]: new Set(hiddenIds),
+  }
+}
 
 // Visible IDs for Mermaid (inverse of hidden)
 const mermaidVisibleIds = computed<Set<string>>(

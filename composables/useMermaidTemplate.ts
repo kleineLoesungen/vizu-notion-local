@@ -4,7 +4,7 @@ export interface MermaidTemplateResponse {
   templateId: string
   title: string
   diagramString: string
-  rows: Array<{ id: string; title: string; sourceName: string }>
+  rows: Array<{ id: string; title: string; sourceName: string; _relations: string[] }>
 }
 
 export function useMermaidTemplate(

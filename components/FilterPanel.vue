@@ -96,37 +96,63 @@
               <span class="text-xs font-semibold text-gray-800 truncate">{{ group.label }}</span>
             </div>
             <!-- Individual nodes in group -->
-            <label
+            <div
               v-for="page in group.pages"
               :key="page.id"
-              class="flex items-center gap-2 text-xs cursor-pointer pl-5 py-0.5"
+              class="flex items-center gap-1.5 text-xs pl-5 py-0.5"
             >
-              <input
-                type="checkbox"
-                :checked="visibleNodeIds.has(page.id)"
-                @change="onToggleNode(page.id)"
-                class="w-3.5 h-3.5"
-              />
-              <span class="truncate text-gray-700">{{ getPageTitle(page) }}</span>
-            </label>
+              <label class="flex items-center gap-1.5 flex-1 min-w-0 cursor-pointer">
+                <input
+                  type="checkbox"
+                  :checked="visibleNodeIds.has(page.id)"
+                  @change="onToggleNode(page.id)"
+                  class="w-3.5 h-3.5 flex-shrink-0"
+                />
+                <span class="truncate text-gray-700">{{ getPageTitle(page) }}</span>
+              </label>
+              <button
+                v-if="relationsMap && relationsMap[page.id] !== undefined"
+                class="flex-shrink-0 p-0.5 text-gray-400 hover:text-blue-600 focus:outline-none"
+                title="Show related nodes"
+                @click.stop="emit('show-related', page.id)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.172 13.828a4 4 0 015.656 0l4-4a4 4 0 10-5.656-5.656l-1.101 1.102" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Flat list (no parent role configured) -->
         <div v-else class="space-y-1">
-          <label
+          <div
             v-for="page in pages"
             :key="page.id"
-            class="flex items-center gap-2 text-xs cursor-pointer"
+            class="flex items-center gap-1.5 text-xs"
           >
-            <input
-              type="checkbox"
-              :checked="visibleNodeIds.has(page.id)"
-              @change="onToggleNode(page.id)"
-              class="w-4 h-4"
-            />
-            <span class="truncate text-gray-700">{{ getPageTitle(page) }}</span>
-          </label>
+            <label class="flex items-center gap-1.5 flex-1 min-w-0 cursor-pointer">
+              <input
+                type="checkbox"
+                :checked="visibleNodeIds.has(page.id)"
+                @change="onToggleNode(page.id)"
+                class="w-4 h-4 flex-shrink-0"
+              />
+              <span class="truncate text-gray-700">{{ getPageTitle(page) }}</span>
+            </label>
+            <button
+              v-if="relationsMap && relationsMap[page.id] !== undefined"
+              class="flex-shrink-0 p-0.5 text-gray-400 hover:text-blue-600 focus:outline-none"
+              title="Show related nodes"
+              @click.stop="emit('show-related', page.id)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.172 13.828a4 4 0 015.656 0l4-4a4 4 0 10-5.656-5.656l-1.101 1.102" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <p v-if="pages.length === 0" class="text-xs text-gray-400">No pages loaded</p>
@@ -153,6 +179,7 @@ const props = defineProps<{
   pages: EnrichedPage[]
   columnMappings: ColumnMappings
   visibleNodeIds: Set<string>
+  relationsMap?: Record<string, string[]>  // pageId → related page IDs (Mermaid only)
 }>()
 
 const emit = defineEmits<{
@@ -160,6 +187,7 @@ const emit = defineEmits<{
   'toggle-node': [pageId: string]
   'set-nodes-visible': [ids: string[], visible: boolean]
   'set-timeframe': [range: { start: string; end: string } | null]
+  'show-related': [pageId: string]
 }>()
 
 const activeShortcut = ref<ShortcutKey | null>(null)
