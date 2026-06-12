@@ -2,6 +2,21 @@ import { getTemplates } from '../../../utils/templates'
 import { getConfig } from '../../../utils/config'
 import { queryDatabase } from '../../../utils/notion'
 
+// Extract all Notion relation target page IDs from a raw PageObjectResponse (D-11)
+// Scans all properties for type === 'relation' and collects target IDs.
+// Returns [] when no relation properties exist (always safe to call unconditionally).
+function extractRelationIds(page: any): string[] {
+  const ids: string[] = []
+  for (const prop of Object.values(page.properties ?? {})) {
+    if ((prop as any).type === 'relation') {
+      for (const rel of ((prop as any).relation as Array<{ id: string }>) ?? []) {
+        if (rel.id) ids.push(rel.id)
+      }
+    }
+  }
+  return ids
+}
+
 function extractPropertyValue(prop: any): string {
   if (!prop) return ''
   switch (prop.type) {
@@ -41,7 +56,7 @@ export default defineEventHandler(async (event) => {
   const config = getConfig()
   const context: Record<string, Record<string, string>[]> = {}
   // All rows (unfiltered) — returned to client so the FilterPanel can show every node
-  const allRows: Array<{ id: string; title: string; sourceName: string }> = []
+  const allRows: Array<{ id: string; title: string; sourceName: string; _relations: string[] }> = []
 
   for (const sourceName of template.sources) {
     const source = config.sources.find((s) => s.name === sourceName)
@@ -76,9 +91,15 @@ export default defineEventHandler(async (event) => {
     })
 
     // Collect all rows for the client (before hiding) so FilterPanel can list every node
-    for (const row of mappedRows) {
-      allRows.push({ id: row['id'] ?? '', title: row['title'] ?? '', sourceName })
-    }
+    pages.forEach((page, i) => {
+      const row = mappedRows[i]!
+      allRows.push({
+        id: row['id'] ?? '',
+        title: row['title'] ?? '',
+        sourceName,
+        _relations: extractRelationIds(page),
+      })
+    })
 
     // Apply hiddenIds filter: excluded rows are removed from Handlebars context
     context[sourceName] = hiddenIds ? mappedRows.filter((r) => !hiddenIds.has(r['id'] ?? '')) : mappedRows
