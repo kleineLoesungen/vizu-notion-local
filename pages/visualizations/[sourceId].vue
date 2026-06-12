@@ -325,8 +325,8 @@
 
             <!-- D-10: Notion links list — primary + all visible extra-source pages -->
             <NotionLinksList
-              :pages="allVisiblePages"
-              :column-mappings="columnMappings"
+              :pages="activeVizType === 'mermaid' ? mermaidFakePages : allVisiblePages"
+              :column-mappings="activeVizType === 'mermaid' ? mermaidColumnMappings : columnMappings"
             />
           </div>
 
