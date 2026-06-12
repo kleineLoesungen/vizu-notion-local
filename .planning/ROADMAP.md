@@ -100,6 +100,7 @@ Plans:
 | 3. User Experience | 7/7 | Complete   | 2026-06-03 |
 | 4. Deployment | 3/3 | Complete   | 2026-06-06 |
 | 5. Mermaid Diagrams | 3/3 | Complete   | 2026-06-08 |
+| 6. Mermaid Improvements | 0/4 | Planned    |  |
 
 ### Phase 4: Deployment
 
@@ -146,6 +147,30 @@ Plans:
 
 ---
 
+### Phase 6: Mermaid Improvements
+
+**Goal**: Four targeted improvements to the Phase 5 Mermaid feature — stable node IDs, filter panel full height, related-nodes filter, and D3 zoom/pan
+
+**Depends on**: Phase 5
+
+**Requirements**: MERM-NODE-ID, MERM-FILTER-HEIGHT, MERM-RELATED-NODES, MERM-ZOOM
+
+**Success Criteria** (what must be TRUE):
+1. Template authors write `{{attribute}}` and the server emits a stable Mermaid node definition (`nXXXXXX["value"]`) — same attribute+value always produces the same ID
+2. The filter panel node list is no longer capped at 20rem — it fills available viewport height
+3. A "show related" button per node hides all except that node and its 1-hop Notion-relation neighbours; clicking again resets
+4. The Mermaid diagram supports Ctrl+scroll zoom, drag pan, and fit-to-content on load — same interaction model as Metro and Flow
+
+**Plans**: 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — server/utils/templates.ts: FNV-1a stableId() + nodeId Handlebars helper + body rewrite before compile()
+- [ ] 06-02-PLAN.md — components/FilterPanel.vue: remove max-height:20rem from list containers, add max-h-screen to outer panel
+- [ ] 06-03-PLAN.md — Related nodes filter: server _relations field + composable type + FilterPanel show-related button + viz page handler
+- [ ] 06-04-PLAN.md — D3 zoom/pan on Mermaid SVG: initMermaidZoom() in useMermaidTemplate + 60vh container + zoom hint
+
+---
+
 *Roadmap created: 2026-06-02*
 *Phase 1 planned: 2026-06-02*
 *Phase 2 planned: 2026-06-02*
@@ -153,3 +178,4 @@ Plans:
 *Phase 3 gap closure planned: 2026-06-03*
 *Phase 4 planned: 2026-06-05*
 *Phase 5 planned: 2026-06-08*
+*Phase 6 planned: 2026-06-12*
