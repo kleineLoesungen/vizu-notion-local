@@ -100,7 +100,7 @@ Plans:
 | 3. User Experience | 7/7 | Complete   | 2026-06-03 |
 | 4. Deployment | 3/3 | Complete   | 2026-06-06 |
 | 5. Mermaid Diagrams | 3/3 | Complete   | 2026-06-08 |
-| 6. Mermaid Improvements | 0/4 | Planned    |  |
+| 6. Mermaid Improvements | 1/4 | In Progress|  |
 
 ### Phase 4: Deployment
 
@@ -165,7 +165,7 @@ Plans:
 
 Plans:
 - [ ] 06-01-PLAN.md — server/utils/templates.ts: FNV-1a stableId() + nodeId Handlebars helper + body rewrite before compile()
-- [ ] 06-02-PLAN.md — components/FilterPanel.vue: remove max-height:20rem from list containers, add max-h-screen to outer panel
+- [x] 06-02-PLAN.md — components/FilterPanel.vue: remove max-height:20rem from list containers, add max-h-screen to outer panel
 - [ ] 06-03-PLAN.md — Related nodes filter: server _relations field + composable type + FilterPanel show-related button + viz page handler
 - [ ] 06-04-PLAN.md — D3 zoom/pan on Mermaid SVG: initMermaidZoom() in useMermaidTemplate + 60vh container + zoom hint
 
