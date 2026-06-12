@@ -121,7 +121,25 @@ config/
 
 **2. Write the template**
 
-Templates are [Handlebars](https://handlebarsjs.com/) files that produce valid Mermaid syntax. Available variables depend on the sources you declare in the template's frontmatter.
+Templates are [Handlebars](https://handlebarsjs.com/) files that produce valid Mermaid syntax. The frontmatter declares which sources the template uses; the body iterates over their rows.
+
+**Flowchart example** — `{{fieldName}}` (bare name) generates a full Mermaid node definition:
+
+```
+---
+title: Task Flow
+sources:
+  - Project Milestones
+---
+flowchart TD
+  {{#each Project Milestones}}
+  {{title}} --> {{status}}
+  {{/each}}
+```
+
+Each `{{title}}` expands to `nXXXXXX["My Task"]` — a stable node ID derived from the field name and value. `{{title}} --> {{status}}` therefore produces a valid directed edge between two labeled nodes. The same value always generates the same ID, so nodes are automatically merged when the same title appears in multiple `{{#each}}` blocks.
+
+**Gantt example** — `{{this.fieldName}}` outputs the raw value (no node ID wrapper):
 
 ```
 ---
@@ -136,7 +154,21 @@ gantt
   {{/each}}
 ```
 
-Inside `{{#each SourceName}}`, each row is a flat object whose keys are the `columnMappings` roles from `sources.json` (e.g. `title`, `date`, `status`) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the UI — hidden nodes are excluded from the Handlebars context automatically.
+Use `{{this.fieldName}}` when the field value is data (a date string, a label) rather than a Mermaid node.
+
+**Handlebars bindings:**
+
+| Syntax | What it does |
+|--------|-------------|
+| `{{fieldName}}` | Outputs a full Mermaid node definition: `nXXXXXX["value"]`. Works at top level and inside `{{#each}}` (bare `fieldName` resolves as `this.fieldName`). |
+| `{{this.fieldName}}` | Inside `#each`, outputs the **raw field value** as a plain string. Use for data fields that aren't Mermaid nodes (dates, Gantt labels, section headers). |
+| `{{#each source-name}} … {{/each}}` | Iterates over all visible rows from the named source |
+| `{{this.id}}` | Inside `#each`, the raw Notion page ID string |
+| `{{@index}}` | Inside `#each`, the zero-based iteration index |
+| `{{@first}}` | Inside `#each`, `true` on the first iteration |
+| `{{#unless condition}} … {{/unless}}` | Renders block when `condition` is falsy |
+
+> Field names come from `columnMappings` keys in `sources.json`, not raw Notion property names. Rows are filtered by the node-visibility state the user has applied in the filter panel — hidden nodes are excluded from the Handlebars context automatically.
 
 **3. Restart**
 
@@ -144,9 +176,15 @@ Inside `{{#each SourceName}}`, each row is a flat object whose keys are the `col
 docker compose restart
 ```
 
-The template appears on the dashboard under each source it references. Clicking it opens the rendered diagram with filter, SVG export, and share-link support.
+The template appears on the dashboard under each source it references. Clicking it opens the rendered diagram.
 
-**Mermaid diagram types**: [mermaid.js.org/intro](https://mermaid.js.org/intro/) lists all supported diagram types and their syntax.
+**Diagram interactions:**
+
+- **Filter panel** — toggle individual nodes on/off; nodes grouped by source with group-level select/deselect. The panel spans full viewport height.
+- **Show related** — click the link icon next to any node to focus on that node and its 1-hop Notion-relation neighbours; click again to reset
+- **Zoom / pan** — Ctrl+scroll to zoom, drag to pan
+- **Export** — download the rendered diagram as an SVG file
+- **Share link** — copy a URL that restores the current filter and template selection
 
 ---
 
@@ -157,3 +195,5 @@ The template appears on the dashboard under each source it references. Clicking 
 **Empty dashboard** — `config/sources.json` not found or misconfigured. Check database IDs (32-char hex, no hyphens) and that column names match exactly.
 
 **Share links 404 after restart** — `./data` not writable: `chmod 777 ./data`.
+
+**Mermaid template shows an error** — check the template syntax against the [Mermaid docs](https://mermaid.js.org/intro/) and verify every source name in `sources:` matches exactly the `name` in `sources.json`. Container logs show the full parse error.

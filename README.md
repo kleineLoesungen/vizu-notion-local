@@ -1,11 +1,12 @@
 # vizu-notion-local
 
-> Render Notion databases as interactive metro maps and process flow diagrams — config-driven, self-hosted, no code changes required.
+> Render Notion databases as interactive metro maps, process flow diagrams, or custom Mermaid diagrams — config-driven, self-hosted, no code changes required.
 
 ## Features
 
 - **Metro map visualization** — Hierarchical Notion databases (goals → projects → tasks) rendered as metro-line style diagrams
 - **Process flow diagrams** — Sequential/workflow databases rendered as node-edge flow charts
+- **Custom Mermaid diagrams** — Drop a `.mmd` template file into `config/`, restart, and any [Mermaid diagram type](https://mermaid.js.org/intro/) renders with live Notion data
 - **Config-driven** — Define sources and column mappings in a JSON file; restart container to apply
 - **Share links** — Copy a short URL that restores the exact view (hidden nodes, active sources, viz type) for anyone on your local network
 - **Fully local** — Single `docker compose up`, your Notion token stays server-side, no cloud relay
@@ -110,7 +111,7 @@ sources:
 ---
 flowchart TD
   {{#each source-name}}
-  {{this.title}}
+  {{title}} --> {{status}}
   {{/each}}
 ```
 
@@ -125,25 +126,34 @@ flowchart TD
 
 | Syntax | What it does |
 |--------|-------------|
-| `{{fieldName}}` | Inserts a scalar value from the top-level context; `fieldName` is a `columnMappings` key (e.g. `title`, `status`) or `id` (Notion page ID, always available) |
-| `{{#each source-name}} … {{/each}}` | Iterates over all rows from the named source |
-| `{{this.fieldName}}` | Inside `#each`, accesses a field on the current row |
-| `{{this.id}}` | Inside `#each`, the Notion page ID — available without a `columnMappings` entry; useful for stable unique node IDs |
-| `{{@index}}` | Inside `#each`, the zero-based iteration index (useful for unique node IDs) |
+| `{{fieldName}}` | Outputs a full Mermaid node definition: `nXXXXXX["value"]` — the ID is a stable hash of the field name and value. Works at top level and inside `{{#each}}` blocks (bare `fieldName` resolves as `this.fieldName` in Handlebars). |
+| `{{this.fieldName}}` | Inside `#each`, outputs the **raw field value** as a plain string — no node ID wrapping. Use this for data that isn't a Mermaid node (e.g. Gantt task labels, date strings, section names). |
+| `{{#each source-name}} … {{/each}}` | Iterates over all visible rows from the named source |
+| `{{this.id}}` | Inside `#each`, the raw Notion page ID string — available without a `columnMappings` entry |
+| `{{@index}}` | Inside `#each`, the zero-based iteration index |
 | `{{@first}}` | Inside `#each`, boolean `true` on the first iteration — useful with `#unless` to skip leading separators |
-| `{{#unless condition}} … {{/unless}}` | Renders the block only when `condition` is falsy — commonly used with `@first` to suppress the first separator or arrow |
+| `{{#unless condition}} … {{/unless}}` | Renders the block only when `condition` is falsy |
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 
+> **Node IDs are stable and global.** `{{title}}` always outputs `nXXXXXX["The Title"]` where the hash is derived from `"title" + value`. Two rows with the same field value produce the same node — this intentionally merges duplicates across sources and `{{#each}}` blocks, so you can reference the same node in edges without managing IDs manually.
+
 > **Rows and node visibility:** Each row inside `{{#each source-name}}` is a flat object whose keys are the `columnMappings` roles (`title`, `date`, `status`, etc.) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the filter panel — hidden nodes are excluded from the Handlebars context automatically, so the rendered diagram reflects the panel state without any extra logic in the template.
 
-> **Note:** No arithmetic or comparison helpers are registered. If you need a computed value (e.g. an index starting at 1, or a formatted number), add a Notion formula column to your database, map it in `columnMappings`, and reference it with `{{this.fieldName}}`.
+> **Note:** No arithmetic or comparison helpers are registered. If you need a computed value (e.g. a formatted date or number), add a Notion formula column to your database, map it in `columnMappings`, and reference it with `{{this.fieldName}}`.
 
 **Multi-source templates:** list multiple sources in `sources:` and use a separate `{{#each}}` block per source in the template body.
 
 **Error handling:** invalid templates (unknown source name, bad Mermaid syntax) show an error message in the diagram area and log details to the container console. The container does not crash — fix the template and restart.
 
 See `config/mermaid.example.mmd` for an annotated starting point.
+
+**Diagram interactions:**
+- **Filter panel** — toggle individual nodes on/off; nodes grouped by source with group-level select/deselect
+- **Show related** — click the link icon next to any node to focus on that node and its 1-hop Notion-relation neighbours; click again to reset
+- **Zoom / pan** — Ctrl+scroll to zoom, drag to pan
+- **Export** — download the rendered diagram as an SVG file
+- **Share link** — copy a URL that restores the current filter and template selection
 
 ### Example `sources.json`
 
@@ -192,7 +202,7 @@ make publish DOCKER_HUB_USER=you   # build multi-arch (amd64 + arm64) and push t
 
 - **Nuxt 3 server routes** proxy all Notion API calls — your integration token is never exposed to the browser
 - **LRU memory cache** (1-hour TTL) reduces redundant API calls and respects Notion's 3 req/s rate limit
-- **`./config`** mounted read-only — edit `sources.json` and restart to apply changes
+- **`./config`** mounted read-only — edit `sources.json` and `.mmd` templates, then restart to apply changes
 - **`./data`** mounted read-write — stores `shares.json` for share link persistence
 
 ### docker-compose.yml
@@ -243,6 +253,12 @@ services:
 - Use **Fetch All** on the dashboard to trigger a fresh Notion API call
 - Check the browser console for API errors
 - Confirm the Notion integration has read access to all configured databases
+
+**Mermaid template shows an error message**
+
+- Check the template syntax against the [Mermaid docs](https://mermaid.js.org/intro/) for the diagram type you're using
+- Verify every source name in `sources:` exactly matches a `name` in `sources.json`
+- Check the container log (`docker compose logs app`) for the detailed parse error
 
 **Port 3000 already in use**
 
