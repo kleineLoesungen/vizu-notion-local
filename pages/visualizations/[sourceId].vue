@@ -311,8 +311,15 @@
                 heading="Failed to render diagram"
                 :message="`Template rendering failed: ${mermaidDiagram.renderError.value} — check the template syntax in config/${activeMermaidTemplateId}.mmd and consult Mermaid docs for valid syntax.`"
               />
-              <div v-else class="p-6 bg-white rounded border border-gray-200 min-h-96">
-                <div :id="mermaidDiagram.containerId.value" style="display: flex; justify-content: center;"></div>
+              <div
+                v-else
+                class="bg-white rounded border border-gray-200 overflow-hidden"
+                style="position: relative; height: 60vh;"
+              >
+                <div :id="mermaidDiagram.containerId.value" style="width: 100%; height: 100%;"></div>
+                <div
+                  style="position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 11px; color: #9ca3af; pointer-events: none; user-select: none;"
+                >⌃ Ctrl + scroll to zoom · drag to pan</div>
               </div>
             </template>
 
