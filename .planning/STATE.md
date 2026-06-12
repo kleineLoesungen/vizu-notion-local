@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-12T22:00:00.000Z"
+last_updated: "2026-06-12T21:58:21.213Z"
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 7
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 06 (mermaid-improvements) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Project Metrics
 
@@ -187,6 +187,15 @@ Plan: 3 of 4
 | templateDir derived from configPath by last-slash split | Handles both /app/config/sources.json and config/sources.json | Implemented |
 | Handlebars@4.x bundles its own types | No @types/handlebars package needed | Implemented |
 
+### Key Decisions (06-04: Mermaid D3 Zoom and Pan)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| D3 zoom applied imperatively to container.querySelector('svg') after innerHTML — innerG.setAttribute('transform') in zoom handler (not reactive ref) | Mermaid injects SVG via innerHTML; no Vue ref possible; transform applied directly via DOM setAttribute | Implemented |
+| Fit-to-content uses getBBox() on inner `<g>` + zoomIdentity after each renderDiagram() | More reliable than SVG viewBox; Mermaid always generates an inner `<g>`; matches FlowDiagram pattern | Implemented |
+| Container set to height: 60vh so getBoundingClientRect() returns non-zero dimensions | Explicit height required for fit-to-content math; same principle as FlowDiagram max-height: 70vh | Implemented |
+| onBeforeUnmount removes zoom listener via d3Module.select(currentSvgEl).on('.zoom', null) | Prevents listener accumulation on template switch; mirrors FlowDiagram.vue cleanup pattern | Implemented |
+
 ### Key Decisions (06-03: Related Nodes Filter)
 
 | Decision | Rationale | Status |
@@ -222,10 +231,10 @@ Plan: 3 of 4
 
 ## Session Continuity
 
-**Last Activity**: 06-03-PLAN.md complete — server _relations field, FilterPanel show-related button, viz page 1-hop filter handler
+**Last Activity**: 06-04-PLAN.md complete — D3 zoom/pan on Mermaid SVG, fit-to-content, zoom hint
 **Date**: 2026-06-12
-**Stopped At**: Completed Phase 06 Plan 3 of 4
-**Next Step**: Execute 06-04 (D3 zoom/pan on Mermaid SVG)
+**Stopped At**: Completed Phase 06 Plan 4 of 4
+**Next Step**: Phase 06 complete
 
 ---
 
