@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-06-12T21:50:33.799Z"
+last_updated: "2026-06-12T22:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # STATE: vizu-notion-local
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 06 (mermaid-improvements) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Project Metrics
 
@@ -187,6 +187,14 @@ Plan: 2 of 4
 | templateDir derived from configPath by last-slash split | Handles both /app/config/sources.json and config/sources.json | Implemented |
 | Handlebars@4.x bundles its own types | No @types/handlebars package needed | Implemented |
 
+### Key Decisions (06-03: Related Nodes Filter)
+
+| Decision | Rationale | Status |
+|----------|-----------|--------|
+| div outer wrapper + inner label for list rows | Button inside label causes double checkbox toggle (RESEARCH.md Pitfall 1) — div wrapper fixes cleanly | Implemented |
+| relationsMap optional undefined for non-Mermaid | Avoids passing irrelevant data to FilterPanel in metro/flow views; show-related button only appears when prop is present | Implemented |
+| activeRelatedNodeId toggle-off: clicking same node resets hidden to empty set | Intuitive undo gesture — same click action both enables and disables the filter | Implemented |
+
 ### Roadmap Evolution
 
 - Phase 4 added: Deployment — Dockerfile + docker-compose, Docker Hub prep, README.md, single HTML product page
@@ -214,10 +222,10 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-**Last Activity**: 06-01-PLAN.md complete — stableId(), nodeId Handlebars helper, and body rewrite added to templates.ts
+**Last Activity**: 06-03-PLAN.md complete — server _relations field, FilterPanel show-related button, viz page 1-hop filter handler
 **Date**: 2026-06-12
-**Stopped At**: Completed Phase 06 Plan 1 of 4
-**Next Step**: Execute 06-02 (FilterPanel max-height fix)
+**Stopped At**: Completed Phase 06 Plan 3 of 4
+**Next Step**: Execute 06-04 (D3 zoom/pan on Mermaid SVG)
 
 ---
 
