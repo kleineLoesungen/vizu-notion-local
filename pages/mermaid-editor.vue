@@ -28,7 +28,7 @@
           </button>
           <span class="text-xs text-gray-400">or Ctrl+Enter</span>
         </div>
-        <p v-if="handlebarsWarning" class="text-sm text-amber-600 mt-2">⚠ Handlebars bindings detected — replace <code class="font-mono bg-amber-50 px-0.5 rounded">{{ '{{field}}' }}</code> with sample values (e.g. <code class="font-mono bg-amber-50 px-0.5 rounded">MyNode</code>) to test syntax.</p>
+        <p v-if="handlebarsWarning" class="text-sm text-amber-600 mt-2">⚠ Handlebars bindings detected — replace <code class="font-mono bg-amber-50 px-0.5 rounded">&#123;&#123;field&#125;&#125;</code> with sample values (e.g. <code class="font-mono bg-amber-50 px-0.5 rounded">MyNode</code>) to test syntax.</p>
         <p v-if="renderError" class="text-sm text-red-600 mt-2">{{ renderError }}</p>
       </div>
 
