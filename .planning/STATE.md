@@ -2,7 +2,7 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Mermaid Diagram Templates
-status: complete
+status: archived
 last_updated: "2026-06-13T00:00:00.000Z"
 progress:
   total_phases: 2
@@ -15,23 +15,23 @@ progress:
 
 **Project Reference**: vizu-notion-local
 **Core Value**: Any Notion database structure can be visualized as a meaningful diagram without touching application code — purely through configuration
-**Current Focus**: Milestone v1.1 complete — Mermaid Diagram Templates
+**Current Focus**: Planning next milestone
 
 ---
 
 ## Current Position
 
-Phase: 06 — Complete (approved 2026-06-13)
-Status: v1.1 delivered — phases 5 & 6 complete
-Last activity: 2026-06-13 — Milestone v1.1 started and completed
+Phase: — (v1.1 closed, planning v1.2)
+Status: v1.1 archived — run `/gsd:new-milestone` to start next milestone
+Last activity: 2026-06-13 — v1.1 milestone closed and archived
 
 ## Project Metrics
 
-**Total v1 Requirements**: 23 (complete)
-**Total v1.1 Requirements**: 12 (complete)
-**Phases (v1.1)**: 2 (phases 5 & 6)
+**Shipped**: v1.0 (phases 1–4) + v1.1 (phases 5–6) = 6 phases total
+**Requirements shipped**: 23 (v1.0) + 12 (v1.1) = 35 total
 **Tech Stack**: Nuxt + Vue 3 + TailwindCSS
 **Deployment**: Docker Compose
+**Codebase**: ~5,000 lines TS/Vue
 
 ---
 

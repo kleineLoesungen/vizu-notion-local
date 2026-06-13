@@ -16,17 +16,15 @@
 
 ---
 
-## v1.1 — Mermaid Diagram Templates (2026-06-13)
+## v1.1 — Mermaid Diagram Templates ✅ 2026-06-13
 
-**Phases**: 5–6
-**Goal**: Admin-defined Mermaid diagram templates that bind to live Notion data, with interaction improvements and a browser-based editor for template development.
+**Phases**: 5–6 | **Plans**: 7 | **Files changed**: 52 | **Timeline**: 2026-06-08 → 2026-06-13 (5 days)
 
-**Shipped:**
-- Admin-defined `.mmd` templates with Handlebars + Notion data binding
-- Server-side stable node ID auto-generation (template authors never manage IDs)
-- Mermaid viz type integrated into source selector alongside Metro and Flow
-- D3 zoom/pan on Mermaid diagrams (Ctrl+scroll, drag — consistent with other viz types)
-- Related nodes filter: 1-hop Notion-relation neighbours per node
-- "Has relation" filter across all viz types
-- Full-height filter panel (all viz types)
-- Browser-based MMD editor with live server-side data resolution
+**Key Accomplishments:**
+1. Admin-defined `.mmd` template files with YAML frontmatter + Handlebars syntax bind to live Notion data server-side — no code changes needed for new diagram types
+2. Server-side FNV-1a stable node ID generation — `{{attribute}}` → `nXXXXXX["value"]`, same value always collapses to same node
+3. D3 zoom/pan on Mermaid diagrams (Ctrl+scroll, drag) — consistent with Metro and Flow
+4. Related-nodes filter (1-hop Notion relations) and "Has relation" filter across all viz types
+5. Browser-based MMD editor (`/mermaid-editor`) with live server-side data resolution
+
+**Archive**: `.planning/milestones/v1.1-ROADMAP.md`, `.planning/milestones/v1.1-REQUIREMENTS.md`
