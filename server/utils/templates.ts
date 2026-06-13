@@ -4,24 +4,27 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { getConfig } from './config'
 
-// FNV-1a 32-bit hash → 7-char base-36 string safe for Mermaid node IDs (D-03, D-04)
-// Input: attributeName + '\x00' + value  (null separator prevents "ab"+"c" == "a"+"bc")
-// Output: 'n' prefix + 6 base-36 chars — always valid Mermaid ID (can't start with digit)
-function stableId(attrName: string, value: string): string {
-  const input = attrName + '\x00' + String(value)
+// FNV-1a 32-bit hash of the value string → 7-char base-36 Mermaid-safe node ID.
+// Hashes only the value (not the attribute name) so that {{title}} and {{next}}
+// referencing the same text produce the same node — enabling cross-field edges
+// without duplicate nodes.
+// Output: 'n' prefix + 6 base-36 chars (can't start with digit — Mermaid requirement).
+function stableId(value: string): string {
   let h = 0x811c9dc5
-  for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i)
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i)
     h = Math.imul(h, 0x01000193) >>> 0
   }
   return 'n' + h.toString(36).padStart(6, '0')
 }
 
 // nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
+// attrName is passed by the rewriter but not used in the hash — same value always
+// produces the same node ID regardless of which field it comes from.
 // Returns full Mermaid rectangle node definition: id["label"] (D-01, D-02, D-05)
 // SafeString prevents Handlebars from HTML-escaping the square brackets.
-Handlebars.registerHelper('nodeId', function(attrName: string, value: unknown) {
-  const id = stableId(attrName, String(value ?? ''))
+Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown) {
+  const id = stableId(String(value ?? ''))
   const safeLabel = String(value ?? '').replace(/["[\]]/g, '')
   return new Handlebars.SafeString(`${id}["${safeLabel}"]`)
 })

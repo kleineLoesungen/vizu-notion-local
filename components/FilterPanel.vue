@@ -76,7 +76,18 @@
 
       <!-- ── Node Visibility ── -->
       <div>
-        <h3 class="text-xs font-medium text-gray-700 mb-2">Node Visibility</h3>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-medium text-gray-700">Node Visibility</h3>
+          <button
+            v-if="connectedIds && connectedIds.size > 0"
+            class="text-xs px-1.5 py-0.5 rounded transition-colors"
+            :class="connectedOnlyActive
+              ? 'bg-blue-600 text-white'
+              : 'border border-gray-200 text-gray-500 hover:text-gray-700'"
+            title="Show only nodes that have at least one Notion relation set"
+            @click="emit('toggle-connected-only')"
+          >Has relation</button>
+        </div>
 
         <!-- Grouped by parent (when parent role is configured) -->
         <div v-if="hasParentGroups" class="space-y-2">
@@ -180,6 +191,8 @@ const props = defineProps<{
   columnMappings: ColumnMappings
   visibleNodeIds: Set<string>
   relationsMap?: Record<string, string[]>  // pageId → related page IDs (Mermaid only)
+  connectedIds?: Set<string>               // IDs of nodes with at least one relation set
+  connectedOnlyActive?: boolean            // whether the "has relation" filter is active
 }>()
 
 const emit = defineEmits<{
@@ -188,6 +201,7 @@ const emit = defineEmits<{
   'set-nodes-visible': [ids: string[], visible: boolean]
   'set-timeframe': [range: { start: string; end: string } | null]
   'show-related': [pageId: string]
+  'toggle-connected-only': []
 }>()
 
 const activeShortcut = ref<ShortcutKey | null>(null)

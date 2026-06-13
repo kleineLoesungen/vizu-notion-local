@@ -339,11 +339,14 @@
             :column-mappings="activeVizType === 'mermaid' ? mermaidColumnMappings : columnMappings"
             :visible-node-ids="activeVizType === 'mermaid' ? mermaidVisibleIds : allVisibleIds"
             :relations-map="activeVizType === 'mermaid' ? relationsMap : undefined"
+            :connected-ids="connectedIds"
+            :connected-only-active="connectedOnlyActive"
             @update:open="filterPanelOpen = $event"
             @toggle-node="handleToggleNode"
             @set-nodes-visible="handleSetNodesVisible"
             @set-timeframe="applyTimeframeToVisibility"
             @show-related="handleShowRelated"
+            @toggle-connected-only="handleToggleConnectedOnly"
           />
         </div>
 
@@ -705,6 +708,67 @@ const mermaidFakePages = computed<EnrichedPage[]>(() =>
 // Maps role 'title' and 'parent' → synthetic property keys used in mermaidFakePages.
 // 'parent' triggers FilterPanel's group-by-source rendering with source-level toggle.
 const mermaidColumnMappings = { title: '__mermaid_title', parent: '__mermaid_source' }
+
+// Nodes that have at least one relation pointing to another toggleable node in the panel
+const primaryConnectedIds = computed<Set<string>>(() => {
+  const panelIds = new Set(allPagesForPanel.value.map(p => p.id))
+  const result = new Set<string>()
+  for (const page of allPagesForPanel.value) {
+    const hasRelationInPanel = Object.values(page.properties).some(
+      (prop: any) =>
+        prop.type === 'relation' &&
+        (prop.relation as Array<{ id: string }> ?? []).some(rel => panelIds.has(rel.id))
+    )
+    if (hasRelationInPanel) result.add(page.id)
+  }
+  return result
+})
+
+// Nodes that have at least one _relation pointing to another row within the same template sources
+const mermaidConnectedIds = computed<Set<string>>(() => {
+  const rowIds = new Set(mermaidDiagram.rows.value.map(r => r.id))
+  return new Set(
+    mermaidDiagram.rows.value
+      .filter(r => (r._relations ?? []).some(id => rowIds.has(id)))
+      .map(r => r.id)
+  )
+})
+
+const connectedIds = computed<Set<string>>(() =>
+  activeVizType.value === 'mermaid' ? mermaidConnectedIds.value : primaryConnectedIds.value
+)
+
+// "Has relation" filter — hides nodes with no relation; reset when viz type changes
+const connectedOnlyActive = ref(false)
+
+watch(activeVizType, () => { connectedOnlyActive.value = false })
+
+const handleToggleConnectedOnly = () => {
+  connectedOnlyActive.value = !connectedOnlyActive.value
+  const enabled = connectedOnlyActive.value
+
+  if (activeVizType.value === 'mermaid') {
+    const tmplId = activeMermaidTemplateId.value
+    if (!enabled) {
+      mermaidHiddenIdsMap.value = { ...mermaidHiddenIdsMap.value, [tmplId]: new Set<string>() }
+    } else {
+      const connected = mermaidConnectedIds.value
+      const hidden = mermaidDiagram.rows.value.map(r => r.id).filter(id => !connected.has(id))
+      mermaidHiddenIdsMap.value = { ...mermaidHiddenIdsMap.value, [tmplId]: new Set(hidden) }
+    }
+    return
+  }
+
+  // Metro / Flow
+  if (!enabled) {
+    setHiddenNodes([])
+    extraVisibleIds.value = new Set(extraPages.value.map(p => p.id))
+  } else {
+    const connected = primaryConnectedIds.value
+    setHiddenNodes(pages.value.filter(p => !connected.has(p.id)).map(p => p.id))
+    extraVisibleIds.value = new Set(extraPages.value.filter(p => connected.has(p.id)).map(p => p.id))
+  }
+}
 
 // Tracks which node's "show related" is currently active — null = no related-filter active
 const activeRelatedNodeId = ref<string | null>(null)

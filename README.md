@@ -137,7 +137,7 @@ flowchart TD
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 
-> **Node IDs are stable and global.** `{{title}}` always outputs `nXXXXXX["The Title"]` where the hash is derived from `"title" + value`. Two rows with the same field value produce the same node — this intentionally merges duplicates across sources and `{{#each}}` blocks, so you can reference the same node in edges without managing IDs manually.
+> **Node IDs are stable and value-based.** `{{title}}` and `{{next}}` referencing the same text always produce the same node ID — regardless of which field they come from. This means a project listed as `{{title}}` in one row and referenced as `{{next}}` in another row's edge will correctly collapse to a single node in the diagram, with no duplicates.
 
 > **Rows and node visibility:** Each row inside `{{#each source-name}}` is a flat object whose keys are the `columnMappings` roles (`title`, `date`, `status`, etc.) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the filter panel — hidden nodes are excluded from the Handlebars context automatically, so the rendered diagram reflects the panel state without any extra logic in the template.
 
