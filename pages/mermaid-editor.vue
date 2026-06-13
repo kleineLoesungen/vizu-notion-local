@@ -5,7 +5,7 @@
 
     <!-- Page heading -->
     <h1 class="text-2xl font-semibold text-gray-900 mb-1">Mermaid Editor</h1>
-    <p class="text-sm text-gray-500 mb-6">Paste raw Mermaid syntax to preview. No saving — copy result to your .mmd file.</p>
+    <p class="text-sm text-gray-500 mb-6">Paste your <code class="font-mono bg-gray-100 px-1 rounded">.mmd</code> file or raw Mermaid syntax. Frontmatter is stripped automatically. Handlebars bindings (<code class="font-mono bg-gray-100 px-1 rounded">{{field}}</code>) are not evaluated — replace with sample values to test syntax.</p>
 
     <!-- Two-column layout: editor left, preview right -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -28,6 +28,7 @@
           </button>
           <span class="text-xs text-gray-400">or Ctrl+Enter</span>
         </div>
+        <p v-if="handlebarsWarning" class="text-sm text-amber-600 mt-2">⚠ Handlebars bindings detected — replace <code class="font-mono bg-amber-50 px-0.5 rounded">{{ '{{field}}' }}</code> with sample values (e.g. <code class="font-mono bg-amber-50 px-0.5 rounded">MyNode</code>) to test syntax.</p>
         <p v-if="renderError" class="text-sm text-red-600 mt-2">{{ renderError }}</p>
       </div>
 
@@ -94,9 +95,16 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 // --- Mermaid state ---
 const code = ref('graph TD\n  A[Start] --> B[End]')
 const renderError = ref<string | null>(null)
+const handlebarsWarning = ref(false)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
 let mermaidInstance: any = null
+
+// Strip YAML frontmatter (---\n...\n---) from the start of .mmd file content
+function stripFrontmatter(raw: string): string {
+  const match = raw.match(/^---\n[\s\S]*?\n---\n?/)
+  return match ? raw.slice(match[0].length) : raw
+}
 
 // --- Sources for reference panel ---
 const { data: sourcesData, pending: sourcesPending, error: sourcesError } = useFetch('/api/sources')
@@ -107,9 +115,12 @@ async function renderDiagram(): Promise<void> {
   renderError.value = null
   if (!mermaidInstance || !code.value.trim()) return
 
+  const stripped = stripFrontmatter(code.value)
+  handlebarsWarning.value = /\{\{/.test(stripped)
+
   try {
     const renderId = `mmd-editor-svg-${Date.now()}`
-    const { svg } = await mermaidInstance.render(renderId, code.value)
+    const { svg } = await mermaidInstance.render(renderId, stripped)
     const container = document.getElementById('mmd-editor-preview')
     if (container) {
       container.innerHTML = svg
