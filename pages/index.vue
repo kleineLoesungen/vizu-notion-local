@@ -50,6 +50,17 @@
         {{ isAnyRefreshing ? 'Fetching...' : 'Fetch All' }}
       </button>
     </div>
+
+    <!-- Mermaid editor utility link -->
+    <div class="mt-6 border-t border-gray-100 pt-4">
+      <NuxtLink
+        to="/mermaid-editor"
+        class="text-sm text-gray-500 hover:text-gray-900 hover:underline"
+      >
+        Mermaid editor
+      </NuxtLink>
+      <span class="text-xs text-gray-400 ml-2">— live preview for .mmd authoring</span>
+    </div>
   </div>
 </template>
 
