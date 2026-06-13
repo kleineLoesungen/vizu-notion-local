@@ -131,7 +131,8 @@ flowchart TD
 | `{{#each source-name}} … {{/each}}` | Iterates over all visible rows from the named source |
 | `{{this.id}}` | Inside `#each`, the raw Notion page ID string — available without a `columnMappings` entry |
 | `{{@index}}` | Inside `#each`, the zero-based iteration index |
-| `{{@first}}` | Inside `#each`, boolean `true` on the first iteration — useful with `#unless` to skip leading separators |
+| `{{@first}}` | Inside `#each`, boolean `true` on the first iteration |
+| `{{#if fieldName}} … {{/if}}` | Renders the block only when `fieldName` is truthy (non-empty string, non-null). Use to skip edges or labels for rows where an optional field isn't set. |
 | `{{#unless condition}} … {{/unless}}` | Renders the block only when `condition` is falsy |
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
@@ -259,6 +260,17 @@ services:
 - Check the template syntax against the [Mermaid docs](https://mermaid.js.org/intro/) for the diagram type you're using
 - Verify every source name in `sources:` exactly matches a `name` in `sources.json`
 - Check the container log (`docker compose logs app`) for the detailed parse error
+
+**Debugging a Mermaid template — seeing the rendered output before Mermaid parses it**
+
+Open `http://localhost:3000/api/mermaid/<templateId>` in your browser (replace `<templateId>` with your `.mmd` filename without the extension). The JSON response contains:
+
+- `diagramString` — the full Mermaid diagram text after Handlebars substitution; paste this into [mermaid.live](https://mermaid.live) to validate syntax and see what values each field resolved to
+- `rows` — the id and title of every node the FilterPanel will show
+
+Common issues visible in `diagramString`:
+- A node with an empty label (`nXXXXXX[""]`) — a relation field that isn't set on that row; guard it with `{{#if fieldName}} … {{/if}}`
+- A node appearing with the wrong label — check the `columnMappings` key name matches what you used in the template
 
 **Port 3000 already in use**
 

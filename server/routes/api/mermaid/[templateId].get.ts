@@ -1,6 +1,8 @@
 import { getTemplates } from '../../../utils/templates'
 import { getConfig } from '../../../utils/config'
-import { queryDatabase } from '../../../utils/notion'
+import { queryDatabase, retrievePage } from '../../../utils/notion'
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { Source } from '../../../utils/config'
 
 // Extract all Notion relation target page IDs from a raw PageObjectResponse (D-11)
 // Scans all properties for type === 'relation' and collects target IDs.
@@ -30,7 +32,79 @@ function extractPropertyValue(prop: any): string {
     case 'url': return prop.url ?? ''
     case 'email': return prop.email ?? ''
     case 'phone_number': return prop.phone_number ?? ''
+    case 'relation': return '' // resolved asynchronously in resolveRelationValues
     default: return ''
+  }
+}
+
+// Extract the title from any PageObjectResponse (first title-type property found)
+function extractPageTitle(page: PageObjectResponse): string {
+  for (const prop of Object.values(page.properties)) {
+    if ((prop as any).type === 'title') {
+      return (prop as any).title?.[0]?.plain_text ?? ''
+    }
+  }
+  return ''
+}
+
+// Resolve relation-type columnMapping roles to the title of the first related page.
+// Checks a shared titleMap (populated from within-source pages) before making API calls.
+// Falls back to retrievePage() for cross-database relations — LRU-cached by notion.ts.
+async function resolveRelationValues(
+  rows: Record<string, string>[],
+  pages: PageObjectResponse[],
+  source: Source,
+  titleMap: Map<string, string>
+): Promise<void> {
+  if (pages.length === 0) return
+
+  // Identify which roles map to Notion relation properties
+  const samplePage = pages[0]
+  const relationRoles: Array<{ role: string; notionPropName: string }> = []
+  for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
+    const prop = samplePage.properties[notionPropName as string]
+    if ((prop as any)?.type === 'relation') {
+      relationRoles.push({ role, notionPropName: notionPropName as string })
+    }
+  }
+  if (relationRoles.length === 0) return
+
+  // Collect related page IDs not yet in titleMap
+  const toFetch = new Set<string>()
+  for (const page of pages) {
+    for (const { notionPropName } of relationRoles) {
+      const prop = page.properties[notionPropName]
+      if ((prop as any)?.type === 'relation') {
+        const firstId = ((prop as any).relation as Array<{ id: string }>)?.[0]?.id
+        if (firstId && !titleMap.has(firstId)) toFetch.add(firstId)
+      }
+    }
+  }
+
+  // Fetch missing titles in parallel (retrievePage is LRU-cached)
+  if (toFetch.size > 0) {
+    const results = await Promise.allSettled(
+      Array.from(toFetch).map(async (pageId) => {
+        const page = await retrievePage(pageId)
+        return { pageId, title: extractPageTitle(page) }
+      })
+    )
+    for (const r of results) {
+      if (r.status === 'fulfilled') titleMap.set(r.value.pageId, r.value.title)
+    }
+  }
+
+  // Write resolved titles back into the already-mapped rows
+  for (let i = 0; i < pages.length; i++) {
+    const page = pages[i]
+    const row = rows[i]!
+    for (const { role, notionPropName } of relationRoles) {
+      const prop = page.properties[notionPropName]
+      if ((prop as any)?.type === 'relation') {
+        const firstId = ((prop as any).relation as Array<{ id: string }>)?.[0]?.id
+        row[role] = firstId ? (titleMap.get(firstId) ?? '') : ''
+      }
+    }
   }
 }
 
@@ -58,6 +132,10 @@ export default defineEventHandler(async (event) => {
   // All rows (unfiltered) — returned to client so the FilterPanel can show every node
   const allRows: Array<{ id: string; title: string; sourceName: string; _relations: string[] }> = []
 
+  // Shared pageId → title map across all sources so within-source relations resolve
+  // from already-fetched data without extra API calls.
+  const titleMap = new Map<string, string>()
+
   for (const sourceName of template.sources) {
     const source = config.sources.find((s) => s.name === sourceName)
     if (!source) {
@@ -68,7 +146,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    let pages: any[]
+    let pages: PageObjectResponse[]
     try {
       pages = await queryDatabase(source.databaseId)
     } catch (err: any) {
@@ -87,8 +165,13 @@ export default defineEventHandler(async (event) => {
         const prop = page.properties?.[notionPropName as string]
         row[role] = extractPropertyValue(prop)
       }
+      // Populate titleMap with this source's pages for within-source relation lookups
+      titleMap.set(page.id, row['title'] ?? '')
       return row
     })
+
+    // Resolve relation-type columnMapping roles to related page titles
+    await resolveRelationValues(mappedRows, pages, source, titleMap)
 
     // Collect all rows for the client (before hiding) so FilterPanel can list every node
     pages.forEach((page, i) => {
