@@ -11,6 +11,57 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Left: Editor -->
       <div>
+        <!-- Starter dropdown -->
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm text-gray-500 whitespace-nowrap">Start from</span>
+          <div
+            :ref="starterDropdown.containerRef"
+            class="relative"
+            @keydown.escape="starterDropdown.close()"
+          >
+            <button
+              type="button"
+              class="flex items-center gap-1 text-sm border border-gray-200 rounded px-2 py-1 text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+              @click.stop="starterDropdown.toggle()"
+            >
+              <span>{{ starterLabel }}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-3 h-3 flex-shrink-0 transition-transform"
+                :class="starterDropdown.isOpen.value ? 'rotate-180' : ''"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              v-show="starterDropdown.isOpen.value"
+              class="absolute left-0 top-full mt-1 z-50 min-w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-150"
+            >
+              <button
+                type="button"
+                class="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-50"
+                :class="selectedStarter === 'blank' ? 'font-semibold text-blue-600 bg-blue-50' : 'text-gray-700'"
+                @click="selectStarter('blank')"
+              >Blank</button>
+              <button
+                type="button"
+                class="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-50"
+                :class="selectedStarter === 'example' ? 'font-semibold text-blue-600 bg-blue-50' : 'text-gray-700'"
+                @click="selectStarter('example')"
+              >Simple example</button>
+              <button
+                v-for="tpl in templatesList"
+                :key="tpl.id"
+                type="button"
+                class="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-50 truncate"
+                :class="selectedStarter === tpl.id ? 'font-semibold text-blue-600 bg-blue-50' : 'text-gray-700'"
+                @click="selectStarter(tpl.id)"
+              >{{ tpl.title }}</button>
+            </div>
+          </div>
+        </div>
+
         <label class="block text-sm font-medium text-gray-700 mb-1">Mermaid syntax</label>
         <textarea
           ref="textareaRef"
@@ -78,13 +129,21 @@
         </div>
       </template>
 
-      <!-- Docs link -->
-      <a
-        href="https://mermaid.js.org/intro/"
-        target="_blank"
-        rel="noopener"
-        class="text-xs text-blue-600 hover:underline mt-2 inline-block"
-      >Mermaid syntax documentation</a>
+      <!-- Docs links -->
+      <div class="flex items-center gap-4 mt-2">
+        <a
+          href="https://mermaid.js.org/intro/"
+          target="_blank"
+          rel="noopener"
+          class="text-xs text-blue-600 hover:underline"
+        >Mermaid syntax docs</a>
+        <a
+          href="https://github.com/kleineLoesungen/vizu-notion-local"
+          target="_blank"
+          rel="noopener"
+          class="text-xs text-blue-600 hover:underline"
+        >vizu-notion-local: .mmd template syntax</a>
+      </div>
     </div>
   </div>
 </template>
@@ -92,17 +151,84 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
+// --- Types ---
+interface MmdTemplate {
+  id: string
+  title: string
+  sources: string[]
+  body: string
+}
+
+// --- Dropdown factory (same pattern as visualizations page) ---
+function useDropdown() {
+  const isOpen = ref(false)
+  const containerRef = ref<HTMLElement | null>(null)
+  const toggle = () => { isOpen.value = !isOpen.value }
+  const close = () => { isOpen.value = false }
+  const onDocClick = (e: MouseEvent) => {
+    if (containerRef.value && !containerRef.value.contains(e.target as Node)) close()
+  }
+  onMounted(() => document.addEventListener('click', onDocClick, true))
+  onBeforeUnmount(() => document.removeEventListener('click', onDocClick, true))
+  return { isOpen, containerRef, toggle, close }
+}
+
+const starterDropdown = useDropdown()
+
 // --- Mermaid state ---
-const code = ref('graph TD\n  A[Start] --> B[End]')
+const code = ref('')
 const renderError = ref<string | null>(null)
 const isRendering = ref(false)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const selectedStarter = ref('blank')
 
 let mermaidInstance: any = null
 
 // --- Sources for reference panel ---
 const { data: sourcesData, pending: sourcesPending, error: sourcesError } = useFetch('/api/sources')
 const sourcesList = computed(() => sourcesData.value?.sources ?? [])
+
+// --- Templates for starter dropdown ---
+const { data: templatesData } = useFetch<MmdTemplate[]>('/api/mermaid/templates')
+const templatesList = computed<MmdTemplate[]>(() => templatesData.value ?? [])
+
+// --- Starter label (shown in trigger button) ---
+const starterLabel = computed(() => {
+  if (selectedStarter.value === 'blank') return 'Blank'
+  if (selectedStarter.value === 'example') return 'Simple example'
+  return templatesList.value.find((t) => t.id === selectedStarter.value)?.title ?? 'Blank'
+})
+
+// --- Starter content ---
+const SIMPLE_EXAMPLE = `flowchart LR
+  A[Start] --> B[Process]
+  B --> C{Decision}
+  C -- Yes --> D[Done]
+  C -- No --> B`
+
+function reconstructMmd(tpl: MmdTemplate): string {
+  const sourcesYaml = tpl.sources.map((s) => `  - ${s}`).join('\n')
+  return `---\ntitle: "${tpl.title}"\nsources:\n${sourcesYaml}\n---\n${tpl.body}`
+}
+
+function selectStarter(value: string): void {
+  selectedStarter.value = value
+  starterDropdown.close()
+  if (value === 'blank') {
+    code.value = ''
+    return
+  }
+  if (value === 'example') {
+    code.value = SIMPLE_EXAMPLE
+    renderDiagram()
+    return
+  }
+  const tpl = templatesList.value.find((t) => t.id === value)
+  if (tpl) {
+    code.value = reconstructMmd(tpl)
+    renderDiagram()
+  }
+}
 
 // --- Mermaid rendering ---
 async function renderDiagram(): Promise<void> {
@@ -113,7 +239,6 @@ async function renderDiagram(): Promise<void> {
   let diagramString: string
 
   try {
-    // POST to preview endpoint — resolves frontmatter, Handlebars, and Notion data server-side
     const result = await $fetch<{ diagramString: string }>('/api/mermaid/preview', {
       method: 'POST',
       body: { content: code.value },
@@ -140,7 +265,7 @@ async function renderDiagram(): Promise<void> {
   }
 }
 
-// --- Fit-to-content (no D3, simple CSS transform) ---
+// --- Fit-to-content ---
 function fitToContent(): void {
   const container = document.getElementById('mmd-editor-preview')
   if (!container) return
@@ -176,18 +301,13 @@ function handleKeydown(event: KeyboardEvent): void {
 
 // --- Lifecycle ---
 onMounted(async () => {
-  // SSR-safe: mermaid accesses browser globals at import time
   const mermaid = await import('mermaid')
   mermaidInstance = mermaid.default
   mermaidInstance.initialize({ startOnLoad: false })
 
-  // Attach Ctrl+Enter listener to textarea
   if (textareaRef.value) {
     textareaRef.value.addEventListener('keydown', handleKeydown)
   }
-
-  // Initial render of the example
-  await renderDiagram()
 })
 
 onBeforeUnmount(() => {
