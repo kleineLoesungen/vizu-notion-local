@@ -25,6 +25,14 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 - [x] Docker deployment packaging — README, Makefile, .dockerignore — *Validated in Phase 04: deployment*
 - [x] Product page (docs/index.html) for Docker Hub listing — *Validated in Phase 04: deployment*
 
+### Validated (v1.1)
+
+- [x] Admin-defined Mermaid diagram templates bound to live Notion data — *Validated in Phase 05*
+- [x] Server-side stable node ID generation (template authors never manage IDs) — *Validated in Phase 06*
+- [x] D3 zoom/pan on Mermaid diagrams, consistent with Metro and Flow — *Validated in Phase 06*
+- [x] Related-nodes filter and "Has relation" filter across all viz types — *Validated in Phase 06*
+- [x] Browser-based MMD editor with live server-side data resolution — *Validated via quick tasks*
+
 ### Out of Scope
 
 - Authentication / access control — local Docker, trust the network
@@ -32,6 +40,9 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 - Admin UI for configuration — config file + container restart is sufficient
 - Mobile optimization — desktop browser target
 - Metrics chart types — deferred, not decided
+- Hot-reload of templates without restart — config-file model is sufficient
+- Shape modifiers in template bindings (`{{title:round}}`) — always-rectangle for now
+- Multi-hop related-nodes traversal (depth > 1) — 1 hop is sufficient for v1
 
 ## Context
 
@@ -57,9 +68,17 @@ Any Notion database structure can be visualized as a meaningful diagram without 
 | Metroviz for hierarchy | User explicitly requested this library for goals/missions/projects/architecture | Confirmed — Phase 02 |
 | Vue Flow for process flows | User requested Vue Flow or simpler alternative | Confirmed — Phase 03 |
 
-## Current State
+## Current Milestone: v1.1 — Mermaid Diagram Templates
 
-**v1.0 complete as of Phase 04 (2026-06-06).** All 4 phases shipped: backend foundation → metro visualization → flow visualization → deployment. App is Docker-ready, documented, and has a product page at `docs/index.html`.
+**Goal:** Extend the app with admin-defined Mermaid diagram templates that bind to live Notion data, plus interaction improvements and a browser-based template editor.
+
+**Target features:**
+- Admin-defined `.mmd` template files with Handlebars + Notion data binding (Phase 5)
+- Stable node ID auto-generation, zoom/pan, related-nodes filter (Phase 6)
+- Filter panel full height, "Has relation" filter across all viz types (Phase 6)
+- Browser-based MMD editor with live server-side preview (quick tasks)
+
+**Status:** v1.1 complete — phases 5 & 6 shipped 2026-06-13.
 
 ## Evolution
 
@@ -79,4 +98,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 — Phase 01 complete (backend foundation)*
+*Last updated: 2026-06-13 — Milestone v1.1 started (phases 5 & 6 complete)*

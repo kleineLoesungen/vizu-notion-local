@@ -1,16 +1,23 @@
 # ROADMAP: vizu-notion-local
 
-**Phases:** 3
-**Granularity:** Coarse
-**Coverage:** 23/23 v1 requirements mapped
+**Milestone v1.0** — Phases 1–4 | 23/23 requirements mapped | Complete 2026-06-06
+**Milestone v1.1** — Phases 5–6 | 12/12 requirements mapped | Complete 2026-06-13
 
 ---
 
 ## Phases
 
-- [x] **Phase 1: Backend Foundation** - Complete end-to-end Notion data pipeline with validated configuration, deployable via Docker
-- [ ] **Phase 2: Visualization** - Render Notion data as metro maps and process flow diagrams
-- [x] **Phase 3: User Experience** - Interactive UI for exploring, filtering, and sharing visual diagrams (gap closure in progress) (completed 2026-06-03)
+### Milestone v1.0
+
+- [x] **Phase 1: Backend Foundation** — Complete end-to-end Notion data pipeline with validated configuration, deployable via Docker
+- [x] **Phase 2: Visualization** — Render Notion data as metro maps and process flow diagrams
+- [x] **Phase 3: User Experience** — Interactive UI for exploring, filtering, and sharing visual diagrams (completed 2026-06-03)
+- [x] **Phase 4: Deployment** — Production-ready Docker packaging, README, product page (completed 2026-06-06)
+
+### Milestone v1.1
+
+- [x] **Phase 5: Mermaid Diagram Templates** — Admin-defined `.mmd` templates bound to live Notion data via Handlebars (completed 2026-06-08)
+- [x] **Phase 6: Mermaid Improvements** — Stable node IDs, zoom/pan, related-nodes filter, full-height filter panel (completed 2026-06-13)
 
 ---
 
@@ -95,12 +102,12 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation | 4/4 | Complete   | 2026-06-02 |
-| 2. Visualization | 2/4 | In Progress|  |
-| 3. User Experience | 7/7 | Complete   | 2026-06-03 |
-| 4. Deployment | 3/3 | Complete   | 2026-06-06 |
-| 5. Mermaid Diagrams | 3/3 | Complete   | 2026-06-08 |
-| 6. Mermaid Improvements | 4/4 | Complete   | 2026-06-12 |
+| 1. Backend Foundation    | 4/4 | Complete | 2026-06-02 |
+| 2. Visualization         | 4/4 | Complete | 2026-06-03 |
+| 3. User Experience       | 7/7 | Complete | 2026-06-03 |
+| 4. Deployment            | 3/3 | Complete | 2026-06-06 |
+| 5. Mermaid Diagrams      | 3/3 | Complete | 2026-06-08 |
+| 6. Mermaid Improvements  | 4/4 | Complete | 2026-06-13 |
 
 ### Phase 4: Deployment
 

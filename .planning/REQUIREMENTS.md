@@ -43,6 +43,34 @@
 - [x] **INFRA-02**: Config file is mounted via Docker volume (`./config:/app/config:ro`)
 - [x] **INFRA-03**: Notion integration token is passed via `.env` file referenced in docker-compose
 
+## v1.1 Requirements
+
+**Defined:** 2026-06-13 — Phases 5 & 6 (all delivered)
+
+### Mermaid Templates
+
+- [x] **MMD-01**: Admin can define Mermaid diagram templates as `.mmd` files in the config directory, loaded at container start
+- [x] **MMD-02**: Templates use YAML frontmatter to declare `title` and `sources` (Notion source names from sources.json)
+- [x] **MMD-03**: Template body uses Handlebars syntax to bind Notion data — `{{fieldName}}` for scalar values, `{{#each sourceName}}` to iterate rows
+- [x] **MMD-04**: Templates appear as selectable viz types in the source selector for every source listed in the template
+- [x] **MMD-05**: Template render errors display inline in the diagram area without crashing the container
+
+### Mermaid Improvements
+
+- [x] **MMD-06**: `{{attribute}}` bindings auto-generate stable Mermaid node definitions (`id["value"]`) server-side — template authors never manage node IDs
+- [x] **MMD-07**: User can zoom and pan the Mermaid diagram (Ctrl+scroll, drag-to-pan — consistent with Metro and Flow)
+- [x] **MMD-08**: User can isolate a node and its 1-hop Notion-relation neighbours via a per-node "show related" action in the filter panel
+
+### UI Improvements
+
+- [x] **UI-07**: Filter panel spans full viewport height with no height cap (all viz types)
+- [x] **UI-08**: "Has relation" filter shows only nodes that have Notion relations to other visible nodes (all viz types)
+
+### Developer Experience
+
+- [x] **DX-01**: Browser-based MMD editor resolves frontmatter, Handlebars bindings, and live Notion data server-side — output is identical to what the app renders
+- [x] **DX-02**: Editor provides source field reference, starter templates (blank, simple example, existing server templates), and syntax documentation links
+
 ## v2 Requirements
 
 ### Persistence & Reliability
@@ -99,11 +127,24 @@
 | UI-05 | Phase 3 | Complete |
 | UI-06 | Phase 3 | Complete |
 
+| MMD-01 | Phase 5 | Complete |
+| MMD-02 | Phase 5 | Complete |
+| MMD-03 | Phase 5 | Complete |
+| MMD-04 | Phase 5 | Complete |
+| MMD-05 | Phase 5 | Complete |
+| MMD-06 | Phase 6 | Complete |
+| MMD-07 | Phase 6 | Complete |
+| MMD-08 | Phase 6 | Complete |
+| UI-07  | Phase 6 | Complete |
+| UI-08  | Phase 6 | Complete |
+| DX-01  | Quick tasks | Complete |
+| DX-02  | Quick tasks | Complete |
+
 **Coverage:**
-- v1 requirements: 23 total
-- Mapped to phases: 23
+- v1 requirements: 23 total — Mapped to phases: 23 ✓
+- v1.1 requirements: 12 total — Mapped to phases: 12 ✓
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-06-02*
-*Last updated: 2026-06-02 after roadmap derivation*
+*Last updated: 2026-06-13 after v1.1 milestone definition*
