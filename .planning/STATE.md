@@ -282,3 +282,4 @@ Phase: 06 — Complete (approved 2026-06-13)
 | 260606-5jc | server-side share links via POST /api/share token store | 2026-06-06 | 671a4fc | [260606-5jc-implement-server-side-share-links-instea](./quick/260606-5jc-implement-server-side-share-links-instea/) |
 | 260608-ueq | document Handlebars template helpers in README + fix example | 2026-06-08 | fbb7d3d | [260608-ueq-document-handlebars-template-helpers-in-](./quick/260608-ueq-document-handlebars-template-helpers-in-/) |
 | 260608-vlm | list Mermaid diagram templates on dashboard with deep-link navigation | 2026-06-08 | 08f6da0 | [260608-vlm-list-mermaid-diagram-templates-on-the-da](./quick/260608-vlm-list-mermaid-diagram-templates-on-the-da/) |
+| 260613-gen | client-side mmd editor for live mermaid preview without app restart | 2026-06-13 | 059e6f1 | [260613-gen-client-side-mmd-editor-for-live-mermaid-](./quick/260613-gen-client-side-mmd-editor-for-live-mermaid-/) |
