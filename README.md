@@ -138,7 +138,41 @@ flowchart TD
 | `{{#group-item}} … {{/group-item}}` | Inside a `(group …)` each block: iterates every row belonging to the current group. Inner context is the individual row — `{{fieldName}}` and `{{this.fieldName}}` work the same as inside a plain `{{#each}}` block. |
 | `{{palette @index}}` | Inside `{{#each (group …)}}`, returns a hex color string from a 10-color accessible palette (Tableau 10), cycling by group index. Use in `classDef` lines to auto-assign a distinct color per attribute value group. |
 
-> **Attribute-based styling:** Use `{{palette @index}}` with `classDef` and `:::className` to give nodes automatic color-coding based on a shared attribute value. Each distinct attribute value (group) gets a unique color from the palette without any per-node hardcoding. Class name suffixes must be valid Mermaid identifiers — use `{{nodeId "fieldName" fieldName}}` explicitly (not bare `{{fieldName}}`) inside `classDef` lines, since the rewriter would otherwise expand the bare reference into a full node definition string.
+**Frontmatter node styling (`styles` key):**
+
+Add a `styles` block to any template's frontmatter to define shape and color per attribute — no changes to the template body needed:
+
+```yaml
+---
+title: "My Diagram"
+sources:
+  - Projekte
+styles:
+  parent:
+    shape: rounded
+    fill: "#4e79a7"
+    stroke: "#2d5a8e"
+    stroke-width: 2
+  title:
+    shape: rectangle
+    fill: "#ffffff"
+---
+flowchart TD
+{{#each Projekte}}
+  {{title}} --> {{parent}}
+{{/each}}
+```
+
+Each key under `styles` is an attribute name (a `columnMappings` role). All fields are optional:
+
+| Field | Values | Effect |
+|-------|--------|--------|
+| `shape` | `rectangle` (default), `rounded`, `circle`, `cylindrical`, `diamond`, `stadium` | Changes the Mermaid bracket syntax for nodes of this attribute |
+| `fill` | CSS color string, e.g. `"#4e79a7"` | Background color of the node |
+| `stroke` | CSS color string | Border color |
+| `stroke-width` | Number (pixels) | Border thickness |
+
+When `fill`, `stroke`, or `stroke-width` is set, the engine auto-generates `classDef` lines and appends `:::style-{attrName}` to affected nodes. Shape-only entries change brackets without adding a CSS class.
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 
