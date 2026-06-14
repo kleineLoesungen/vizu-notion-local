@@ -52,6 +52,9 @@ export function useMermaidTemplate(
   })
 
   onBeforeUnmount(() => {
+    if (currentSvgEl && d3Module) {
+      d3Module.select(currentSvgEl).on('.zoom', null)
+    }
     currentSvgEl = null
   })
 
@@ -76,60 +79,71 @@ export function useMermaidTemplate(
     }
   }
 
-  // Apply D3 zoom to the Mermaid-rendered SVG.
-  // Zoom is attached to the CONTAINER div (CSS pixel space) and the SVG is
-  // transformed via CSS transform — works for any Mermaid diagram type regardless
-  // of SVG structure, and avoids SVG viewBox / CSS pixel coordinate system mixing.
+  // Apply D3 zoom to the Mermaid-rendered SVG using the canonical SVG-fill +
+  // inner-g-transform pattern. The SVG fills the container (100%/100%) so the
+  // hit area matches the visible area for large diagrams. D3 zoom is attached
+  // directly to the SVG element and transforms the inner <g> via setAttribute,
+  // keeping SVG transform space consistent with viewBox coordinates.
   async function initMermaidZoom(containerId: string): Promise<void> {
     const container = document.getElementById(containerId)
     if (!container) return
     const svgEl = container.querySelector('svg') as SVGSVGElement | null
     if (!svgEl) return
+    const innerG = svgEl.querySelector('g') as SVGGElement | null
+    if (!innerG) return
 
     currentSvgEl = svgEl
+
+    // Read natural dimensions from viewBox BEFORE removing width/height attributes.
+    // viewBox is set by Mermaid; fall back to explicit width/height attrs if needed.
+    let nw = 0, nh = 0
+    const vb = svgEl.getAttribute('viewBox')
+    if (vb) {
+      const parts = vb.split(/[\s,]+/).map(Number)
+      nw = parts[2] ?? 0
+      nh = parts[3] ?? 0
+    }
+    if (!nw || !nh) {
+      nw = parseFloat(svgEl.getAttribute('width') || '0')
+      nh = parseFloat(svgEl.getAttribute('height') || '0')
+    }
+
+    // Remove Mermaid's explicit width/height so the SVG fills the container via CSS.
+    svgEl.removeAttribute('width')
+    svgEl.removeAttribute('height')
+    svgEl.style.cssText = 'width: 100%; height: 100%; display: block; max-width: none;'
 
     if (!d3Module) {
       d3Module = (window as any).d3 ?? await import('d3')
       if (!(window as any).d3) (window as any).d3 = d3Module
     }
 
-    // Position SVG at origin; container clips it and provides the interaction surface.
-    svgEl.style.position = 'absolute'
-    svgEl.style.top = '0'
-    svgEl.style.left = '0'
-    svgEl.style.transformOrigin = '0 0'
-    svgEl.style.overflow = 'visible'
-
-    // Remove Mermaid's inline max-width so the CSS transform can scale freely.
-    svgEl.style.maxWidth = 'none'
-
+    // Transform the inner <g> via SVG attribute — stays in SVG coordinate space,
+    // no CSS pixel / viewBox mismatch for large diagrams.
     zoomBehavior = d3Module.zoom()
       .scaleExtent([0.1, 5])
       .filter((event: any) => event.type !== 'wheel' || event.ctrlKey || event.metaKey)
       .on('zoom', (event: any) => {
-        const { x, y, k } = event.transform
-        svgEl.style.transform = `translate(${x}px,${y}px) scale(${k})`
+        innerG.setAttribute('transform', event.transform.toString())
       })
 
-    // Attach zoom to the container div — events in CSS pixel space, no viewBox confusion.
-    d3Module.select(container).call(zoomBehavior).on('dblclick.zoom', null)
+    // Attach zoom to the SVG element (not the container div) so the hit area
+    // matches the SVG's rendered bounds at all zoom levels.
+    d3Module.select(svgEl).call(zoomBehavior).on('dblclick.zoom', null)
     container.style.cursor = 'grab'
     container.addEventListener('mousedown', () => { container.style.cursor = 'grabbing' })
     container.addEventListener('mouseup', () => { container.style.cursor = 'grab' })
 
-    // Fit-to-content: scale/center the SVG (CSS pixels on both sides — no mismatch).
+    // Fit-to-content: scale and center the diagram using natural SVG dimensions.
     await nextTick()
     const cw = container.clientWidth
     const ch = container.clientHeight
-    const sw = svgEl.clientWidth || parseFloat(svgEl.getAttribute('width') || '0')
-    const sh = svgEl.clientHeight || parseFloat(svgEl.getAttribute('height') || '0')
-    if (sw > 0 && sh > 0 && cw > 0 && ch > 0) {
-      const scale = Math.min(cw / sw, ch / sh, 1)
-      const tx = (cw - sw * scale) / 2
-      const ty = (ch - sh * scale) / 2
+    if (nw > 0 && nh > 0 && cw > 0 && ch > 0) {
+      const scale = Math.min(cw / nw, ch / nh, 1)
+      const tx = (cw - nw * scale) / 2
+      const ty = (ch - nh * scale) / 2
       const t = d3Module.zoomIdentity.translate(tx, ty).scale(scale)
-      d3Module.select(container).call(zoomBehavior.transform, t)
-      svgEl.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`
+      d3Module.select(svgEl).call(zoomBehavior.transform, t)
     }
   }
 
