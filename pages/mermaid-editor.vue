@@ -156,6 +156,7 @@ interface MmdTemplate {
   id: string
   title: string
   sources: string[]
+  styles: Record<string, Record<string, unknown>>
   body: string
 }
 
@@ -206,9 +207,20 @@ const SIMPLE_EXAMPLE = `flowchart LR
   C -- Yes --> D[Done]
   C -- No --> B`
 
+function serializeStylesYaml(styles: Record<string, Record<string, unknown>>): string {
+  return Object.entries(styles).map(([attr, props]) => {
+    const propLines = Object.entries(props)
+      .map(([k, v]) => `    ${k}: ${typeof v === 'string' ? `"${v}"` : v}`)
+      .join('\n')
+    return `  ${attr}:\n${propLines}`
+  }).join('\n')
+}
+
 function reconstructMmd(tpl: MmdTemplate): string {
   const sourcesYaml = tpl.sources.map((s) => `  - ${s}`).join('\n')
-  return `---\ntitle: "${tpl.title}"\nsources:\n${sourcesYaml}\n---\n${tpl.body}`
+  const hasStyles = tpl.styles && Object.keys(tpl.styles).length > 0
+  const stylesBlock = hasStyles ? `styles:\n${serializeStylesYaml(tpl.styles)}\n` : ''
+  return `---\ntitle: "${tpl.title}"\nsources:\n${sourcesYaml}\n${stylesBlock}---\n${tpl.body}`
 }
 
 function selectStarter(value: string): void {

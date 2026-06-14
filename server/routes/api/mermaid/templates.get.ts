@@ -5,6 +5,7 @@ export default defineEventHandler(() => {
     id: t.id,
     title: t.title,
     sources: t.sources,
-    body: t.body,  // raw template body (frontmatter stripped) — used by the MMD editor
+    styles: t.styles,  // included so the MMD editor can reconstruct the full .mmd file
+    body: t.body,
   }))
 })
