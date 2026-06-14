@@ -233,7 +233,7 @@ Last activity: 2026-06-14 - Completed quick task 260614-oam: Fix SVGLength resol
 
 ## Session Continuity
 
-**Last Activity**: Completed quick task 260614-oam: Fix SVGLength resolution error: set SVG to explicit container pixel dimensions instead of CSS percentage width/height
+**Last Activity**: Completed quick task 260614-qou: Fix cross-database node ID collision — scope stableId by source name, extract shared rewriteTemplateBody
 **Date**: 2026-06-14
 **Stopped At**: All 6 phases complete. v1.0 milestone done.
 **Next Step**: —
@@ -293,3 +293,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-oam: Fix SVGLength resol
 | 260614-nmf | fix drag and zoom broken on larger Mermaid diagrams | 2026-06-14 | 0a5c1f7 | [260614-nmf-fix-drag-and-zoom-broken-on-larger-merma](./quick/260614-nmf-fix-drag-and-zoom-broken-on-larger-merma/) |
 | 260614-nzt | Fix Mermaid double-scaling: remove viewBox attribute after reading dimensions so D3 zoom is the sole transform | 2026-06-14 | 098a950 | [260614-nzt-fix-mermaid-double-scaling-remove-viewbo](./quick/260614-nzt-fix-mermaid-double-scaling-remove-viewbo/) |
 | 260614-oam | Fix SVGLength resolution error: set SVG to explicit container pixel dimensions instead of CSS percentage width/height | 2026-06-14 | b4bb91e | [260614-oam-fix-svglength-resolution-error-set-svg-t](./quick/260614-oam-fix-svglength-resolution-error-set-svg-t/) |
+| 260614-qou | Fix cross-database node ID collision: scope stableId by source name, extract shared rewriteTemplateBody | 2026-06-14 | b109d3d | [260614-qou-cross-database-nodes-with-the-same-name-](./quick/260614-qou-cross-database-nodes-with-the-same-name-/) |
