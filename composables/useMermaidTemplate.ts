@@ -79,11 +79,6 @@ export function useMermaidTemplate(
     }
   }
 
-  // Apply D3 zoom to the Mermaid-rendered SVG using the canonical SVG-fill +
-  // inner-g-transform pattern. The SVG fills the container (100%/100%) so the
-  // hit area matches the visible area for large diagrams. D3 zoom is attached
-  // directly to the SVG element and transforms the inner <g> via setAttribute,
-  // keeping SVG transform space consistent with viewBox coordinates.
   async function initMermaidZoom(containerId: string): Promise<void> {
     const container = document.getElementById(containerId)
     if (!container) return
@@ -94,8 +89,7 @@ export function useMermaidTemplate(
 
     currentSvgEl = svgEl
 
-    // Read natural dimensions from viewBox BEFORE removing width/height attributes.
-    // viewBox is set by Mermaid; fall back to explicit width/height attrs if needed.
+    // Read natural content dimensions from viewBox before modifying the SVG.
     let nw = 0, nh = 0
     const vb = svgEl.getAttribute('viewBox')
     if (vb) {
@@ -108,21 +102,13 @@ export function useMermaidTemplate(
       nh = parseFloat(svgEl.getAttribute('height') || '0')
     }
 
-    // Remove Mermaid's explicit sizing so the SVG fills the container via CSS only.
-    // viewBox must also be removed: keeping it causes the browser to scale content once
-    // (viewBox → container), and then D3 scales innerG a second time → double-scaling.
-    svgEl.removeAttribute('width')
-    svgEl.removeAttribute('height')
-    svgEl.removeAttribute('viewBox')
-    svgEl.style.cssText = 'width: 100%; height: 100%; display: block; max-width: none;'
-
     if (!d3Module) {
       d3Module = (window as any).d3 ?? await import('d3')
       if (!(window as any).d3) (window as any).d3 = d3Module
     }
 
-    // Transform the inner <g> via SVG attribute — stays in SVG coordinate space,
-    // no CSS pixel / viewBox mismatch for large diagrams.
+    // Transform innerG via SVG attribute — stays in SVG coordinate space with no
+    // CSS pixel / viewBox mismatch.
     zoomBehavior = d3Module.zoom()
       .scaleExtent([0.1, 5])
       .filter((event: any) => event.type !== 'wheel' || event.ctrlKey || event.metaKey)
@@ -130,17 +116,31 @@ export function useMermaidTemplate(
         innerG.setAttribute('transform', event.transform.toString())
       })
 
-    // Attach zoom to the SVG element (not the container div) so the hit area
-    // matches the SVG's rendered bounds at all zoom levels.
+    // Attach zoom to the SVG element so its hit area covers the full container.
     d3Module.select(svgEl).call(zoomBehavior).on('dblclick.zoom', null)
     container.style.cursor = 'grab'
     container.addEventListener('mousedown', () => { container.style.cursor = 'grabbing' })
     container.addEventListener('mouseup', () => { container.style.cursor = 'grab' })
 
-    // Fit-to-content: scale and center the diagram using natural SVG dimensions.
+    // Wait for layout before reading container dimensions.
     await nextTick()
     const cw = container.clientWidth
     const ch = container.clientHeight
+
+    if (cw > 0 && ch > 0) {
+      // Set SVG to the container's exact pixel dimensions and strip the viewBox.
+      // Explicit px (not CSS %) avoids SVGLength resolution errors when D3 or Mermaid
+      // reads svgEl.width.baseVal.value via the SVG attribute DOM API.
+      // Without viewBox: SVG user space = CSS pixel space (1:1) so D3 transforms
+      // innerG with no double-scaling.
+      svgEl.removeAttribute('viewBox')
+      svgEl.setAttribute('width', String(cw))
+      svgEl.setAttribute('height', String(ch))
+      svgEl.style.display = 'block'
+      svgEl.style.maxWidth = 'none'
+    }
+
+    // Fit-to-content: scale/center the natural content (nw×nh) into the container (cw×ch).
     if (nw > 0 && nh > 0 && cw > 0 && ch > 0) {
       const scale = Math.min(cw / nw, ch / nh, 1)
       const tx = (cw - nw * scale) / 2
