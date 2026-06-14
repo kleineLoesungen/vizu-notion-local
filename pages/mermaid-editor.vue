@@ -91,12 +91,20 @@
           class="relative overflow-hidden rounded border border-gray-200 bg-white"
           style="height: 60vh"
         />
-        <button
-          class="text-xs text-gray-500 hover:text-gray-900 mt-1"
-          @click="fitToContent"
-        >
-          Fit to content
-        </button>
+        <div class="flex items-center gap-3 mt-1">
+          <button
+            class="text-xs text-gray-500 hover:text-gray-900"
+            @click="fitToContent"
+          >
+            Fit to content
+          </button>
+          <button
+            class="text-xs text-gray-500 hover:text-gray-900"
+            @click="downloadSVG('mmd-editor-preview', 'mermaid-preview')"
+          >
+            Download SVG
+          </button>
+        </div>
       </div>
     </div>
 
@@ -150,6 +158,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useExport } from '@/composables/useExport'
+
+const { downloadSVG } = useExport()
 
 // --- Types ---
 interface MmdTemplate {
