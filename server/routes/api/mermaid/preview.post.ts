@@ -28,7 +28,7 @@ function buildClassDefs(styles: Record<string, any>): string {
     if (entry.fill) parts.push(`fill:${entry.fill}`)
     if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
     if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
-    lines.push(`classDef style-${attrName} ${parts.join(',')}`)
+    lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
   }
   return lines.join('\n')
 }
@@ -181,7 +181,7 @@ export default defineEventHandler(async (event) => {
         if (!style) return `{{nodeId "${name}" ${name}}}`
         const shapePart = style.shape ? ` shape="${style.shape}"` : ''
         const hasColor = style.fill || style.stroke || style['stroke-width'] != null
-        const classPart = hasColor ? ` className="style-${name}"` : ''
+        const classPart = hasColor ? ` className="cls_${name}"` : ''
         return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
       }
     )

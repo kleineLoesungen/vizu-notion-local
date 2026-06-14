@@ -15,7 +15,7 @@ function buildClassDefs(styles: Record<string, { shape?: string; fill?: string; 
     if (entry.fill) parts.push(`fill:${entry.fill}`)
     if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
     if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
-    lines.push(`classDef style-${attrName} ${parts.join(',')}`)
+    lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
   }
   return lines.join('\n')
 }

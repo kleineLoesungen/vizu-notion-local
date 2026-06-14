@@ -39,7 +39,7 @@ const SHAPE_BRACKETS: Record<string, [string, string]> = {
 // nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
 // attrName is passed by the rewriter but not used in the hash — same value always
 // produces the same node ID regardless of which field it comes from.
-// Accepts optional hash args: shape="rounded" and className="style-fieldName"
+// Accepts optional hash args: shape="rounded" and className="cls_fieldName"
 // Returns full Mermaid node definition with appropriate bracket syntax and optional class suffix.
 // SafeString prevents Handlebars from HTML-escaping the brackets.
 Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
@@ -176,7 +176,7 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
             if (!style) return `{{nodeId "${name}" ${name}}}`
             const shapePart = style.shape ? ` shape="${style.shape}"` : ''
             const hasColor = style.fill || style.stroke || style['stroke-width'] != null
-            const classPart = hasColor ? ` className="style-${name}"` : ''
+            const classPart = hasColor ? ` className="cls_${name}"` : ''
             return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
           }
         )
