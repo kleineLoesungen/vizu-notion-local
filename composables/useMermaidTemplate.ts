@@ -53,7 +53,8 @@ export function useMermaidTemplate(
 
   onBeforeUnmount(() => {
     if (currentSvgEl && d3Module) {
-      d3Module.select(currentSvgEl).on('.zoom', null)
+      const container = currentSvgEl.parentElement
+      if (container) d3Module.select(container).on('.zoom', null)
     }
     currentSvgEl = null
   })
@@ -84,70 +85,43 @@ export function useMermaidTemplate(
     if (!container) return
     const svgEl = container.querySelector('svg') as SVGSVGElement | null
     if (!svgEl) return
-    const innerG = svgEl.querySelector('g') as SVGGElement | null
-    if (!innerG) return
 
     currentSvgEl = svgEl
 
-    // Read natural content dimensions from viewBox before modifying the SVG.
-    let nw = 0, nh = 0
-    const vb = svgEl.getAttribute('viewBox')
-    if (vb) {
-      const parts = vb.split(/[\s,]+/).map(Number)
-      nw = parts[2] ?? 0
-      nh = parts[3] ?? 0
-    }
-    if (!nw || !nh) {
-      nw = parseFloat(svgEl.getAttribute('width') || '0')
-      nh = parseFloat(svgEl.getAttribute('height') || '0')
-    }
+    // Size SVG to fill the container. viewBox (kept from Mermaid output) automatically
+    // maps the natural diagram coordinates into this viewport — gives a fitted initial
+    // view without any manual scale math.
+    svgEl.setAttribute('width', '100%')
+    svgEl.setAttribute('height', '100%')
+    svgEl.style.display = 'block'
+    svgEl.style.maxWidth = 'none'
+    svgEl.style.transformOrigin = '0 0'
+    // pointer-events:none lets all events fall through to the container div.
+    // D3 zoom is attached to the container so it uses HTML coordinate space (no
+    // SVGLength resolution, no viewBox coordinate mismatch).
+    svgEl.style.pointerEvents = 'none'
 
     if (!d3Module) {
       d3Module = (window as any).d3 ?? await import('d3')
       if (!(window as any).d3) (window as any).d3 = d3Module
     }
 
-    // Transform innerG via SVG attribute — stays in SVG coordinate space with no
-    // CSS pixel / viewBox mismatch.
+    // Remove any previous zoom listeners from the container to guard against
+    // double-attachment on re-renders.
+    d3Module.select(container).on('.zoom', null)
+
     zoomBehavior = d3Module.zoom()
       .scaleExtent([0.1, 5])
       .filter((event: any) => event.type !== 'wheel' || event.ctrlKey || event.metaKey)
       .on('zoom', (event: any) => {
-        innerG.setAttribute('transform', event.transform.toString())
+        const { x, y, k } = event.transform
+        svgEl.style.transform = `translate(${x}px,${y}px) scale(${k})`
       })
 
-    // Attach zoom to the SVG element so its hit area covers the full container.
-    d3Module.select(svgEl).call(zoomBehavior).on('dblclick.zoom', null)
+    d3Module.select(container).call(zoomBehavior).on('dblclick.zoom', null)
     container.style.cursor = 'grab'
     container.addEventListener('mousedown', () => { container.style.cursor = 'grabbing' })
     container.addEventListener('mouseup', () => { container.style.cursor = 'grab' })
-
-    // Wait for layout before reading container dimensions.
-    await nextTick()
-    const cw = container.clientWidth
-    const ch = container.clientHeight
-
-    if (cw > 0 && ch > 0) {
-      // Set SVG to the container's exact pixel dimensions and strip the viewBox.
-      // Explicit px (not CSS %) avoids SVGLength resolution errors when D3 or Mermaid
-      // reads svgEl.width.baseVal.value via the SVG attribute DOM API.
-      // Without viewBox: SVG user space = CSS pixel space (1:1) so D3 transforms
-      // innerG with no double-scaling.
-      svgEl.removeAttribute('viewBox')
-      svgEl.setAttribute('width', String(cw))
-      svgEl.setAttribute('height', String(ch))
-      svgEl.style.display = 'block'
-      svgEl.style.maxWidth = 'none'
-    }
-
-    // Fit-to-content: scale/center the natural content (nw×nh) into the container (cw×ch).
-    if (nw > 0 && nh > 0 && cw > 0 && ch > 0) {
-      const scale = Math.min(cw / nw, ch / nh, 1)
-      const tx = (cw - nw * scale) / 2
-      const ty = (ch - nh * scale) / 2
-      const t = d3Module.zoomIdentity.translate(tx, ty).scale(scale)
-      d3Module.select(svgEl).call(zoomBehavior.transform, t)
-    }
   }
 
   // Re-render when diagram string changes (templateId switch or data refresh)
