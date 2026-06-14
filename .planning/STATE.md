@@ -23,7 +23,7 @@ progress:
 
 Phase: — (v1.1 closed, planning v1.2)
 Status: v1.1 archived — run `/gsd:new-milestone` to start next milestone
-Last activity: 2026-06-14 - Completed quick task 260614-v81: Fix group-item node deduplication in Mermaid block diagrams
+Last activity: 2026-06-14 - Completed quick task 260614-vip: Dashboard refresh icon button + mermaid editor SVG download
 
 ## Project Metrics
 
@@ -296,3 +296,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-v81: Fix group-item node
 | 260614-qou | Fix cross-database node ID collision: scope stableId by source name, extract shared rewriteTemplateBody | 2026-06-14 | b109d3d | [260614-qou-cross-database-nodes-with-the-same-name-](./quick/260614-qou-cross-database-nodes-with-the-same-name-/) |
 | 260614-rrw | Support multi-value Notion relation properties in Mermaid templates — produce role_all string[] in Handlebars context | 2026-06-14 | 09d665f | [260614-rrw-support-multi-value-relations-in-mermaid](./quick/260614-rrw-support-multi-value-relations-in-mermaid/) |
 | 260614-v81 | Fix group-item node deduplication in Mermaid block diagrams | 2026-06-14 | 17ea590 | [260614-v81-fix-group-item-node-deduplication-in-mer](./quick/260614-v81-fix-group-item-node-deduplication-in-mer/) |
+| 260614-vip | Dashboard refresh icon button + mermaid editor SVG download | 2026-06-14 | 0ffdaec | [260614-vip-dashboard-refresh-icon-button-mermaid-ed](./quick/260614-vip-dashboard-refresh-icon-button-mermaid-ed/) |
