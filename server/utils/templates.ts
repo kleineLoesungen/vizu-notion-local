@@ -77,7 +77,9 @@ export function buildClassDefs(styles: StylesMap): string {
 // SafeString prevents Handlebars from HTML-escaping the brackets.
 Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
   const source = (options?.hash?.source as string) ?? ''
-  const id = stableId(String(value ?? ''), source)
+  const groupKey = (this as any)?._groupKey as string | undefined ?? ''
+  const scope = groupKey ? `${source}\x00${groupKey}` : source
+  const id = stableId(String(value ?? ''), scope)
   const safeLabel = String(value ?? '').replace(/["[\]{}()]/g, '')
   const className = options?.hash?.className as string | undefined
   const shape = (options?.hash?.shape as string) ?? 'rectangle'
@@ -108,6 +110,7 @@ Handlebars.registerHelper('group', function(array: Record<string, string>[], fie
   }
   return Array.from(map.entries()).map(([key, items]) => ({
     [field]: key,
+    _groupKey: key,
     items,
   }))
 })
@@ -116,10 +119,11 @@ Handlebars.registerHelper('group', function(array: Record<string, string>[], fie
 // {{#each (group ...)}} block. `this` in the outer each is { [field]: key, items: rows[] }.
 // group-item iterates over this.items and renders the block body once per item.
 // The inner context is the individual row object, so {{title}} etc. work normally.
-Handlebars.registerHelper('group-item', function(this: { items?: Record<string, string>[] }, options: Handlebars.HelperOptions) {
+Handlebars.registerHelper('group-item', function(this: { items?: Record<string, string>[]; _groupKey?: string }, options: Handlebars.HelperOptions) {
   const items = this.items ?? []
+  const groupKey = this._groupKey ?? ''
   return new Handlebars.SafeString(
-    items.map((item) => options.fn(item)).join('')
+    items.map((item) => options.fn({ ...item, _groupKey: groupKey })).join('')
   )
 })
 
