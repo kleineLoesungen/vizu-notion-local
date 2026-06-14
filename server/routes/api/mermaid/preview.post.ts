@@ -9,6 +9,30 @@ import type { Source } from '../../../utils/config'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getTemplates } from '../../../utils/templates'
 
+const SHAPE_BRACKETS: Record<string, [string, string]> = {
+  rectangle:   ['["', '"]'],
+  rounded:     ['("',  '")'],
+  circle:      ['(("', '"))'],
+  cylindrical: ['[("', '")]'],
+  diamond:     ['{"',  '"}'],
+  stadium:     ['(["', '"])'],
+}
+
+function buildClassDefs(styles: Record<string, any>): string {
+  const lines: string[] = []
+  for (const [attrName, entry] of Object.entries(styles)) {
+    if (!entry || typeof entry !== 'object') continue
+    const hasColor = entry.fill || entry.stroke || entry['stroke-width'] != null
+    if (!hasColor) continue
+    const parts: string[] = []
+    if (entry.fill) parts.push(`fill:${entry.fill}`)
+    if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
+    if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
+    lines.push(`classDef style-${attrName} ${parts.join(',')}`)
+  }
+  return lines.join('\n')
+}
+
 // ── Shared helpers (same logic as [templateId].get.ts) ──────────────────────
 
 function extractPropertyValue(prop: any): string {
@@ -101,6 +125,9 @@ export default defineEventHandler(async (event) => {
 
   const { data, content: bodyText } = matter(rawContent)
   const sourceNames: string[] = Array.isArray(data.sources) ? data.sources : []
+  const styles: Record<string, any> = (typeof data.styles === 'object' && data.styles !== null)
+    ? data.styles
+    : {}
 
   // No sources declared — treat as raw Mermaid, return as-is
   if (sourceNames.length === 0) {
@@ -141,16 +168,35 @@ export default defineEventHandler(async (event) => {
     context[sourceName] = mappedRows
   }
 
-  const rewrittenBody = bodyText.replace(
-    /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
-    (match, name) => HB_KEYWORDS.has(name) ? match : `{{nodeId "${name}" ${name}}}`
-  )
+  const rewrittenBody = bodyText.split('\n').map(line => {
+    const trimmed = line.trimStart()
+    if (trimmed.startsWith('classDef ') || trimmed.startsWith('subgraph ')) {
+      return line
+    }
+    return line.replace(
+      /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
+      (match, name) => {
+        if (HB_KEYWORDS.has(name)) return match
+        const style = styles[name]
+        if (!style) return `{{nodeId "${name}" ${name}}}`
+        const shapePart = style.shape ? ` shape="${style.shape}"` : ''
+        const hasColor = style.fill || style.stroke || style['stroke-width'] != null
+        const classPart = hasColor ? ` className="style-${name}"` : ''
+        return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
+      }
+    )
+  }).join('\n')
 
   let diagramString: string
   try {
     diagramString = Handlebars.compile(rewrittenBody)(context)
   } catch (err: any) {
     throw createError({ statusCode: 400, message: `Template error: ${err.message}` })
+  }
+
+  const classDefBlock = buildClassDefs(styles)
+  if (classDefBlock) {
+    diagramString = classDefBlock + '\n' + diagramString
   }
 
   return { diagramString }
