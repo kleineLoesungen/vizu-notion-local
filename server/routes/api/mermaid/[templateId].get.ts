@@ -110,7 +110,6 @@ async function resolveRelationValues(
         const allTitles = allIds
           .filter(rel => rel.id && (!hiddenIds || !hiddenIds.has(rel.id)))
           .map(rel => titleMap.get(rel.id) || rel.id)
-        console.log(`[vizu:relation] page=${String(row['id']).slice(0,8)} role=${role} rawIds=${allIds.length} resolved=${allTitles.length} titles=${JSON.stringify(allTitles)}`)
         row[role] = allTitles[0] ?? ''
         ;(row as Record<string, unknown>)[role + '_all'] = allTitles
       }
@@ -228,7 +227,6 @@ export default defineEventHandler(async (event) => {
     // expandRelationRows cross-products multi-value relation fields into one row per target
     const visibleRows = hiddenIds ? mappedRows.filter((r) => !hiddenIds.has(String(r['id'] ?? ''))) : mappedRows
     const expandedRows = expandRelationRows(visibleRows)
-    console.log(`[vizu:expand] source=${sourceName} original=${visibleRows.length} expanded=${expandedRows.length}`)
     context[sourceName] = expandedRows
   }
 
