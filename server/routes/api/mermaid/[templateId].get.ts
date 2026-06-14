@@ -109,8 +109,10 @@ async function resolveRelationValues(
         const allIds: Array<{ id: string }> = ((prop as any).relation as Array<{ id: string }>) ?? []
         const allTitles = allIds
           .filter(rel => rel.id && (!hiddenIds || !hiddenIds.has(rel.id)))
-          .map(rel => titleMap.get(rel.id) ?? '')
-          .filter(t => t !== '')
+          // Fall back to page ID when title can't be resolved (e.g. cross-database
+          // pages the integration token doesn't have access to). Never drop a relation
+          // silently — an ID-labelled node is better than a missing edge.
+          .map(rel => titleMap.get(rel.id) || rel.id)
         row[role] = allTitles[0] ?? ''
         ;(row as Record<string, unknown>)[role + '_all'] = allTitles
       }

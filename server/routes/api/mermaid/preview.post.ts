@@ -87,8 +87,7 @@ async function resolveRelationValues(
         const allIds: Array<{ id: string }> = ((prop as any).relation as Array<{ id: string }>) ?? []
         const allTitles = allIds
           .filter(rel => rel.id)
-          .map(rel => titleMap.get(rel.id) ?? '')
-          .filter(t => t !== '')
+          .map(rel => titleMap.get(rel.id) || rel.id)
         row[role] = allTitles[0] ?? ''
         ;(row as Record<string, unknown>)[role + '_all'] = allTitles
       }
