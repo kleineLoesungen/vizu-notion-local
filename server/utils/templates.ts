@@ -102,7 +102,7 @@ Handlebars.registerHelper('group', function(array: Record<string, string>[], fie
   if (!Array.isArray(array) || !field) return []
   const map = new Map<string, Record<string, string>[]>()
   for (const row of array) {
-    const key = row[field] ?? ''
+    const key = String(row[field] ?? '')
     if (!map.has(key)) map.set(key, [])
     map.get(key)!.push(row)
   }

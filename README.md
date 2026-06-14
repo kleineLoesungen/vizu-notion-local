@@ -180,6 +180,8 @@ When `fill`, `stroke`, or `stroke-width` is set, the engine auto-generates `clas
 
 > **Rows and node visibility:** Each row inside `{{#each source-name}}` is a flat object whose keys are the `columnMappings` roles (`title`, `date`, `status`, etc.) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the filter panel — hidden nodes are excluded from the Handlebars context automatically, so the rendered diagram reflects the panel state without any extra logic in the template.
 
+> **Multi-value relation fields auto-expand.** When a Notion relation property contains multiple targets (e.g. a project linked to two parent categories), the row is automatically expanded into one row per target before the template runs. This means `{{title}} --> {{parent}}` produces one edge per related page — no template changes required. Grouping by a relation field (e.g. `{{#each (group sourceName "parent")}}`) likewise creates one group per relation target value.
+
 > **Note:** No arithmetic or comparison helpers are registered. If you need a computed value (e.g. a formatted date or number), add a Notion formula column to your database, map it in `columnMappings`, and reference it with `{{this.fieldName}}`.
 
 **Multi-source templates:** list multiple sources in `sources:` and use a separate `{{#each}}` block per source in the template body.
