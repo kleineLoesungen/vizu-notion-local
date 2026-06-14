@@ -286,3 +286,4 @@ Last activity: 2026-06-13 — v1.1 milestone closed and archived
 | 260608-ueq | document Handlebars template helpers in README + fix example | 2026-06-08 | fbb7d3d | [260608-ueq-document-handlebars-template-helpers-in-](./quick/260608-ueq-document-handlebars-template-helpers-in-/) |
 | 260608-vlm | list Mermaid diagram templates on dashboard with deep-link navigation | 2026-06-08 | 08f6da0 | [260608-vlm-list-mermaid-diagram-templates-on-the-da](./quick/260608-vlm-list-mermaid-diagram-templates-on-the-da/) |
 | 260613-gen | client-side mmd editor for live mermaid preview without app restart | 2026-06-13 | 059e6f1 | [260613-gen-client-side-mmd-editor-for-live-mermaid-](./quick/260613-gen-client-side-mmd-editor-for-live-mermaid-/) |
+| 260614-ikw | implement group() and group-item Handlebars helpers for Mermaid templates | 2026-06-14 | fa58e17 | [260614-ikw-implement-group-helper-for-mermaid-templ](./quick/260614-ikw-implement-group-helper-for-mermaid-templ/) |
