@@ -32,3 +32,14 @@ flowchart TD
   {{#each my-source}}
   {{#unless @first}}Start --> node_{{this.id}}["{{this.title}}"]{{/unless}}
   {{/each}}
+
+  %% Example: group rows by a field value (e.g. group by "product")
+  %% (group sourceName "fieldName") returns [{fieldName: key, items: rows[]}]
+  %% Use {{#group-item}}...{{/group-item}} inside #each to iterate grouped items.
+  {{#each (group my-source "product")}}
+  subgraph {{product}}
+    {{#group-item}}
+    {{title}}
+    {{/group-item}}
+  end
+  {{/each}}

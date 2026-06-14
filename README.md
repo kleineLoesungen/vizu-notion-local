@@ -134,6 +134,8 @@ flowchart TD
 | `{{@first}}` | Inside `#each`, boolean `true` on the first iteration |
 | `{{#if fieldName}} … {{/if}}` | Renders the block only when `fieldName` is truthy (non-empty string, non-null). Use to skip edges or labels for rows where an optional field isn't set. |
 | `{{#unless condition}} … {{/unless}}` | Renders the block only when `condition` is falsy |
+| `{{#each (group sourceName "fieldName")}} … {{/each}}` | Groups all rows from `sourceName` by the distinct values of `fieldName`. Each iteration context has `{{fieldName}}` (the group key, rendered as a Mermaid node) and `{{this.fieldName}}` (the raw key string). |
+| `{{#group-item}} … {{/group-item}}` | Inside a `(group …)` each block: iterates every row belonging to the current group. Inner context is the individual row — `{{fieldName}}` and `{{this.fieldName}}` work the same as inside a plain `{{#each}}` block. |
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 
