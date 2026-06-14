@@ -23,7 +23,7 @@ progress:
 
 Phase: — (v1.1 closed, planning v1.2)
 Status: v1.1 archived — run `/gsd:new-milestone` to start next milestone
-Last activity: 2026-06-14 - Completed quick task 260614-nzt: Fix Mermaid double-scaling: remove viewBox attribute after reading dimensions so D3 zoom is the sole transform
+Last activity: 2026-06-14 - Completed quick task 260614-oam: Fix SVGLength resolution error: set SVG to explicit container pixel dimensions instead of CSS percentage width/height
 
 ## Project Metrics
 
@@ -233,7 +233,7 @@ Last activity: 2026-06-14 - Completed quick task 260614-nzt: Fix Mermaid double-
 
 ## Session Continuity
 
-**Last Activity**: Completed quick task 260614-nzt: Fix Mermaid double-scaling: remove viewBox attribute after reading dimensions so D3 zoom is the sole transform
+**Last Activity**: Completed quick task 260614-oam: Fix SVGLength resolution error: set SVG to explicit container pixel dimensions instead of CSS percentage width/height
 **Date**: 2026-06-14
 **Stopped At**: All 6 phases complete. v1.0 milestone done.
 **Next Step**: —
@@ -292,3 +292,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-nzt: Fix Mermaid double-
 | 260614-mmt | remove :::className inline suffix from nodeId helper to fix Mermaid lexer error on edge targets | 2026-06-14 | 3eb8042 | [260614-mmt-remove-classname-inline-suffix-from-node](./quick/260614-mmt-remove-classname-inline-suffix-from-node/) |
 | 260614-nmf | fix drag and zoom broken on larger Mermaid diagrams | 2026-06-14 | 0a5c1f7 | [260614-nmf-fix-drag-and-zoom-broken-on-larger-merma](./quick/260614-nmf-fix-drag-and-zoom-broken-on-larger-merma/) |
 | 260614-nzt | Fix Mermaid double-scaling: remove viewBox attribute after reading dimensions so D3 zoom is the sole transform | 2026-06-14 | 098a950 | [260614-nzt-fix-mermaid-double-scaling-remove-viewbo](./quick/260614-nzt-fix-mermaid-double-scaling-remove-viewbo/) |
+| 260614-oam | Fix SVGLength resolution error: set SVG to explicit container pixel dimensions instead of CSS percentage width/height | 2026-06-14 | b4bb91e | [260614-oam-fix-svglength-resolution-error-set-svg-t](./quick/260614-oam-fix-svglength-resolution-error-set-svg-t/) |
