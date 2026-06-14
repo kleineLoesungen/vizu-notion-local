@@ -36,8 +36,8 @@ const SHAPE_BRACKETS: Record<string, [string, string]> = {
   stadium:     ['(["', '"])'],
 }
 
-// rx values for shapes that can be expressed via classDef (used in buildClassDefs).
-const SHAPE_RX: Record<string, string> = {
+// rx values for shapes that can be expressed via classDef (used in buildClassDefs + rewriter).
+export const SHAPE_RX: Record<string, string> = {
   rounded: '10',
   stadium: '50',
 }
@@ -72,28 +72,23 @@ export function buildClassDefs(styles: StylesMap): string {
 }
 
 // nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
-// attrName is passed by the rewriter but not used in the hash — same value always
-// produces the same node ID regardless of which field it comes from.
-// Accepts optional hash args: shape="rounded" and className="cls_fieldName"
-// When className is set: always uses ["label"] brackets so Mermaid's first-definition-wins
-// rule doesn't lock in the wrong shape before the class (with rx) is applied.
-// Shape-only nodes (no className) use bracket syntax directly.
+// Accepts optional hash args: shape="..." and className="cls_fieldName"
+// - className present: accumulates node for post-render `class` assignment; uses bracket
+//   syntax from shape (or default rectangle) + appends :::className suffix.
+// - className absent: bracket syntax only (shape-only visual, no class tracking).
 // SafeString prevents Handlebars from HTML-escaping the brackets.
 Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
   const id = stableId(String(value ?? ''))
   const safeLabel = String(value ?? '').replace(/["[\]{}()]/g, '')
   const className = options?.hash?.className as string | undefined
-
-  if (className) {
-    // Class-driven styling: plain ["label"] brackets, shape comes from classDef rx.
-    // Accumulate for post-render `class nodeId cls` statements.
-    _classAccum.set(id, className)
-    return new Handlebars.SafeString(`${id}["${safeLabel}"]:::${className}`)
-  }
-
-  // Shape-only (no color class): use bracket syntax to express shape visually.
   const shape = (options?.hash?.shape as string) ?? 'rectangle'
   const [open, close] = SHAPE_BRACKETS[shape] ?? SHAPE_BRACKETS['rectangle']!
+
+  if (className) {
+    _classAccum.set(id, className)
+    return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}:::${className}`)
+  }
+
   return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}`)
 })
 
@@ -219,9 +214,13 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
             if (HB_KEYWORDS.has(name)) return match
             const style = styles[name]
             if (!style) return `{{nodeId "${name}" ${name}}}`
-            const shapePart = style.shape ? ` shape="${style.shape}"` : ''
-            const hasColor = style.fill || style.stroke || style['stroke-width'] != null
-            const classPart = hasColor ? ` className="cls_${name}"` : ''
+            const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
+            const hasRxShape = !!(style.shape && SHAPE_RX[style.shape])
+            // rx-capable shapes (rounded/stadium): shape expressed via classDef rx, no shape= arg needed.
+            // Bracket-only shapes (circle/diamond/cylindrical): pass shape= for bracket syntax.
+            const shapePart = (style.shape && !hasRxShape) ? ` shape="${style.shape}"` : ''
+            const needsClass = hasColor || hasRxShape
+            const classPart = needsClass ? ` className="cls_${name}"` : ''
             return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
           }
         )
