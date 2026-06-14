@@ -96,6 +96,36 @@ async function resolveRelationValues(
   }
 }
 
+// Expand rows with multi-value relation fields into multiple scalar rows.
+// Each _all-suffixed string[] field (produced by resolveRelationValues) represents a
+// relation role with N targets. This function cross-products all such arrays so that
+// a row with parent_all=["A","B"] becomes 2 rows: {parent:"A"} and {parent:"B"}.
+// _all fields are stripped from the output — they are internal, not for templates.
+// Duplicate Mermaid node/edge declarations are harmless (Mermaid deduplicates them).
+function expandRelationRows(rows: Record<string, unknown>[]): Record<string, string>[] {
+  const result: Record<string, string>[] = []
+  for (const row of rows) {
+    const relationRoles = Object.keys(row)
+      .filter(k => k.endsWith('_all') && Array.isArray(row[k]))
+      .map(k => k.slice(0, -4))
+
+    const baseRow: Record<string, string> = {}
+    for (const [k, v] of Object.entries(row)) {
+      if (!k.endsWith('_all') && typeof v === 'string') baseRow[k] = v
+    }
+
+    let expanded: Record<string, string>[] = [{ ...baseRow }]
+    for (const role of relationRoles) {
+      const vals = row[`${role}_all`] as string[]
+      if (vals.length <= 1) continue  // baseRow already has the single value (or empty)
+      expanded = expanded.flatMap(e => vals.map(v => ({ ...e, [role]: v })))
+    }
+
+    result.push(...expanded)
+  }
+  return result
+}
+
 // ── Handler ──────────────────────────────────────────────────────────────────
 
 export default defineEventHandler(async (event) => {
@@ -148,7 +178,7 @@ export default defineEventHandler(async (event) => {
     })
 
     await resolveRelationValues(mappedRows, pages, source, titleMap)
-    context[sourceName] = mappedRows
+    context[sourceName] = expandRelationRows(mappedRows)
   }
 
   const rewrittenBody = rewriteTemplateBody(bodyText, styles)
