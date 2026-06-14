@@ -233,8 +233,8 @@ Last activity: 2026-06-14 - Completed quick task 260614-j0t: implement palette h
 
 ## Session Continuity
 
-**Last Activity**: Phase 06 approved — all 4 plans complete + post-phase fixes (relation resolution, node ID hashing, has-relation filter)
-**Date**: 2026-06-13
+**Last Activity**: Completed quick task 260614-jef: frontmatter-driven node styling for Mermaid templates
+**Date**: 2026-06-14
 **Stopped At**: All 6 phases complete. v1.0 milestone done.
 **Next Step**: —
 
@@ -288,3 +288,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-j0t: implement palette h
 | 260613-gen | client-side mmd editor for live mermaid preview without app restart | 2026-06-13 | 059e6f1 | [260613-gen-client-side-mmd-editor-for-live-mermaid-](./quick/260613-gen-client-side-mmd-editor-for-live-mermaid-/) |
 | 260614-ikw | implement group() and group-item Handlebars helpers for Mermaid templates | 2026-06-14 | fa58e17 | [260614-ikw-implement-group-helper-for-mermaid-templ](./quick/260614-ikw-implement-group-helper-for-mermaid-templ/) |
 | 260614-j0t | implement palette helper for attribute-based node styling in Mermaid templates | 2026-06-14 | cdd76d0 | [260614-j0t-implement-attribute-based-node-styling-h](./quick/260614-j0t-implement-attribute-based-node-styling-h/) |
+| 260614-jef | frontmatter-driven node styling for Mermaid templates (shape + classDef injection) | 2026-06-14 | 1f7961e | [260614-jef-frontmatter-driven-node-styling-for-merm](./quick/260614-jef-frontmatter-driven-node-styling-for-merm/) |
