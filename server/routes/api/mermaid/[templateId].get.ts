@@ -4,6 +4,22 @@ import { queryDatabase, retrievePage } from '../../../utils/notion'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { Source } from '../../../utils/config'
 
+// Build classDef lines for styles entries that declare color properties.
+// Only entries with at least one of fill/stroke/stroke-width emit a classDef line.
+function buildClassDefs(styles: Record<string, { shape?: string; fill?: string; stroke?: string; 'stroke-width'?: number }>): string {
+  const lines: string[] = []
+  for (const [attrName, entry] of Object.entries(styles)) {
+    const hasColor = entry.fill || entry.stroke || entry['stroke-width'] != null
+    if (!hasColor) continue
+    const parts: string[] = []
+    if (entry.fill) parts.push(`fill:${entry.fill}`)
+    if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
+    if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
+    lines.push(`classDef style-${attrName} ${parts.join(',')}`)
+  }
+  return lines.join('\n')
+}
+
 // Extract all Notion relation target page IDs from a raw PageObjectResponse (D-11)
 // Scans all properties for type === 'relation' and collects target IDs.
 // Returns [] when no relation properties exist (always safe to call unconditionally).
@@ -197,6 +213,11 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Internal Server Error',
       message: `Template rendering failed for '${templateId}': ${err.message}`,
     })
+  }
+
+  const classDefBlock = buildClassDefs(template.styles)
+  if (classDefBlock) {
+    diagramString = classDefBlock + '\n' + diagramString
   }
 
   return {
