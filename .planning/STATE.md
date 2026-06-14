@@ -23,7 +23,7 @@ progress:
 
 Phase: — (v1.1 closed, planning v1.2)
 Status: v1.1 archived — run `/gsd:new-milestone` to start next milestone
-Last activity: 2026-06-14 - Completed quick task 260614-ikw: implement group() helper for mermaid template engine
+Last activity: 2026-06-14 - Completed quick task 260614-j0t: implement palette helper for attribute-based node styling
 
 ## Project Metrics
 
@@ -287,3 +287,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-ikw: implement group() h
 | 260608-vlm | list Mermaid diagram templates on dashboard with deep-link navigation | 2026-06-08 | 08f6da0 | [260608-vlm-list-mermaid-diagram-templates-on-the-da](./quick/260608-vlm-list-mermaid-diagram-templates-on-the-da/) |
 | 260613-gen | client-side mmd editor for live mermaid preview without app restart | 2026-06-13 | 059e6f1 | [260613-gen-client-side-mmd-editor-for-live-mermaid-](./quick/260613-gen-client-side-mmd-editor-for-live-mermaid-/) |
 | 260614-ikw | implement group() and group-item Handlebars helpers for Mermaid templates | 2026-06-14 | fa58e17 | [260614-ikw-implement-group-helper-for-mermaid-templ](./quick/260614-ikw-implement-group-helper-for-mermaid-templ/) |
+| 260614-j0t | implement palette helper for attribute-based node styling in Mermaid templates | 2026-06-14 | cdd76d0 | [260614-j0t-implement-attribute-based-node-styling-h](./quick/260614-j0t-implement-attribute-based-node-styling-h/) |
