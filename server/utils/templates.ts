@@ -36,12 +36,6 @@ const SHAPE_BRACKETS: Record<string, [string, string]> = {
   stadium:     ['(["', '"])'],
 }
 
-// rx values for shapes that can be expressed via classDef (used in buildClassDefs + rewriter).
-export const SHAPE_RX: Record<string, string> = {
-  rounded: '10',
-  stadium: '50',
-}
-
 // Accumulator: populated by nodeId helper during a render pass.
 // Reset via resetClassAccumulator() before each render; read via getClassAssignments() after.
 const _classAccum = new Map<string, string>() // nodeId → className
@@ -54,8 +48,9 @@ export function getClassAssignments(): ReadonlyMap<string, string> {
   return _classAccum
 }
 
-// Builds the classDef block for a styles map. Emits one line per attribute that has
-// color and/or an rx-capable shape. Called by route handlers to prepend to the diagram.
+// Builds the classDef block for a styles map. Only CSS color properties are emitted —
+// shape is expressed via Mermaid bracket syntax in nodeId, not via classDef.
+// (rx is an SVG attribute, not a CSS property; it causes Mermaid to drop the classDef.)
 export function buildClassDefs(styles: StylesMap): string {
   const lines: string[] = []
   for (const [attrName, entry] of Object.entries(styles)) {
@@ -64,7 +59,6 @@ export function buildClassDefs(styles: StylesMap): string {
     if (entry.fill) parts.push(`fill:${entry.fill}`)
     if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
     if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
-    if (entry.shape && SHAPE_RX[entry.shape]) parts.push(`rx:${SHAPE_RX[entry.shape]}`)
     if (parts.length === 0) continue
     lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
   }
@@ -214,13 +208,11 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
             if (HB_KEYWORDS.has(name)) return match
             const style = styles[name]
             if (!style) return `{{nodeId "${name}" ${name}}}`
+            // Shape: always use bracket syntax via shape= arg (classDef cannot express shape).
+            // Color: inject className so classDef fill/stroke is applied and tracked for post-render class stmt.
+            const shapePart = style.shape ? ` shape="${style.shape}"` : ''
             const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
-            const hasRxShape = !!(style.shape && SHAPE_RX[style.shape])
-            // rx-capable shapes (rounded/stadium): shape expressed via classDef rx, no shape= arg needed.
-            // Bracket-only shapes (circle/diamond/cylindrical): pass shape= for bracket syntax.
-            const shapePart = (style.shape && !hasRxShape) ? ` shape="${style.shape}"` : ''
-            const needsClass = hasColor || hasRxShape
-            const classPart = needsClass ? ` className="cls_${name}"` : ''
+            const classPart = hasColor ? ` className="cls_${name}"` : ''
             return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
           }
         )

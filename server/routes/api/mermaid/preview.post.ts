@@ -5,7 +5,7 @@ import { queryDatabase, retrievePage } from '../../../utils/notion'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { Source } from '../../../utils/config'
 
-import { getTemplates, buildClassDefs, resetClassAccumulator, getClassAssignments, SHAPE_RX } from '../../../utils/templates'
+import { getTemplates, buildClassDefs, resetClassAccumulator, getClassAssignments } from '../../../utils/templates'
 
 // ── Shared helpers (same logic as [templateId].get.ts) ──────────────────────
 
@@ -153,11 +153,9 @@ export default defineEventHandler(async (event) => {
         if (HB_KEYWORDS.has(name)) return match
         const style = styles[name]
         if (!style) return `{{nodeId "${name}" ${name}}}`
+        const shapePart = style.shape ? ` shape="${style.shape}"` : ''
         const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
-        const hasRxShape = !!(style.shape && SHAPE_RX[style.shape])
-        const shapePart = (style.shape && !hasRxShape) ? ` shape="${style.shape}"` : ''
-        const needsClass = hasColor || hasRxShape
-        const classPart = needsClass ? ` className="cls_${name}"` : ''
+        const classPart = hasColor ? ` className="cls_${name}"` : ''
         return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
       }
     )
