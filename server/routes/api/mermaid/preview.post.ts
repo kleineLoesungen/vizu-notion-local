@@ -5,7 +5,7 @@ import { queryDatabase, retrievePage } from '../../../utils/notion'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { Source } from '../../../utils/config'
 
-import { getTemplates, buildClassDefs, resetClassAccumulator, getClassAssignments } from '../../../utils/templates'
+import { getTemplates, buildClassDefs, resetClassAccumulator, getClassAssignments, rewriteTemplateBody } from '../../../utils/templates'
 
 // ── Shared helpers (same logic as [templateId].get.ts) ──────────────────────
 
@@ -87,8 +87,6 @@ async function resolveRelationValues(
 
 // ── Handler ──────────────────────────────────────────────────────────────────
 
-const HB_KEYWORDS = new Set(['else', 'this', 'log'])
-
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const rawContent: string = body?.content ?? ''
@@ -142,24 +140,7 @@ export default defineEventHandler(async (event) => {
     context[sourceName] = mappedRows
   }
 
-  const rewrittenBody = bodyText.split('\n').map(line => {
-    const trimmed = line.trimStart()
-    if (trimmed.startsWith('classDef ') || trimmed.startsWith('subgraph ')) {
-      return line
-    }
-    return line.replace(
-      /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
-      (match, name) => {
-        if (HB_KEYWORDS.has(name)) return match
-        const style = styles[name]
-        if (!style) return `{{nodeId "${name}" ${name}}}`
-        const shapePart = style.shape ? ` shape="${style.shape}"` : ''
-        const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
-        const classPart = hasColor ? ` className="cls_${name}"` : ''
-        return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
-      }
-    )
-  }).join('\n')
+  const rewrittenBody = rewriteTemplateBody(bodyText, styles)
 
   let diagramString: string
   try {
