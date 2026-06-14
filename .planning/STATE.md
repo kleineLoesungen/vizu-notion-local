@@ -23,7 +23,7 @@ progress:
 
 Phase: — (v1.1 closed, planning v1.2)
 Status: v1.1 archived — run `/gsd:new-milestone` to start next milestone
-Last activity: 2026-06-14 - Completed quick task 260614-j0t: implement palette helper for attribute-based node styling
+Last activity: 2026-06-14 - Completed quick task 260614-jef: frontmatter-driven node styling for mermaid templates
 
 ## Project Metrics
 
