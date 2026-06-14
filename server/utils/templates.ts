@@ -61,6 +61,19 @@ Handlebars.registerHelper('group-item', function(this: { items?: Record<string, 
   )
 })
 
+// Tableau 10 palette — 10 accessible, visually distinct colors.
+// palette index helper: returns a hex color string by index, wrapping around if index >= 10.
+// Called as {{palette @index}} inside {{#each (group ...)}} to auto-assign one color per group.
+const PALETTE = [
+  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f',
+  '#edc948', '#b07aa1', '#ff9da7', '#9c755f', '#bab0ac',
+]
+
+Handlebars.registerHelper('palette', function(index: unknown) {
+  const i = Math.abs(Number(index) || 0)
+  return PALETTE[i % PALETTE.length]
+})
+
 export interface MermaidTemplate {
   id: string           // filename without .mmd extension (e.g., "project-timeline")
   title: string        // from frontmatter.title
