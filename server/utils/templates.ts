@@ -29,6 +29,38 @@ Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown) 
   return new Handlebars.SafeString(`${id}["${safeLabel}"]`)
 })
 
+// group helper: called as (group arrayOfRows "fieldName") inside {{#each}}.
+// Returns an array of { [fieldName]: key, items: rows[] } objects — one per distinct
+// value of fieldName in the input array.
+// The group key is exposed as a direct property named after the field (not "key")
+// so {{fieldName}} resolves naturally in the outer #each block and gets rewritten
+// to {{nodeId "fieldName" fieldName}} by the template rewriter — same as bare field refs.
+// Empty/undefined values are grouped under the empty string key.
+Handlebars.registerHelper('group', function(array: Record<string, string>[], field: string) {
+  if (!Array.isArray(array) || !field) return []
+  const map = new Map<string, Record<string, string>[]>()
+  for (const row of array) {
+    const key = row[field] ?? ''
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(row)
+  }
+  return Array.from(map.entries()).map(([key, items]) => ({
+    [field]: key,
+    items,
+  }))
+})
+
+// group-item block helper: called as {{#group-item}}...{{/group-item}} inside
+// {{#each (group ...)}} block. `this` in the outer each is { [field]: key, items: rows[] }.
+// group-item iterates over this.items and renders the block body once per item.
+// The inner context is the individual row object, so {{title}} etc. work normally.
+Handlebars.registerHelper('group-item', function(this: { items?: Record<string, string>[] }, options: Handlebars.HelperOptions) {
+  const items = this.items ?? []
+  return new Handlebars.SafeString(
+    items.map((item) => options.fn(item)).join('')
+  )
+})
+
 export interface MermaidTemplate {
   id: string           // filename without .mmd extension (e.g., "project-timeline")
   title: string        // from frontmatter.title
