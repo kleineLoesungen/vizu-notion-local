@@ -233,7 +233,7 @@ Last activity: 2026-06-14 - Completed quick task 260614-jef: frontmatter-driven 
 
 ## Session Continuity
 
-**Last Activity**: Completed quick task 260614-jef: frontmatter-driven node styling for Mermaid templates
+**Last Activity**: Completed quick task 260614-mmt: remove :::className inline suffix from nodeId helper
 **Date**: 2026-06-14
 **Stopped At**: All 6 phases complete. v1.0 milestone done.
 **Next Step**: —
@@ -289,3 +289,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-jef: frontmatter-driven 
 | 260614-ikw | implement group() and group-item Handlebars helpers for Mermaid templates | 2026-06-14 | fa58e17 | [260614-ikw-implement-group-helper-for-mermaid-templ](./quick/260614-ikw-implement-group-helper-for-mermaid-templ/) |
 | 260614-j0t | implement palette helper for attribute-based node styling in Mermaid templates | 2026-06-14 | cdd76d0 | [260614-j0t-implement-attribute-based-node-styling-h](./quick/260614-j0t-implement-attribute-based-node-styling-h/) |
 | 260614-jef | frontmatter-driven node styling for Mermaid templates (shape + classDef injection) | 2026-06-14 | 1f7961e | [260614-jef-frontmatter-driven-node-styling-for-merm](./quick/260614-jef-frontmatter-driven-node-styling-for-merm/) |
+| 260614-mmt | remove :::className inline suffix from nodeId helper to fix Mermaid lexer error on edge targets | 2026-06-14 | 3eb8042 | [260614-mmt-remove-classname-inline-suffix-from-node](./quick/260614-mmt-remove-classname-inline-suffix-from-node/) |
