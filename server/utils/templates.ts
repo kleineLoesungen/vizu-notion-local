@@ -18,15 +18,38 @@ function stableId(value: string): string {
   return 'n' + h.toString(36).padStart(6, '0')
 }
 
+type StyleEntry = {
+  shape?: 'rectangle' | 'rounded' | 'circle' | 'cylindrical' | 'diamond' | 'stadium'
+  fill?: string
+  stroke?: string
+  'stroke-width'?: number
+}
+
+type StylesMap = Record<string, StyleEntry>
+
+const SHAPE_BRACKETS: Record<string, [string, string]> = {
+  rectangle:   ['["', '"]'],
+  rounded:     ['("',  '")'],
+  circle:      ['(("', '"))'],
+  cylindrical: ['[("', '")]'],
+  diamond:     ['{"',  '"}'],
+  stadium:     ['(["', '"])'],
+}
+
 // nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
 // attrName is passed by the rewriter but not used in the hash — same value always
 // produces the same node ID regardless of which field it comes from.
-// Returns full Mermaid rectangle node definition: id["label"] (D-01, D-02, D-05)
-// SafeString prevents Handlebars from HTML-escaping the square brackets.
-Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown) {
+// Accepts optional hash args: shape="rounded" and className="style-fieldName"
+// Returns full Mermaid node definition with appropriate bracket syntax and optional class suffix.
+// SafeString prevents Handlebars from HTML-escaping the brackets.
+Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
   const id = stableId(String(value ?? ''))
-  const safeLabel = String(value ?? '').replace(/["[\]]/g, '')
-  return new Handlebars.SafeString(`${id}["${safeLabel}"]`)
+  const safeLabel = String(value ?? '').replace(/["[\]{}()]/g, '')
+  const shape = (options?.hash?.shape as string) ?? 'rectangle'
+  const className = options?.hash?.className as string | undefined
+  const [open, close] = SHAPE_BRACKETS[shape] ?? SHAPE_BRACKETS['rectangle']!
+  const suffix = className ? `:::${className}` : ''
+  return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}${suffix}`)
 })
 
 // group helper: called as (group arrayOfRows "fieldName") inside {{#each}}.
@@ -78,6 +101,7 @@ export interface MermaidTemplate {
   id: string           // filename without .mmd extension (e.g., "project-timeline")
   title: string        // from frontmatter.title
   sources: string[]    // from frontmatter.sources (source names)
+  styles: StylesMap    // from frontmatter.styles (empty object when not declared)
   body: string         // raw Mermaid diagram body (Handlebars syntax preserved)
   compiled: Handlebars.TemplateDelegate  // precompiled; call with context object
 }
@@ -125,17 +149,38 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
       )
     }
 
+    // Extract styles map from frontmatter (optional — empty object when absent)
+    const styles: StylesMap = (typeof data.styles === 'object' && data.styles !== null)
+      ? (data.styles as StylesMap)
+      : {}
+
     // Precompile Handlebars template (D-04)
     let compiled: Handlebars.TemplateDelegate
     try {
-      // Rewrite bare {{attr}} bindings → {{nodeId "attr" attr}} before compilation (D-01, D-05)
-      // Only rewrites simple variable references: {{word}} — not helpers, block helpers, or
-      // Handlebars keywords. The blocklist guards else/this/log which match the word pattern.
+      // Line-aware rewriter: rewrites bare {{attr}} → {{nodeId "attr" attr}} before compilation.
+      // Lines starting with classDef or subgraph are left untouched — their {{field}} refs
+      // are literal Mermaid syntax, not Handlebars bindings.
+      // For fields declared in the styles map, shape= and className= hash args are injected.
       const HB_KEYWORDS = new Set(['else', 'this', 'log'])
-      const rewrittenBody = body.replace(
-        /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
-        (match, name) => HB_KEYWORDS.has(name) ? match : `{{nodeId "${name}" ${name}}}`
-      )
+      const rewrittenBody = body.split('\n').map(line => {
+        const trimmed = line.trimStart()
+        // Don't rewrite inside classDef or subgraph directives
+        if (trimmed.startsWith('classDef ') || trimmed.startsWith('subgraph ')) {
+          return line
+        }
+        return line.replace(
+          /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
+          (match, name) => {
+            if (HB_KEYWORDS.has(name)) return match
+            const style = styles[name]
+            if (!style) return `{{nodeId "${name}" ${name}}}`
+            const shapePart = style.shape ? ` shape="${style.shape}"` : ''
+            const hasColor = style.fill || style.stroke || style['stroke-width'] != null
+            const classPart = hasColor ? ` className="style-${name}"` : ''
+            return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
+          }
+        )
+      }).join('\n')
       compiled = Handlebars.compile(rewrittenBody)
     } catch (err: any) {
       throw new Error(`[vizu] Template "${file}": Handlebars compilation failed: ${err.message}`)
@@ -145,6 +190,7 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
       id: file.replace(/\.mmd$/, ''),
       title: data.title as string,
       sources: data.sources as string[],
+      styles,
       body: body.trim(),
       compiled,
     })
