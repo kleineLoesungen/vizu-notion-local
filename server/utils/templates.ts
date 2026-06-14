@@ -8,11 +8,15 @@ import { getConfig } from './config'
 // Hashes only the value (not the attribute name) so that {{title}} and {{next}}
 // referencing the same text produce the same node — enabling cross-field edges
 // without duplicate nodes.
+// Optional scope parameter (e.g. source name) scopes the hash so nodes from
+// different databases with identical labels get distinct IDs. The null byte
+// separator prevents "ab"+"c" colliding with "a"+"bc".
 // Output: 'n' prefix + 6 base-36 chars (can't start with digit — Mermaid requirement).
-function stableId(value: string): string {
+function stableId(value: string, scope = ''): string {
+  const input = scope ? `${scope}\x00${value}` : value
   let h = 0x811c9dc5
-  for (let i = 0; i < value.length; i++) {
-    h ^= value.charCodeAt(i)
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
     h = Math.imul(h, 0x01000193) >>> 0
   }
   return 'n' + h.toString(36).padStart(6, '0')
@@ -72,7 +76,8 @@ export function buildClassDefs(styles: StylesMap): string {
 // - className absent: bracket syntax only (shape-only visual, no class tracking).
 // SafeString prevents Handlebars from HTML-escaping the brackets.
 Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
-  const id = stableId(String(value ?? ''))
+  const source = (options?.hash?.source as string) ?? ''
+  const id = stableId(String(value ?? ''), source)
   const safeLabel = String(value ?? '').replace(/["[\]{}()]/g, '')
   const className = options?.hash?.className as string | undefined
   const shape = (options?.hash?.shape as string) ?? 'rectangle'
@@ -130,6 +135,56 @@ Handlebars.registerHelper('palette', function(index: unknown) {
   const i = Math.abs(Number(index) || 0)
   return PALETTE[i % PALETTE.length]
 })
+
+// Rewrites bare {{attr}} references → {{nodeId "attr" attr ...}} before Handlebars
+// compilation. The rewriter is block-aware: when inside a {{#each SourceName}} block
+// it injects source="SourceName" into every nodeId call so that nodes from different
+// sources with identical labels produce distinct Mermaid node IDs.
+// Lines beginning with classDef or subgraph are left untouched — those contain
+// literal Mermaid syntax, not Handlebars bindings.
+export function rewriteTemplateBody(body: string, styles: StylesMap): string {
+  const HB_KEYWORDS = new Set(['else', 'this', 'log'])
+  const lines = body.split('\n')
+  let currentSource = ''            // name of the active {{#each X}} block, '' if none
+  const eachDepth: string[] = []    // stack to handle nested #each
+
+  return lines.map(line => {
+    const trimmed = line.trimStart()
+
+    // Track {{#each SourceName}} open — capture the source name
+    const eachOpen = trimmed.match(/^\{\{#each\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/)
+    if (eachOpen) {
+      eachDepth.push(currentSource)
+      currentSource = eachOpen[1]!
+      return line   // don't rewrite the #each line itself
+    }
+
+    // Track {{/each}} close
+    if (trimmed.startsWith('{{/each}}')) {
+      currentSource = eachDepth.pop() ?? ''
+      return line
+    }
+
+    // Don't rewrite classDef or subgraph directives
+    if (trimmed.startsWith('classDef ') || trimmed.startsWith('subgraph ')) {
+      return line
+    }
+
+    return line.replace(
+      /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
+      (match, name) => {
+        if (HB_KEYWORDS.has(name)) return match
+        const style = styles[name]
+        const sourcePart = currentSource ? ` source="${currentSource}"` : ''
+        if (!style) return `{{nodeId "${name}" ${name}${sourcePart}}}`
+        const shapePart = style.shape ? ` shape="${style.shape}"` : ''
+        const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
+        const classPart = hasColor ? ` className="cls_${name}"` : ''
+        return `{{nodeId "${name}" ${name}${shapePart}${classPart}${sourcePart}}}`
+      }
+    )
+  }).join('\n')
+}
 
 export interface MermaidTemplate {
   id: string           // filename without .mmd extension (e.g., "project-timeline")
@@ -191,32 +246,7 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
     // Precompile Handlebars template (D-04)
     let compiled: Handlebars.TemplateDelegate
     try {
-      // Line-aware rewriter: rewrites bare {{attr}} → {{nodeId "attr" attr}} before compilation.
-      // Lines starting with classDef or subgraph are left untouched — their {{field}} refs
-      // are literal Mermaid syntax, not Handlebars bindings.
-      // For fields declared in the styles map, shape= and className= hash args are injected.
-      const HB_KEYWORDS = new Set(['else', 'this', 'log'])
-      const rewrittenBody = body.split('\n').map(line => {
-        const trimmed = line.trimStart()
-        // Don't rewrite inside classDef or subgraph directives
-        if (trimmed.startsWith('classDef ') || trimmed.startsWith('subgraph ')) {
-          return line
-        }
-        return line.replace(
-          /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
-          (match, name) => {
-            if (HB_KEYWORDS.has(name)) return match
-            const style = styles[name]
-            if (!style) return `{{nodeId "${name}" ${name}}}`
-            // Shape: always use bracket syntax via shape= arg (classDef cannot express shape).
-            // Color: inject className so classDef fill/stroke is applied and tracked for post-render class stmt.
-            const shapePart = style.shape ? ` shape="${style.shape}"` : ''
-            const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
-            const classPart = hasColor ? ` className="cls_${name}"` : ''
-            return `{{nodeId "${name}" ${name}${shapePart}${classPart}}}`
-          }
-        )
-      }).join('\n')
+      const rewrittenBody = rewriteTemplateBody(body, styles)
       compiled = Handlebars.compile(rewrittenBody)
     } catch (err: any) {
       throw new Error(`[vizu] Template "${file}": Handlebars compilation failed: ${err.message}`)
