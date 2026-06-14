@@ -5,33 +5,7 @@ import { queryDatabase, retrievePage } from '../../../utils/notion'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { Source } from '../../../utils/config'
 
-// Importing templates.ts registers the nodeId Handlebars helper at module scope.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { getTemplates } from '../../../utils/templates'
-
-const SHAPE_BRACKETS: Record<string, [string, string]> = {
-  rectangle:   ['["', '"]'],
-  rounded:     ['("',  '")'],
-  circle:      ['(("', '"))'],
-  cylindrical: ['[("', '")]'],
-  diamond:     ['{"',  '"}'],
-  stadium:     ['(["', '"])'],
-}
-
-function buildClassDefs(styles: Record<string, any>): string {
-  const lines: string[] = []
-  for (const [attrName, entry] of Object.entries(styles)) {
-    if (!entry || typeof entry !== 'object') continue
-    const hasColor = entry.fill || entry.stroke || entry['stroke-width'] != null
-    if (!hasColor) continue
-    const parts: string[] = []
-    if (entry.fill) parts.push(`fill:${entry.fill}`)
-    if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
-    if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
-    lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
-  }
-  return lines.join('\n')
-}
+import { getTemplates, buildClassDefs, resetClassAccumulator, getClassAssignments } from '../../../utils/templates'
 
 // ── Shared helpers (same logic as [templateId].get.ts) ──────────────────────
 
@@ -189,6 +163,7 @@ export default defineEventHandler(async (event) => {
 
   let diagramString: string
   try {
+    resetClassAccumulator()
     diagramString = Handlebars.compile(rewrittenBody)(context)
   } catch (err: any) {
     throw createError({ statusCode: 400, message: `Template error: ${err.message}` })
@@ -200,6 +175,21 @@ export default defineEventHandler(async (event) => {
     const firstContentIdx = lines.findIndex(l => l.trim().length > 0)
     lines.splice(firstContentIdx + 1, 0, classDefBlock)
     diagramString = lines.join('\n')
+  }
+
+  // Append `class nodeId cls_X` for every styled node — guarantees class applies
+  // even when a node was first defined without :::className (e.g. as a standalone title).
+  const classAssignments = getClassAssignments()
+  if (classAssignments.size > 0) {
+    const byClass = new Map<string, string[]>()
+    for (const [nodeId, cls] of classAssignments) {
+      if (!byClass.has(cls)) byClass.set(cls, [])
+      byClass.get(cls)!.push(nodeId)
+    }
+    const classLines = Array.from(byClass.entries())
+      .map(([cls, ids]) => `class ${ids.join(',')} ${cls}`)
+      .join('\n')
+    diagramString = diagramString.trimEnd() + '\n' + classLines
   }
 
   return { diagramString }

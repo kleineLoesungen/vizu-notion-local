@@ -36,20 +36,65 @@ const SHAPE_BRACKETS: Record<string, [string, string]> = {
   stadium:     ['(["', '"])'],
 }
 
+// rx values for shapes that can be expressed via classDef (used in buildClassDefs).
+const SHAPE_RX: Record<string, string> = {
+  rounded: '10',
+  stadium: '50',
+}
+
+// Accumulator: populated by nodeId helper during a render pass.
+// Reset via resetClassAccumulator() before each render; read via getClassAssignments() after.
+const _classAccum = new Map<string, string>() // nodeId → className
+
+export function resetClassAccumulator(): void {
+  _classAccum.clear()
+}
+
+export function getClassAssignments(): ReadonlyMap<string, string> {
+  return _classAccum
+}
+
+// Builds the classDef block for a styles map. Emits one line per attribute that has
+// color and/or an rx-capable shape. Called by route handlers to prepend to the diagram.
+export function buildClassDefs(styles: StylesMap): string {
+  const lines: string[] = []
+  for (const [attrName, entry] of Object.entries(styles)) {
+    if (!entry || typeof entry !== 'object') continue
+    const parts: string[] = []
+    if (entry.fill) parts.push(`fill:${entry.fill}`)
+    if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
+    if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
+    if (entry.shape && SHAPE_RX[entry.shape]) parts.push(`rx:${SHAPE_RX[entry.shape]}`)
+    if (parts.length === 0) continue
+    lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
+  }
+  return lines.join('\n')
+}
+
 // nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
 // attrName is passed by the rewriter but not used in the hash — same value always
 // produces the same node ID regardless of which field it comes from.
 // Accepts optional hash args: shape="rounded" and className="cls_fieldName"
-// Returns full Mermaid node definition with appropriate bracket syntax and optional class suffix.
+// When className is set: always uses ["label"] brackets so Mermaid's first-definition-wins
+// rule doesn't lock in the wrong shape before the class (with rx) is applied.
+// Shape-only nodes (no className) use bracket syntax directly.
 // SafeString prevents Handlebars from HTML-escaping the brackets.
 Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
   const id = stableId(String(value ?? ''))
   const safeLabel = String(value ?? '').replace(/["[\]{}()]/g, '')
-  const shape = (options?.hash?.shape as string) ?? 'rectangle'
   const className = options?.hash?.className as string | undefined
+
+  if (className) {
+    // Class-driven styling: plain ["label"] brackets, shape comes from classDef rx.
+    // Accumulate for post-render `class nodeId cls` statements.
+    _classAccum.set(id, className)
+    return new Handlebars.SafeString(`${id}["${safeLabel}"]:::${className}`)
+  }
+
+  // Shape-only (no color class): use bracket syntax to express shape visually.
+  const shape = (options?.hash?.shape as string) ?? 'rectangle'
   const [open, close] = SHAPE_BRACKETS[shape] ?? SHAPE_BRACKETS['rectangle']!
-  const suffix = className ? `:::${className}` : ''
-  return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}${suffix}`)
+  return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}`)
 })
 
 // group helper: called as (group arrayOfRows "fieldName") inside {{#each}}.

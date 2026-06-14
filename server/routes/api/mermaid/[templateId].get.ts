@@ -1,24 +1,8 @@
-import { getTemplates } from '../../../utils/templates'
+import { getTemplates, buildClassDefs, resetClassAccumulator, getClassAssignments } from '../../../utils/templates'
 import { getConfig } from '../../../utils/config'
 import { queryDatabase, retrievePage } from '../../../utils/notion'
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { Source } from '../../../utils/config'
-
-// Build classDef lines for styles entries that declare color properties.
-// Only entries with at least one of fill/stroke/stroke-width emit a classDef line.
-function buildClassDefs(styles: Record<string, { shape?: string; fill?: string; stroke?: string; 'stroke-width'?: number }>): string {
-  const lines: string[] = []
-  for (const [attrName, entry] of Object.entries(styles)) {
-    const hasColor = entry.fill || entry.stroke || entry['stroke-width'] != null
-    if (!hasColor) continue
-    const parts: string[] = []
-    if (entry.fill) parts.push(`fill:${entry.fill}`)
-    if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
-    if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
-    lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
-  }
-  return lines.join('\n')
-}
 
 // Extract all Notion relation target page IDs from a raw PageObjectResponse (D-11)
 // Scans all properties for type === 'relation' and collects target IDs.
@@ -206,6 +190,7 @@ export default defineEventHandler(async (event) => {
 
   let diagramString: string
   try {
+    resetClassAccumulator()
     diagramString = template.compiled(context)
   } catch (err: any) {
     throw createError({
@@ -221,6 +206,21 @@ export default defineEventHandler(async (event) => {
     const firstContentIdx = lines.findIndex(l => l.trim().length > 0)
     lines.splice(firstContentIdx + 1, 0, classDefBlock)
     diagramString = lines.join('\n')
+  }
+
+  // Append `class nodeId cls_X` for every styled node — guarantees class applies
+  // even when a node was first defined without :::className (e.g. as a standalone title).
+  const classAssignments = getClassAssignments()
+  if (classAssignments.size > 0) {
+    const byClass = new Map<string, string[]>()
+    for (const [nodeId, cls] of classAssignments) {
+      if (!byClass.has(cls)) byClass.set(cls, [])
+      byClass.get(cls)!.push(nodeId)
+    }
+    const classLines = Array.from(byClass.entries())
+      .map(([cls, ids]) => `class ${ids.join(',')} ${cls}`)
+      .join('\n')
+    diagramString = diagramString.trimEnd() + '\n' + classLines
   }
 
   return {
