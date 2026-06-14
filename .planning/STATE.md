@@ -23,7 +23,7 @@ progress:
 
 Phase: — (v1.1 closed, planning v1.2)
 Status: v1.1 archived — run `/gsd:new-milestone` to start next milestone
-Last activity: 2026-06-13 — v1.1 milestone closed and archived
+Last activity: 2026-06-14 - Completed quick task 260614-ikw: implement group() helper for mermaid template engine
 
 ## Project Metrics
 
