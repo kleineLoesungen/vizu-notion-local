@@ -49,6 +49,13 @@ export function useMermaidTemplate(
     const mermaid = await import('mermaid')
     mermaidInstance = mermaid.default
     mermaidInstance.initialize({ startOnLoad: false })
+    // Data may have arrived before mermaid finished loading (cache hit race).
+    // The watch(diagramString) fired early but renderDiagram returned immediately
+    // because mermaidInstance was null. Render now if data is already present.
+    if (diagramString.value) {
+      await nextTick()
+      await renderDiagram(`mermaid-render-${id.value}`)
+    }
   })
 
   onBeforeUnmount(() => {
