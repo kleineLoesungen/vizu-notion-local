@@ -68,7 +68,7 @@ export function buildClassDefs(styles: StylesMap): string {
 // nodeId helper: called as {{nodeId "attrName" attrValue}} from rewritten template body.
 // Accepts optional hash args: shape="..." and className="cls_fieldName"
 // - className present: accumulates node for post-render `class` assignment; uses bracket
-//   syntax from shape (or default rectangle) + appends :::className suffix.
+//   syntax from shape (or default rectangle).
 // - className absent: bracket syntax only (shape-only visual, no class tracking).
 // SafeString prevents Handlebars from HTML-escaping the brackets.
 Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, options?: Handlebars.HelperOptions) {
@@ -80,7 +80,7 @@ Handlebars.registerHelper('nodeId', function(_attrName: string, value: unknown, 
 
   if (className) {
     _classAccum.set(id, className)
-    return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}:::${className}`)
+    return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}`)
   }
 
   return new Handlebars.SafeString(`${id}${open}${safeLabel}${close}`)
