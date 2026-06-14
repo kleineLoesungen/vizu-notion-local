@@ -34,14 +34,15 @@ function extractPageTitle(page: PageObjectResponse): string {
   return ''
 }
 
+// Produces row[role] = first title (backward compat) and row[role + '_all'] = all titles (no hiddenIds filtering in preview).
 async function resolveRelationValues(
-  rows: Record<string, string>[],
+  rows: Record<string, unknown>[],
   pages: PageObjectResponse[],
   source: Source,
   titleMap: Map<string, string>
 ): Promise<void> {
   if (pages.length === 0) return
-  const samplePage = pages[0]
+  const samplePage = pages[0]!
   const relationRoles: Array<{ role: string; notionPropName: string }> = []
   for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
     const prop = samplePage.properties[notionPropName as string]
@@ -49,13 +50,15 @@ async function resolveRelationValues(
   }
   if (relationRoles.length === 0) return
 
+  // Collect ALL related page IDs not yet in titleMap (not just first)
   const toFetch = new Set<string>()
   for (const page of pages) {
     for (const { notionPropName } of relationRoles) {
       const prop = page.properties[notionPropName]
       if ((prop as any)?.type === 'relation') {
-        const firstId = ((prop as any).relation as Array<{ id: string }>)?.[0]?.id
-        if (firstId && !titleMap.has(firstId)) toFetch.add(firstId)
+        for (const rel of ((prop as any).relation as Array<{ id: string }>) ?? []) {
+          if (rel.id && !titleMap.has(rel.id)) toFetch.add(rel.id)
+        }
       }
     }
   }
@@ -72,14 +75,22 @@ async function resolveRelationValues(
     }
   }
 
+  // Write resolved titles back into the already-mapped rows
+  // row[role] = first title (backward compat)
+  // row[role + '_all'] = all titles (no hidden filtering in preview)
   for (let i = 0; i < pages.length; i++) {
-    const page = pages[i]
+    const page = pages[i]!
     const row = rows[i]!
     for (const { role, notionPropName } of relationRoles) {
       const prop = page.properties[notionPropName]
       if ((prop as any)?.type === 'relation') {
-        const firstId = ((prop as any).relation as Array<{ id: string }>)?.[0]?.id
-        row[role] = firstId ? (titleMap.get(firstId) ?? '') : ''
+        const allIds: Array<{ id: string }> = ((prop as any).relation as Array<{ id: string }>) ?? []
+        const allTitles = allIds
+          .filter(rel => rel.id)
+          .map(rel => titleMap.get(rel.id) ?? '')
+          .filter(t => t !== '')
+        row[role] = allTitles[0] ?? ''
+        ;(row as Record<string, unknown>)[role + '_all'] = allTitles
       }
     }
   }
@@ -107,7 +118,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = getConfig()
-  const context: Record<string, Record<string, string>[]> = {}
+  const context: Record<string, Record<string, unknown>[]> = {}
   const titleMap = new Map<string, string>()
 
   for (const sourceName of sourceNames) {
@@ -127,12 +138,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const mappedRows = pages.map((page: any) => {
-      const row: Record<string, string> = {}
+      const row: Record<string, unknown> = {}
       row['id'] = page.id
       for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
         row[role] = extractPropertyValue(page.properties?.[notionPropName as string])
       }
-      titleMap.set(page.id, row['title'] ?? '')
+      titleMap.set(page.id, String(row['title'] ?? ''))
       return row
     })
 
