@@ -196,7 +196,9 @@ export default defineEventHandler(async (event) => {
 
   const classDefBlock = buildClassDefs(styles)
   if (classDefBlock) {
-    diagramString = classDefBlock + '\n' + diagramString
+    const lines = diagramString.split('\n')
+    lines.splice(1, 0, classDefBlock)
+    diagramString = lines.join('\n')
   }
 
   return { diagramString }
