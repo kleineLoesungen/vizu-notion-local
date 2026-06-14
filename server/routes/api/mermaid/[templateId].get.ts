@@ -50,16 +50,18 @@ function extractPageTitle(page: PageObjectResponse): string {
 // Resolve relation-type columnMapping roles to the title of the first related page.
 // Checks a shared titleMap (populated from within-source pages) before making API calls.
 // Falls back to retrievePage() for cross-database relations — LRU-cached by notion.ts.
+// Produces row[role] = first non-hidden title (backward compat) and row[role + '_all'] = all non-hidden titles.
 async function resolveRelationValues(
-  rows: Record<string, string>[],
+  rows: Record<string, unknown>[],
   pages: PageObjectResponse[],
   source: Source,
-  titleMap: Map<string, string>
+  titleMap: Map<string, string>,
+  hiddenIds?: Set<string>
 ): Promise<void> {
   if (pages.length === 0) return
 
   // Identify which roles map to Notion relation properties
-  const samplePage = pages[0]
+  const samplePage = pages[0]!
   const relationRoles: Array<{ role: string; notionPropName: string }> = []
   for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
     const prop = samplePage.properties[notionPropName as string]
@@ -69,14 +71,15 @@ async function resolveRelationValues(
   }
   if (relationRoles.length === 0) return
 
-  // Collect related page IDs not yet in titleMap
+  // Collect ALL related page IDs not yet in titleMap (not just first)
   const toFetch = new Set<string>()
   for (const page of pages) {
     for (const { notionPropName } of relationRoles) {
       const prop = page.properties[notionPropName]
       if ((prop as any)?.type === 'relation') {
-        const firstId = ((prop as any).relation as Array<{ id: string }>)?.[0]?.id
-        if (firstId && !titleMap.has(firstId)) toFetch.add(firstId)
+        for (const rel of ((prop as any).relation as Array<{ id: string }>) ?? []) {
+          if (rel.id && !titleMap.has(rel.id)) toFetch.add(rel.id)
+        }
       }
     }
   }
@@ -95,14 +98,21 @@ async function resolveRelationValues(
   }
 
   // Write resolved titles back into the already-mapped rows
+  // row[role] = first non-hidden title (backward compat)
+  // row[role + '_all'] = all non-hidden titles (new multi-edge field)
   for (let i = 0; i < pages.length; i++) {
-    const page = pages[i]
+    const page = pages[i]!
     const row = rows[i]!
     for (const { role, notionPropName } of relationRoles) {
       const prop = page.properties[notionPropName]
       if ((prop as any)?.type === 'relation') {
-        const firstId = ((prop as any).relation as Array<{ id: string }>)?.[0]?.id
-        row[role] = firstId ? (titleMap.get(firstId) ?? '') : ''
+        const allIds: Array<{ id: string }> = ((prop as any).relation as Array<{ id: string }>) ?? []
+        const allTitles = allIds
+          .filter(rel => rel.id && (!hiddenIds || !hiddenIds.has(rel.id)))
+          .map(rel => titleMap.get(rel.id) ?? '')
+          .filter(t => t !== '')
+        row[role] = allTitles[0] ?? ''
+        ;(row as Record<string, unknown>)[role + '_all'] = allTitles
       }
     }
   }
@@ -128,7 +138,7 @@ export default defineEventHandler(async (event) => {
     : null
 
   const config = getConfig()
-  const context: Record<string, Record<string, string>[]> = {}
+  const context: Record<string, Record<string, unknown>[]> = {}
   // All rows (unfiltered) — returned to client so the FilterPanel can show every node
   const allRows: Array<{ id: string; title: string; sourceName: string; _relations: string[] }> = []
 
@@ -159,33 +169,33 @@ export default defineEventHandler(async (event) => {
 
     // Map each page to flat object using columnMappings keys (D-05)
     const mappedRows = pages.map((page: any) => {
-      const row: Record<string, string> = {}
+      const row: Record<string, unknown> = {}
       row['id'] = page.id
       for (const [role, notionPropName] of Object.entries(source.columnMappings)) {
         const prop = page.properties?.[notionPropName as string]
         row[role] = extractPropertyValue(prop)
       }
       // Populate titleMap with this source's pages for within-source relation lookups
-      titleMap.set(page.id, row['title'] ?? '')
+      titleMap.set(page.id, String(row['title'] ?? ''))
       return row
     })
 
     // Resolve relation-type columnMapping roles to related page titles
-    await resolveRelationValues(mappedRows, pages, source, titleMap)
+    await resolveRelationValues(mappedRows, pages, source, titleMap, hiddenIds ?? undefined)
 
     // Collect all rows for the client (before hiding) so FilterPanel can list every node
     pages.forEach((page, i) => {
       const row = mappedRows[i]!
       allRows.push({
-        id: row['id'] ?? '',
-        title: row['title'] ?? '',
+        id: String(row['id'] ?? ''),
+        title: String(row['title'] ?? ''),
         sourceName,
         _relations: extractRelationIds(page),
       })
     })
 
     // Apply hiddenIds filter: excluded rows are removed from Handlebars context
-    context[sourceName] = hiddenIds ? mappedRows.filter((r) => !hiddenIds.has(r['id'] ?? '')) : mappedRows
+    context[sourceName] = hiddenIds ? mappedRows.filter((r) => !hiddenIds.has(String(r['id'] ?? ''))) : mappedRows
   }
 
   let diagramString: string
