@@ -136,6 +136,9 @@ flowchart TD
 | `{{#unless condition}} … {{/unless}}` | Renders the block only when `condition` is falsy |
 | `{{#each (group sourceName "fieldName")}} … {{/each}}` | Groups all rows from `sourceName` by the distinct values of `fieldName`. Each iteration context has `{{fieldName}}` (the group key, rendered as a Mermaid node) and `{{this.fieldName}}` (the raw key string). |
 | `{{#group-item}} … {{/group-item}}` | Inside a `(group …)` each block: iterates every row belonging to the current group. Inner context is the individual row — `{{fieldName}}` and `{{this.fieldName}}` work the same as inside a plain `{{#each}}` block. |
+| `{{palette @index}}` | Inside `{{#each (group …)}}`, returns a hex color string from a 10-color accessible palette (Tableau 10), cycling by group index. Use in `classDef` lines to auto-assign a distinct color per attribute value group. |
+
+> **Attribute-based styling:** Use `{{palette @index}}` with `classDef` and `:::className` to give nodes automatic color-coding based on a shared attribute value. Each distinct attribute value (group) gets a unique color from the palette without any per-node hardcoding. Class name suffixes must be valid Mermaid identifiers — use `{{nodeId "fieldName" fieldName}}` explicitly (not bare `{{fieldName}}`) inside `classDef` lines, since the rewriter would otherwise expand the bare reference into a full node definition string.
 
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 

@@ -43,3 +43,17 @@ flowchart TD
     {{/group-item}}
   end
   {{/each}}
+
+  %% Example: attribute-based node styling with palette
+  %% Each distinct value of "parent" gets a unique color automatically.
+  %% classDef names must be valid Mermaid identifiers — use nodeId to derive a stable name.
+  %% Note: write {{nodeId "parent" parent}} explicitly here (not bare {{parent}}) because
+  %% inside a classDef line the value is used as a CSS class name suffix, not a Mermaid node
+  %% definition. The rewriter would turn bare {{parent}} into nXXXXXX["label"] which is
+  %% invalid as a class name.
+  {{#each (group my-source "parent")}}
+  classDef cls-{{nodeId "parent" parent}} fill:{{palette @index}},stroke:{{palette @index}},color:#fff,rx:5
+  {{#group-item}}
+  {{title}}:::cls-{{nodeId "parent" parent}}
+  {{/group-item}}
+  {{/each}}
