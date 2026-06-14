@@ -108,9 +108,12 @@ export function useMermaidTemplate(
       nh = parseFloat(svgEl.getAttribute('height') || '0')
     }
 
-    // Remove Mermaid's explicit width/height so the SVG fills the container via CSS.
+    // Remove Mermaid's explicit sizing so the SVG fills the container via CSS only.
+    // viewBox must also be removed: keeping it causes the browser to scale content once
+    // (viewBox → container), and then D3 scales innerG a second time → double-scaling.
     svgEl.removeAttribute('width')
     svgEl.removeAttribute('height')
+    svgEl.removeAttribute('viewBox')
     svgEl.style.cssText = 'width: 100%; height: 100%; display: block; max-width: none;'
 
     if (!d3Module) {
