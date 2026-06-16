@@ -233,9 +233,9 @@ Last activity: 2026-06-14 - Completed quick task 260614-vip: Dashboard refresh i
 
 ## Session Continuity
 
-**Last Activity**: Completed quick task 260614-rrw: Support multi-value Notion relation properties in Mermaid templates — produce role_all string[] in Handlebars context
-**Date**: 2026-06-14
-**Stopped At**: All 6 phases complete. v1.0 milestone done.
+**Last Activity**: Completed quick task 260616-92u: Add join-rows and lookup-by Handlebars helpers for cross-source Mermaid joins
+**Date**: 2026-06-16
+**Stopped At**: Quick task 260616-92u complete.
 **Next Step**: —
 
 ---
@@ -297,3 +297,4 @@ Last activity: 2026-06-14 - Completed quick task 260614-vip: Dashboard refresh i
 | 260614-rrw | Support multi-value Notion relation properties in Mermaid templates — produce role_all string[] in Handlebars context | 2026-06-14 | 09d665f | [260614-rrw-support-multi-value-relations-in-mermaid](./quick/260614-rrw-support-multi-value-relations-in-mermaid/) |
 | 260614-v81 | Fix group-item node deduplication in Mermaid block diagrams | 2026-06-14 | 17ea590 | [260614-v81-fix-group-item-node-deduplication-in-mer](./quick/260614-v81-fix-group-item-node-deduplication-in-mer/) |
 | 260614-vip | Dashboard refresh icon button + mermaid editor SVG download | 2026-06-14 | 0ffdaec | [260614-vip-dashboard-refresh-icon-button-mermaid-ed](./quick/260614-vip-dashboard-refresh-icon-button-mermaid-ed/) |
+| 260616-92u | add join-rows and lookup-by Handlebars helpers for cross-source Mermaid joins | 2026-06-16 | d9eef35 | [260616-92u-add-join-rows-and-lookup-by-handlebars-h](./quick/260616-92u-add-join-rows-and-lookup-by-handlebars-h/) |
