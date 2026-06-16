@@ -137,6 +137,8 @@ flowchart TD
 | `{{#each (group sourceName "fieldName")}} … {{/each}}` | Groups all rows from `sourceName` by the distinct values of `fieldName`. Each iteration context has `{{fieldName}}` (the group key, rendered as a Mermaid node) and `{{this.fieldName}}` (the raw key string). |
 | `{{#group-item}} … {{/group-item}}` | Inside a `(group …)` each block: iterates every row belonging to the current group. Inner context is the individual row — `{{fieldName}}` and `{{this.fieldName}}` work the same as inside a plain `{{#each}}` block. |
 | `{{palette @index}}` | Inside `{{#each (group …)}}`, returns a hex color string from a 10-color accessible palette (Tableau 10), cycling by group index. Use in `classDef` lines to auto-assign a distinct color per attribute value group. |
+| `{{#each (join-rows SourceA "fieldA" SourceB "fieldB" "prefix")}} … {{/each}}` | Joins two source arrays: for each row in `SourceA`, finds all rows in `SourceB` where `rowB[fieldB] === rowA[fieldA]`. Returns merged rows with `SourceB` fields prefixed as `prefix_fieldName`. Left-join: rows with no match are included as-is. Use for generating edges that cross database boundaries (e.g. Goals → Milestones via Projects). |
+| `{{#each (lookup-by SourceName "field" value)}} … {{/each}}` | Returns all rows from `SourceName` where `row[field] === value`. Useful in nested `{{#each}}` blocks to iterate rows from a second source that match the current row's field value. |
 
 **Frontmatter node styling (`styles` key):**
 
@@ -185,6 +187,23 @@ When `fill`, `stroke`, or `stroke-width` is set, the engine auto-generates `clas
 > **Note:** No arithmetic or comparison helpers are registered. If you need a computed value (e.g. a formatted date or number), add a Notion formula column to your database, map it in `columnMappings`, and reference it with `{{this.fieldName}}`.
 
 **Multi-source templates:** list multiple sources in `sources:` and use a separate `{{#each}}` block per source in the template body.
+
+**Cross-source joins:** Use `join-rows` to generate edges that span two databases. For example, to draw edges from Goals to Milestones via Projects (where GoalsDB has a `project` relation and ProjectsDB has a `milestone` relation):
+
+```
+---
+title: "Goals to Milestones"
+sources:
+  - GoalsDB
+  - ProjectsDB
+---
+flowchart TD
+{{#each (join-rows GoalsDB "project" ProjectsDB "title" "proj")}}
+{{title}} --> {{proj_milestone}}
+{{/each}}
+```
+
+This works because multi-value relations auto-expand rows before the helper runs: if a goal links to 2 projects and each project links to 2 milestones, `join-rows` produces 4 merged rows → 4 edges.
 
 **Error handling:** invalid templates (unknown source name, bad Mermaid syntax) show an error message in the diagram area and log details to the container console. The container does not crash — fix the template and restart.
 
