@@ -140,6 +140,70 @@ Handlebars.registerHelper('palette', function(index: unknown) {
   return PALETTE[i % PALETTE.length]
 })
 
+// join-rows helper: called as (join-rows ArrayA "fieldA" ArrayB "fieldB" "prefix")
+// For each row in ArrayA, finds all rows in ArrayB where rowB[fieldB] === rowA[fieldA].
+// Returns merged rows: { ...rowA, prefix_key: val, ... } for each matched rowB.
+// Left-join semantics: rows in A with no B match are included as-is (unmerged).
+// Uses a Map index on ArrayB for O(n) lookup performance.
+// Returns [] on invalid input (non-array or missing field args).
+Handlebars.registerHelper('join-rows', function(
+  arrayA: unknown,
+  fieldA: string,
+  arrayB: unknown,
+  fieldB: string,
+  prefix: string
+) {
+  if (!Array.isArray(arrayA) || !Array.isArray(arrayB) || !fieldA || !fieldB) return []
+
+  // Build index: fieldB value → rows in B
+  const index = new Map<string, Record<string, unknown>[]>()
+  for (const rowB of arrayB as Record<string, unknown>[]) {
+    const key = String(rowB[fieldB] ?? '')
+    if (!index.has(key)) index.set(key, [])
+    index.get(key)!.push(rowB)
+  }
+
+  const result: Record<string, unknown>[] = []
+  const safePrefix = prefix ? String(prefix) : 'b'
+
+  for (const rowA of arrayA as Record<string, unknown>[]) {
+    const matchKey = String(rowA[fieldA] ?? '')
+    const matches = index.get(matchKey)
+
+    if (!matches || matches.length === 0) {
+      // Left-join: include rowA as-is when no B match
+      result.push({ ...rowA })
+    } else {
+      for (const rowB of matches) {
+        // Merge rowA with rowB fields prefixed
+        const merged: Record<string, unknown> = { ...rowA }
+        for (const [k, v] of Object.entries(rowB)) {
+          merged[`${safePrefix}_${k}`] = v
+        }
+        result.push(merged)
+      }
+    }
+  }
+
+  return result
+})
+
+// lookup-by helper: called as (lookup-by Array "field" value)
+// Returns all rows from Array where row[field] === value (string comparison).
+// Useful for nested #each blocks to iterate matching related rows.
+// Returns [] on invalid input (non-array or missing field).
+Handlebars.registerHelper('lookup-by', function(
+  array: unknown,
+  field: string,
+  value: unknown
+) {
+  if (!Array.isArray(array) || !field) return []
+  const target = String(value ?? '')
+  return (array as Record<string, unknown>[]).filter(
+    (row) => String(row[field] ?? '') === target
+  )
+})
+
 // Rewrites bare {{attr}} references → {{nodeId "attr" attr ...}} before Handlebars
 // compilation. The rewriter is block-aware: when inside a {{#each SourceName}} block
 // it injects source="SourceName" into every nodeId call so that nodes from different
