@@ -57,14 +57,21 @@ export function getClassAssignments(): ReadonlyMap<string, string> {
 // (rx is an SVG attribute, not a CSS property; it causes Mermaid to drop the classDef.)
 export function buildClassDefs(styles: StylesMap): string {
   const lines: string[] = []
-  for (const [attrName, entry] of Object.entries(styles)) {
+  for (const [key, entry] of Object.entries(styles)) {
     if (!entry || typeof entry !== 'object') continue
+    // "Source.field" keys merge with the base "field" style so source-specific
+    // classDefs inherit generic color/stroke unless explicitly overridden.
+    const dotIdx = key.indexOf('.')
+    const merged: StyleEntry = dotIdx !== -1
+      ? { ...(styles[key.slice(dotIdx + 1)] ?? {}), ...entry }
+      : entry
     const parts: string[] = []
-    if (entry.fill) parts.push(`fill:${entry.fill}`)
-    if (entry.stroke) parts.push(`stroke:${entry.stroke}`)
-    if (entry['stroke-width'] != null) parts.push(`stroke-width:${entry['stroke-width']}px`)
+    if (merged.fill) parts.push(`fill:${merged.fill}`)
+    if (merged.stroke) parts.push(`stroke:${merged.stroke}`)
+    if (merged['stroke-width'] != null) parts.push(`stroke-width:${merged['stroke-width']}px`)
     if (parts.length === 0) continue
-    lines.push(`classDef cls_${attrName} ${parts.join(',')}`)
+    // Dots in key → underscores in CSS class name ("Projekte.title" → "cls_Projekte_title")
+    lines.push(`classDef cls_${key.replace(/\./g, '_')} ${parts.join(',')}`)
   }
   return lines.join('\n')
 }
@@ -210,8 +217,9 @@ Handlebars.registerHelper('lookup-by', function(
 // sources with identical labels produce distinct Mermaid node IDs.
 // Lines beginning with classDef or subgraph are left untouched — those contain
 // literal Mermaid syntax, not Handlebars bindings.
-export function rewriteTemplateBody(body: string, styles: StylesMap): string {
+export function rewriteTemplateBody(body: string, styles: StylesMap, sourceNames: string[] = []): string {
   const HB_KEYWORDS = new Set(['else', 'this', 'log'])
+  const srcSet = new Set(sourceNames)
   const lines = body.split('\n')
   let currentSource = ''            // name of the active {{#each X}} block, '' if none
   const eachDepth: string[] = []    // stack to handle nested #each
@@ -227,6 +235,14 @@ export function rewriteTemplateBody(body: string, styles: StylesMap): string {
       return line   // don't rewrite the #each line itself
     }
 
+    // Track {{#each (lookup-by/group SourceName ...)}} — subexpression form.
+    // Does NOT return early: falls through so the @root. replacement still applies.
+    const eachSubexpr = trimmed.match(/^\{\{#each\s+\((?:lookup-by|group)\s+([a-zA-Z_][a-zA-Z0-9_]*)/)
+    if (eachSubexpr && srcSet.has(eachSubexpr[1]!)) {
+      eachDepth.push(currentSource)
+      currentSource = eachSubexpr[1]!
+    }
+
     // Track {{/each}} close
     if (trimmed.startsWith('{{/each}}')) {
       currentSource = eachDepth.pop() ?? ''
@@ -238,16 +254,41 @@ export function rewriteTemplateBody(body: string, styles: StylesMap): string {
       return line
     }
 
+    // Rewrite bare source names in helper subexpressions to @root.SourceName so they
+    // resolve from the root context even when the line is nested inside {{#each}} blocks.
+    // Handlebars only checks depth-0 (current item) for subexpression arguments by default.
+    if (srcSet.size > 0) {
+      // (lookup-by SourceName ...) and (group SourceName ...)
+      line = line.replace(
+        /\((lookup-by|group)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g,
+        (match, helper, name) => srcSet.has(name) ? `(${helper} @root.${name}` : match
+      )
+      // (join-rows SourceA "fieldA" SourceB ...) — source names appear in first and third positions
+      line = line.replace(
+        /\(join-rows\s+([a-zA-Z_][a-zA-Z0-9_]*)(\s+"(?:[^"\\]|\\.)*"\s+)([a-zA-Z_][a-zA-Z0-9_]*)/g,
+        (match, srcA, mid, srcB) => {
+          const newA = srcSet.has(srcA) ? `@root.${srcA}` : srcA
+          const newB = srcSet.has(srcB) ? `@root.${srcB}` : srcB
+          return `(join-rows ${newA}${mid}${newB}`
+        }
+      )
+    }
+
     return line.replace(
       /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g,
       (match, name) => {
         if (HB_KEYWORDS.has(name)) return match
-        const style = styles[name]
         const sourcePart = currentSource ? ` source="${currentSource}"` : ''
-        if (!style) return `{{nodeId "${name}" ${name}${sourcePart}}}`
-        const shapePart = style.shape ? ` shape="${style.shape}"` : ''
-        const hasColor = !!(style.fill || style.stroke || style['stroke-width'] != null)
-        const classPart = hasColor ? ` className="cls_${name}"` : ''
+        // Source-specific style ("Source.field") takes precedence over generic ("field").
+        // Merged result: generic base overridden by source-specific properties.
+        const sourceStyle = currentSource ? styles[`${currentSource}.${name}`] : undefined
+        const genericStyle = styles[name]
+        if (!sourceStyle && !genericStyle) return `{{nodeId "${name}" ${name}${sourcePart}}}`
+        const merged: StyleEntry = { ...genericStyle, ...sourceStyle }
+        const shapePart = merged.shape ? ` shape="${merged.shape}"` : ''
+        const hasColor = !!(merged.fill || merged.stroke || merged['stroke-width'] != null)
+        const className = sourceStyle ? `cls_${currentSource}_${name}` : `cls_${name}`
+        const classPart = hasColor ? ` className="${className}"` : ''
         return `{{nodeId "${name}" ${name}${shapePart}${classPart}${sourcePart}}}`
       }
     )
@@ -314,7 +355,7 @@ export async function loadTemplates(templateDir: string = DEFAULT_TEMPLATE_DIR):
     // Precompile Handlebars template (D-04)
     let compiled: Handlebars.TemplateDelegate
     try {
-      const rewrittenBody = rewriteTemplateBody(body, styles)
+      const rewrittenBody = rewriteTemplateBody(body, styles, data.sources as string[])
       compiled = Handlebars.compile(rewrittenBody)
     } catch (err: any) {
       throw new Error(`[vizu] Template "${file}": Handlebars compilation failed: ${err.message}`)

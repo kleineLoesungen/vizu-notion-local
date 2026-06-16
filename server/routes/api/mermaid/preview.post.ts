@@ -180,7 +180,7 @@ export default defineEventHandler(async (event) => {
     context[sourceName] = expandRelationRows(mappedRows)
   }
 
-  const rewrittenBody = rewriteTemplateBody(bodyText, styles)
+  const rewrittenBody = rewriteTemplateBody(bodyText, styles, sourceNames)
 
   let diagramString: string
   try {

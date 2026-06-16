@@ -165,7 +165,7 @@ flowchart TD
 {{/each}}
 ```
 
-Each key under `styles` is an attribute name (a `columnMappings` role). All fields are optional:
+Each key under `styles` is either an attribute name (`title`) or a source-qualified name (`Projekte.title`). Source-qualified keys apply only when the node comes from that specific source; their properties override the generic entry for that source while inheriting any generic properties not explicitly set. All style fields are optional:
 
 | Field | Values | Effect |
 |-------|--------|--------|
@@ -176,9 +176,23 @@ Each key under `styles` is an attribute name (a `columnMappings` role). All fiel
 
 When `fill`, `stroke`, or `stroke-width` is set, the engine auto-generates `classDef` lines and appends `:::style-{attrName}` to affected nodes. Shape-only entries change brackets without adding a CSS class.
 
+**Per-source styling example** — same `title` field, different colors per database:
+
+```yaml
+styles:
+  title:
+    shape: rounded        # applies to all sources by default
+  Ziele.title:
+    fill: "#4e79a7"       # Ziele title nodes: blue (inherits rounded shape)
+    stroke: "#2d5a8e"
+  Projekte.title:
+    fill: "#f28e2b"       # Projekte title nodes: orange (inherits rounded shape)
+    stroke: "#c06010"
+```
+
 > Field names come from `columnMappings` keys in `sources.json`, **not** raw Notion property names.
 
-> **Node IDs are stable and value-based.** `{{title}}` and `{{next}}` referencing the same text always produce the same node ID — regardless of which field they come from. This means a project listed as `{{title}}` in one row and referenced as `{{next}}` in another row's edge will correctly collapse to a single node in the diagram, with no duplicates.
+> **Node IDs are stable and value-based within a source.** Inside a single `{{#each SourceName}}` block, `{{title}}` and `{{next}}` referencing the same text produce the same node ID regardless of which field they come from — so a project listed as `{{title}}` and referenced as `{{next}}` in an edge collapses to one node with no duplicates. Across different source blocks, nodes are always distinct even if the label text is identical, which allows per-source styling and avoids accidental merging of unrelated records.
 
 > **Rows and node visibility:** Each row inside `{{#each source-name}}` is a flat object whose keys are the `columnMappings` roles (`title`, `date`, `status`, etc.) plus `id` (always present). Rows are filtered by the node-visibility selection the user has applied in the filter panel — hidden nodes are excluded from the Handlebars context automatically, so the rendered diagram reflects the panel state without any extra logic in the template.
 
